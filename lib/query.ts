@@ -1,6 +1,7 @@
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import axios from 'axios';
 import toQuery from './toQuery';
+import getApiUrl from './getApiUrl';
 
 export default async (q: Object): Promise<any> => {
 
@@ -10,10 +11,7 @@ export default async (q: Object): Promise<any> => {
 
     let query = jsonToGraphQLQuery(toQuery(q));
 
-
-    const url = import.meta.env.VITE_API_URL ?? "/api/"
-
-    const resp = await service.post(url, {
+    const resp = await service.post(getApiUrl(), {
         query: `{ ${query} }`
     })
 

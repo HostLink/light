@@ -1,5 +1,7 @@
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import axios from 'axios';
+import getApiUrl from './getApiUrl';
+
 
 export default async (operation: string, args: any = null, fields: Array<any> = []): Promise<any> => {
 
@@ -28,10 +30,7 @@ export default async (operation: string, args: any = null, fields: Array<any> = 
         mutation.mutation[operation][field] = true;
     });
 
-
-    const url = import.meta.env.VITE_API_URL ?? "/api/"
-
-    const resp = await service.post(url, {
+    const resp = await service.post(getApiUrl(), {
         query: jsonToGraphQLQuery(mutation)
     })
 
