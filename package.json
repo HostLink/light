@@ -12,7 +12,7 @@
       "import": "./dist/light.js"
     }
   },
-  "types": "./dist/light.d.ts",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "dev": "vite --host",
     "build": "tsc && vite build",
