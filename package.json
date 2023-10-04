@@ -1,7 +1,7 @@
 {
   "name": "@hostlink/light",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "files": [
     "dist"
@@ -17,7 +17,8 @@
   "scripts": {
     "dev": "vite --host",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "release":"npm version patch && npm publish --access public && git push --follow-tags"
   },
   "devDependencies": {
     "typescript": "^5.0.2",
