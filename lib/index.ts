@@ -5,6 +5,7 @@ import mutation from './mutation'
 import toQuery from './toQuery'
 import getApiUrl from './getApiUrl'
 import setApiUrl from './setApiUrl'
+import uploadFile from './uploadFile'
 
 
 export {
@@ -14,5 +15,6 @@ export {
     query,
     mutation,
     getApiUrl,
-    setApiUrl
+    setApiUrl,
+    uploadFile
 }
