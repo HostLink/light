@@ -8,6 +8,9 @@ import setApiUrl from './setApiUrl'
 import uploadFile from './uploadFile'
 import sendMail from './sendMail'
 
+import webauthnLogin from './webauthnLogin'
+import webauthnRegister from './webauthnRegister'
+
 
 export {
     toQuery,
@@ -18,5 +21,7 @@ export {
     getApiUrl,
     setApiUrl,
     uploadFile,
-    sendMail
+    sendMail,
+    webauthnLogin,
+    webauthnRegister
 }

@@ -20,8 +20,10 @@ const toJson = function (obj: object) {
                 }
 
             });
-        } else {
+        } else if (value instanceof Object) {
             q[key] = toJson(value);
+        } else {
+            q[key] = value;
         }
     });
     return q;

@@ -5,9 +5,26 @@ import uploadFile from "../lib/uploadFile"
 import sendMail from "../lib/sendMail"
 import getConfig from "../lib/getConfig"
 
+import webauthnRegister from "../lib/webauthnRegister"
+import webauthnLogin from "../lib/webauthnLogin"
+
+
 await logout();
 
 await login("admin", "111111")
+
+
+document.getElementById("webauthn_register").addEventListener("click", async () => {
+    //download creation credential options
+    console.log(await webauthnRegister());
+});
+
+
+document.getElementById("webauthn_login").addEventListener("click", async () => {
+    webauthnLogin("admin");
+});
+
+
 
 console.log(await getConfig("company"));
 
