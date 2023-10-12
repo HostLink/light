@@ -14,7 +14,7 @@ export default defineConfig({
             fileName: 'light',
         },
         rollupOptions: {
-            external: ["axios", "json-to-graphql-query"],
+            external: ["axios", "json-to-graphql-query", "@github/webauthn-json"],
         }
     },
     server: {
