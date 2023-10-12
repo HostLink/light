@@ -3,10 +3,13 @@ import logout from "../lib/logout"
 import query from "../lib/query"
 import uploadFile from "../lib/uploadFile"
 import sendMail from "../lib/sendMail"
+import getConfig from "../lib/getConfig"
 
 await logout();
 
 await login("admin", "111111")
+
+console.log(await getConfig("company"));
 
 console.log(await query({
     my: ["name"]
