@@ -6,6 +6,7 @@ import toQuery from './toQuery'
 import getApiUrl from './getApiUrl'
 import setApiUrl from './setApiUrl'
 import uploadFile from './uploadFile'
+import sendMail from './sendMail'
 
 
 export {
@@ -16,5 +17,6 @@ export {
     mutation,
     getApiUrl,
     setApiUrl,
-    uploadFile
+    uploadFile,
+    sendMail
 }
