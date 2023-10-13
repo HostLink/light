@@ -17,15 +17,16 @@ const toJson = (query: Object | Array<string | Object | string>) => {
     }
 
     Object.entries(query).forEach(([key, value]) => {
-        if (key == "__args") {
+        if (key == "__args" || key == "__aliasFor" || key == "__variables" || key == "__directives" || key == "__all_on" || key == "__name") {
             q[key] = value;
             return;
         }
-        if (value === true) {
-            q[key] = true;
-        } else {
-            q[key] = toJson(value);
+
+        if (typeof value == "boolean") {
+            q[key] = value;
+            return;
         }
+        q[key] = toJson(value);
 
     });
 

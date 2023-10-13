@@ -12,22 +12,21 @@ import webauthnLogin from "../lib/webauthnLogin"
 import toQuery from "../lib/toQuery"
 
 
-const qq = toQuery({
+const qq = toQuery([{
     listUpdates: {
         __args: {
             filters: {
                 type: 1
             },
         },
-        a: {
+        x: [{
             __args: {
-                a: 1
+                ay: 1
             },
-            c: true
-        },
-        b: true,
+        }, "z", "dd"],
+        b: false,
     },
-});
+}, "abc"]);
 console.log(qq);
 
 await logout();
