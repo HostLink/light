@@ -12,7 +12,22 @@ import webauthnLogin from "../lib/webauthnLogin"
 import toQuery from "../lib/toQuery"
 
 
-const qq = toQuery(["a", "b", "c", { d: ["e", "f", "g"] }]);
+const qq = toQuery({
+    listUpdates: {
+        __args: {
+            filters: {
+                type: 1
+            },
+        },
+        a: {
+            __args: {
+                a: 1
+            },
+            c: true
+        },
+        b: true,
+    },
+});
 console.log(qq);
 
 await logout();

@@ -21,7 +21,11 @@ const toJson = (query: Object | Array<string | Object | string>) => {
             q[key] = value;
             return;
         }
-        q[key] = toJson(value);
+        if (value === true) {
+            q[key] = true;
+        } else {
+            q[key] = toJson(value);
+        }
 
     });
 
