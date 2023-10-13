@@ -1,34 +1,38 @@
-const toJson = function (obj: object) {
+const toJson = (query: Object | Array<string | Object | string>) => {
+
     let q: any = {};
-    Object.entries(obj).forEach(([key, value]) => {
+
+    if (typeof query == "string") {
+        q[query] = true;
+        return q;
+    }
+
+    if (query instanceof Array) {
+        query.forEach((subField: any) => {
+            if (subField instanceof Object) {
+                Object.entries(toJson(subField)).forEach(([subKey, subValue]) => {
+                    q[subKey] = subValue;
+                });
+            } else {
+                q[subField] = true;
+            }
+
+        });
+        return q;
+    }
+
+    Object.entries(query).forEach(([key, value]) => {
         if (key == "__args") {
             q[key] = value;
             return;
         }
+        q[key] = toJson(value);
 
-        if (value instanceof Array) {
-            q[key] = {};
-            value.forEach((subField: any) => {
-                if (subField instanceof Object) {
-                    Object.entries(toJson(subField)).forEach(([subKey, subValue]) => {
-                        q[key][subKey] = subValue;
-                    });
-                    // q[key] = mapping(subField);
-                } else {
-                    q[key][subField] = true;
-
-                }
-
-            });
-        } else if (value instanceof Object) {
-            q[key] = toJson(value);
-        } else {
-            q[key] = value;
-        }
     });
+    
     return q;
 }
 
-export default (query: any) => {
+export default (query: Object | Array<string | Object> | string) => {
     return toJson(query)
 }

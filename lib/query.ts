@@ -3,7 +3,7 @@ import axios from 'axios';
 import toQuery from './toQuery';
 import getApiUrl from './getApiUrl';
 
-export default async (q: Object): Promise<any> => {
+export default async (q: Object | Array<string | Object | string>): Promise<any> => {
 
     const service = axios.create({
         withCredentials: true

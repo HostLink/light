@@ -9,6 +9,12 @@ import webauthnRegister from "../lib/webauthnRegister"
 import webauthnLogin from "../lib/webauthnLogin"
 
 
+import toQuery from "../lib/toQuery"
+
+
+const qq = toQuery(["a", { b: [{ __args: { a: 1 } }, "c", "d"] }, "e"]);
+console.log(qq);
+
 await logout();
 
 await login("admin", "111111")
