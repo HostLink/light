@@ -9,14 +9,9 @@ const toJson = (query: Object | Array<string | Object | string>) => {
 
     if (query instanceof Array) {
         query.forEach((subField: any) => {
-            if (subField instanceof Object) {
-                Object.entries(toJson(subField)).forEach(([subKey, subValue]) => {
-                    q[subKey] = subValue;
-                });
-            } else {
-                q[subField] = true;
-            }
-
+            Object.entries(toJson(subField)).forEach(([subKey, subValue]) => {
+                q[subKey] = subValue;
+            })
         });
         return q;
     }
@@ -29,7 +24,7 @@ const toJson = (query: Object | Array<string | Object | string>) => {
         q[key] = toJson(value);
 
     });
-    
+
     return q;
 }
 
