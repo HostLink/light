@@ -11,6 +11,8 @@ import sendMail from './sendMail'
 import webauthnLogin from './webauthnLogin'
 import webauthnRegister from './webauthnRegister'
 
+export type Fields = Object | Array<string | Object> | string
+
 
 export {
     toQuery,
@@ -23,5 +25,6 @@ export {
     uploadFile,
     sendMail,
     webauthnLogin,
-    webauthnRegister
+    webauthnRegister,
+
 }

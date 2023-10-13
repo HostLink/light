@@ -1,4 +1,5 @@
-const toJson = (query: Object | Array<string | Object | string>) => {
+import { Fields } from ".";
+const toJson = (query: Fields) => {
 
     let q: any = {};
 
@@ -33,6 +34,6 @@ const toJson = (query: Object | Array<string | Object | string>) => {
     return q;
 }
 
-export default (query: Object | Array<string | Object> | string) => {
+export default (query: Fields) => {
     return toJson(query)
 }

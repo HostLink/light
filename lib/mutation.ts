@@ -1,9 +1,9 @@
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import axios from 'axios';
 import getApiUrl from './getApiUrl';
+import { Fields, toQuery } from '.';
 
-
-export default async (operation: string, args: any = null, fields: Array<any> = []): Promise<any> => {
+export default async (operation: string, args: any = null, fields: Fields = []): Promise<any> => {
 
     const service = axios.create({
         withCredentials: true
@@ -21,13 +21,12 @@ export default async (operation: string, args: any = null, fields: Array<any> = 
         mutation.mutation[operation].__args = args;
     }
 
-
-    if (fields.length > 0) {
+    if (fields instanceof Array && fields.length == 0) {
         mutation.mutation[operation] = {};
     }
 
-    fields.forEach(field => {
-        mutation.mutation[operation][field] = true;
+    Object.entries(toQuery(fields)).forEach(([field, value]) => {
+        mutation.mutation[operation][field] = value;
     });
 
     const resp = await service.post(getApiUrl(), {
