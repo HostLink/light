@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
 import { getApiUrl } from '.';
 import { getAxios } from './axios';
