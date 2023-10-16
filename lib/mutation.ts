@@ -1,7 +1,6 @@
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import { getAxios } from './axios';
-import getApiUrl from './getApiUrl';
-import { Fields, toQuery } from '.';
+import { Fields, toQuery, getApiUrl } from '.';
 
 export default async (operation: string, args: any = null, fields: Fields = []): Promise<any> => {
 

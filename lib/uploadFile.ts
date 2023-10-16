@@ -1,14 +1,10 @@
 import axios from 'axios';
 import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
-import getApiUrl from './getApiUrl';
+import { getApiUrl } from '.';
+import { getAxios } from './axios';
 
 
 export default async function (file: File): Promise<any> {
-
-    const service = axios.create({
-        withCredentials: true
-    });
-
     const mutation = {
         __variables: {
             file: "Upload!"
@@ -31,7 +27,7 @@ export default async function (file: File): Promise<any> {
     formData.append('map', JSON.stringify({ "0": ["variables.file"] }));
     formData.append('0', file);
 
-    const resp = await service.post(getApiUrl(), formData);
+    const resp = await getAxios().post(getApiUrl(), formData);
     if (resp.data.errors) {
         throw new Error(resp.data.errors[0].message);
     }
