@@ -68,21 +68,47 @@ export const fsReadFile = async (path: string): Promise<string> => {
     return Buffer.from(resp.fsFile.content, 'base64').toString('utf-8');
 }
 
-export const fsWriteFile = async (path: string, content: string): Promise<boolean> => {
-
+export const fsWriteFile = (path: string, content: string): Promise<boolean> => {
 
     //base64 encode
     content = Buffer.from(content).toString('base64');
 
-    return await mutation("fsWriteFileBase64", {
+    return mutation("fsWriteFileBase64", {
         path: path,
         content: content
     });
 }
 
-export const fsDeleteFile = async (path: string): Promise<boolean> => {
-
-    return await mutation("fsDeleteFile", {
+export const fsDeleteFile = (path: string): Promise<boolean> => {
+    return mutation("fsDeleteFile", {
         path: path,
     });
 }
+
+export const fsCreateFolder = (path: string): Promise<boolean> => {
+    return mutation("fsCreateFolder", {
+        path: path,
+    });
+}
+
+export const fsDeleteFolder = (path: string): Promise<boolean> => {
+    return mutation("fsDeleteFolder", {
+        path: path,
+    });
+}
+
+
+export const fsRenameFile = (path: string, name: string): Promise<boolean> => {
+    return mutation("fsRenameFile", {
+        path: path,
+        name: name
+    });
+}
+
+export const fsRenameFolder = (path: string, name: string): Promise<boolean> => {
+    return mutation("fsRenameFolder", {
+        path: path,
+        name: name
+    });
+}
+
