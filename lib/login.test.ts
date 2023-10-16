@@ -12,7 +12,10 @@ async function init() {
     const resp = await server.post("/", {
         query: `mutation { login(username: "admin", password: "111111")  }`
     })
-    server.defaults.headers.cookie = resp.headers['set-cookie'][0];
+    if (resp.headers['set-cookie']) {
+        server.defaults.headers.cookie = resp.headers['set-cookie'][0];
+    }
+
 
     setAxios(server);
 }
