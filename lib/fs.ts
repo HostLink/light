@@ -1,6 +1,6 @@
 import { mutation } from '.';
 import query from './query';
-type File = {
+export type File = {
     name: string,
     path: string,
     size: number,
@@ -9,12 +9,13 @@ type File = {
     imagePath: string,
 }
 
-type Folder = {
+
+export type Folder = {
     name: String
     path: String
 }
 
-const fsListFiles = async (path: string): Promise<Array<File>> => {
+export const fsListFiles = async (path: string): Promise<Array<File>> => {
 
     let resp = await query({
         fsListFiles: {
@@ -35,7 +36,7 @@ const fsListFiles = async (path: string): Promise<Array<File>> => {
 }
 
 
-const fsListFolders = async (path: string): Promise<Array<Folder>> => {
+export const fsListFolders = async (path: string): Promise<Array<Folder>> => {
 
     let resp = await query({
         fsListFolders: {
@@ -51,7 +52,7 @@ const fsListFolders = async (path: string): Promise<Array<Folder>> => {
     return resp.fsListFolders;
 }
 
-const fsReadFile = async (path: string): Promise<string> => {
+export const fsReadFile = async (path: string): Promise<string> => {
 
     let resp = await query({
         fsFile: {
@@ -67,7 +68,7 @@ const fsReadFile = async (path: string): Promise<string> => {
     return Buffer.from(resp.fsFile.content, 'base64').toString('utf-8');
 }
 
-const fsWriteFile = async (path: string, content: string): Promise<boolean> => {
+export const fsWriteFile = async (path: string, content: string): Promise<boolean> => {
 
 
     //base64 encode
@@ -79,17 +80,9 @@ const fsWriteFile = async (path: string, content: string): Promise<boolean> => {
     });
 }
 
-const fsDeleteFile = async (path: string): Promise<boolean> => {
+export const fsDeleteFile = async (path: string): Promise<boolean> => {
 
     return await mutation("fsDeleteFile", {
         path: path,
     });
-}
-
-export {
-    fsListFiles,
-    fsListFolders,
-    fsReadFile,
-    fsWriteFile,
-    fsDeleteFile,
 }
