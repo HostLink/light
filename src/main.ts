@@ -34,13 +34,13 @@ await logout();
 await login("admin", "111111")
 
 
-document.getElementById("webauthn_register").addEventListener("click", async () => {
+document.getElementById("webauthn_register")?.addEventListener("click", async () => {
     //download creation credential options
     console.log(await webauthnRegister());
 });
 
 
-document.getElementById("webauthn_login").addEventListener("click", async () => {
+document.getElementById("webauthn_login")?.addEventListener("click", async () => {
     webauthnLogin("admin");
 });
 
@@ -53,11 +53,11 @@ console.log(await query({
 }));
 
 
-document.getElementById("sendMail").addEventListener("click", async () => {
+document.getElementById("sendMail")?.addEventListener("click", async () => {
     console.log(await sendMail("raymond@hostlink.com.hk", "Testing", "Testing"));
 });
 
-document.getElementById("upload").addEventListener("click", async () => {
+document.getElementById("upload")?.addEventListener("click", async () => {
     //get file
     const fileInput = document.getElementById("file") as HTMLInputElement | null;
     if (!fileInput) {
