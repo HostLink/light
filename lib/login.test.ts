@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { query, getConfig } from "."
+import { query, getConfig, granted } from "."
 import { setAxios } from "./axios"
 import axios from "axios"
+
 
 async function init() {
     axios.defaults.withCredentials = true;
@@ -50,6 +51,12 @@ describe("login", () => {
         expect(data.system.companyLogo).toBeDefined();
     })
 
+    it("granted", async () => {
+        let data = await granted(["fs.createFolder"]);
+
+        expect(data).toContain("fs.createFolder");
+        
+    })
 
 })
 
