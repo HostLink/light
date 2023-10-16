@@ -1,17 +1,13 @@
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
-import axios from 'axios';
 import toQuery from './toQuery';
 import getApiUrl from './getApiUrl';
+import { getAxios } from './axios';
 
 export default async (q: Object | Array<string | Object | string>): Promise<any> => {
 
-    const service = axios.create({
-        withCredentials: true
-    });
-
     let query = jsonToGraphQLQuery(toQuery(q));
 
-    const resp = await service.post(getApiUrl(), {
+    const resp = await getAxios().post(getApiUrl(), {
         query: `{ ${query} }`
     })
 

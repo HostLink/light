@@ -1,13 +1,9 @@
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
-import axios from 'axios';
+import { getAxios } from './axios';
 import getApiUrl from './getApiUrl';
 import { Fields, toQuery } from '.';
 
 export default async (operation: string, args: any = null, fields: Fields = []): Promise<any> => {
-
-    const service = axios.create({
-        withCredentials: true
-    });
 
     const mutation: any = {
         mutation: {
@@ -16,20 +12,22 @@ export default async (operation: string, args: any = null, fields: Fields = []):
     }
     mutation.mutation[operation] = true;
 
+
+    if (fields instanceof Array && fields.length != 0) {
+        mutation.mutation[operation] = {};
+    }
+
     if (args) {
         mutation.mutation[operation] = {};
         mutation.mutation[operation].__args = args;
-    }
-
-    if (fields instanceof Array && fields.length == 0) {
-        mutation.mutation[operation] = {};
     }
 
     Object.entries(toQuery(fields)).forEach(([field, value]) => {
         mutation.mutation[operation][field] = value;
     });
 
-    const resp = await service.post(getApiUrl(), {
+
+    const resp = await getAxios().post(getApiUrl(), {
         query: jsonToGraphQLQuery(mutation)
     })
 
@@ -37,5 +35,5 @@ export default async (operation: string, args: any = null, fields: Fields = []):
         throw new Error(resp.data.errors[0].message);
     }
 
-    return resp.data.data;
+    return resp.data.data[operation];
 }

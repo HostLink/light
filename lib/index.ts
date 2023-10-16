@@ -8,6 +8,8 @@ import setApiUrl from './setApiUrl'
 import uploadFile from './uploadFile'
 import sendMail from './sendMail'
 
+import getConfig from './getConfig'
+
 import webauthnLogin from './webauthnLogin'
 import webauthnRegister from './webauthnRegister'
 
@@ -26,5 +28,6 @@ export {
     sendMail,
     webauthnLogin,
     webauthnRegister,
+    getConfig
 
 }

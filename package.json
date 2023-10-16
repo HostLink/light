@@ -17,12 +17,14 @@
     "dev": "vite --host",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "release": "npm run build && npm version patch && npm publish --access public && git push --follow-tags"
+    "release": "npm run build && npm version patch && npm publish --access public && git push --follow-tags",
+    "test": "vitest"
   },
   "devDependencies": {
     "typescript": "^5.0.2",
     "vite": "^4.3.0",
-    "vite-plugin-dts": "^3.6.0"
+    "vite-plugin-dts": "^3.6.0",
+    "vitest": "^0.34.6"
   },
   "dependencies": {
     "@github/webauthn-json": "^2.1.1",
