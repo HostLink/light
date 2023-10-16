@@ -1,5 +1,6 @@
 import { mutation } from '.';
 import query from './query';
+import { Buffer } from 'buffer';
 export type File = {
     name: string,
     path: string,
@@ -64,6 +65,8 @@ export const fsReadFile = async (path: string): Promise<string> => {
 
     });
 
+
+
     //base64 decode
     return Buffer.from(resp.fsFile.content, 'base64').toString('utf-8');
 }
@@ -112,3 +115,10 @@ export const fsRenameFolder = (path: string, name: string): Promise<boolean> => 
     });
 }
 
+
+export const fsMoveFile = (source: string, target: string): Promise<boolean> => {
+    return mutation("fsMoveFile", {
+        source: source,
+        target: target
+    });
+}
