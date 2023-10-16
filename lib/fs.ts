@@ -60,15 +60,13 @@ export const fsReadFile = async (path: string): Promise<string> => {
             __args: {
                 path: path
             },
-            content: true,
+            base64Content: true,
         },
 
     });
-
-
-
+    
     //base64 decode
-    return Buffer.from(resp.fsFile.content, 'base64').toString('utf-8');
+    return Buffer.from(resp.fsFile.base64Content, 'base64').toString('utf-8');
 }
 
 export const fsWriteFile = (path: string, content: string): Promise<boolean> => {
