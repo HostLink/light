@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { setAxios } from "./axios"
 import axios from "axios"
-import { fsListFiles, fsListFolders, fsReadFile, fsWriteFile, fsDeleteFile } from "./fs";
+import { fsListFiles, fsListFolders, fsWriteFile, fsDeleteFile } from "./fs";
 
 async function init() {
     axios.defaults.withCredentials = true;
