@@ -1,6 +1,5 @@
 import { mutation } from '.';
 import query from './query';
-import { Buffer } from 'buffer';
 export type File = {
     name: string,
     path: string,
@@ -62,21 +61,16 @@ export const fsReadFile = async (path: string): Promise<string> => {
             },
             base64Content: true,
         },
-
     });
-    
-    //base64 decode
-    return Buffer.from(resp.fsFile.base64Content, 'base64').toString('utf-8');
+
+    return window.atob(resp.fsFile.base64Content);
+
 }
 
 export const fsWriteFile = (path: string, content: string): Promise<boolean> => {
-
-    //base64 encode
-    content = Buffer.from(content).toString('base64');
-
-    return mutation("fsWriteFileBase64", {
+    return mutation("fsWriteFile", {
         path: path,
-        content: content
+        content: content,
     });
 }
 

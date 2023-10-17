@@ -52,9 +52,9 @@ describe("login", () => {
     })
 
     it("granted", async () => {
-        let data = await granted(["fs.createFolder"]);
+        let data = await granted(["fs.folder.create"]);
 
-        expect(data).toContain("fs.createFolder");
+        expect(data).toContain("fs.folder.create");
         
     })
 
