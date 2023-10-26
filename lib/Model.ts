@@ -76,7 +76,7 @@ export const getModelField = (name: string, field: string): ModelField | null =>
 
 
 export const getGQLFields = (model: string, fields: (string | object)[]) => {
-    const result: any = [];
+    const result: Array<any> = [];
     for (const field of fields) {
 
         if (typeof field === 'string') {
