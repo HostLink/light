@@ -1,5 +1,4 @@
-import login from "../lib/login"
-import logout from "../lib/logout"
+import { login, logout } from "../lib/auth"
 import query from "../lib/query"
 import uploadFile from "../lib/uploadFile"
 import sendMail from "../lib/sendMail"
@@ -7,9 +6,35 @@ import getConfig from "../lib/getConfig"
 
 import webauthnRegister from "../lib/webauthnRegister"
 import webauthnLogin from "../lib/webauthnLogin"
-
-
 import toQuery from "../lib/toQuery"
+
+
+import { defineModel, getGQLFields, getModelField } from "../lib/Model"
+
+defineModel("Invoice", {
+    invoice_no: {
+        label: 'Invoice No',
+    }
+})
+
+defineModel("InvoiceItem", {
+    item_name: {
+        label: 'Item Name',
+    },
+    quantity: {
+        label: 'Quantity',
+    },
+    unit_price: {
+        label: 'Unit Price',
+    }
+})
+
+
+console.log(getGQLFields("Invoice", ["invoice_no",
+    {
+        invoice_items: getGQLFields('InvoiceItem', ["item_name", "quantity", "unit_price"])
+    }
+]))
 
 
 const qq = toQuery([{
