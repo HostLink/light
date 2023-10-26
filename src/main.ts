@@ -36,6 +36,8 @@ console.log(getGQLFields("Invoice", ["invoice_no",
     }
 ]))
 
+console.log(getModelField("Invoice", "invoice_no")?.getFormattedValue({ invoice_no: "123" }))
+
 
 const qq = toQuery([{
     listUpdates: {

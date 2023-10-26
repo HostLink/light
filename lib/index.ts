@@ -1,7 +1,7 @@
 export * from './auth'
 export * from './axios'
 export * from './granted'
-export * from './Model'
+export * from './model'
 
 import query from './query'
 import mutation from './mutation'
