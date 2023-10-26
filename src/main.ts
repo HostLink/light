@@ -8,37 +8,6 @@ import webauthnRegister from "../lib/webauthnRegister"
 import webauthnLogin from "../lib/webauthnLogin"
 import toQuery from "../lib/toQuery"
 
-
-import { defineModel, getGQLFields, getModelField } from "../lib/Model"
-
-defineModel("Invoice", {
-    invoice_no: {
-        label: 'Invoice No',
-    }
-})
-
-defineModel("InvoiceItem", {
-    item_name: {
-        label: 'Item Name',
-    },
-    quantity: {
-        label: 'Quantity',
-    },
-    unit_price: {
-        label: 'Unit Price',
-    }
-})
-
-
-console.log(getGQLFields("Invoice", ["invoice_no",
-    {
-        invoice_items: getGQLFields('InvoiceItem', ["item_name", "quantity", "unit_price"])
-    }
-]))
-
-console.log(getModelField("Invoice", "invoice_no")?.getFormattedValue({ invoice_no: "123" }))
-
-
 const qq = toQuery([{
     listUpdates: {
         __args: {
