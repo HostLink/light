@@ -3,6 +3,8 @@ export type ModelField = {
     getName: () => string,
     getGQLField: () => string | object,
     getRaw: () => FieldOption,
+    getValue: (model: object) => any,
+    getFormattedValue: (model: object) => any,
 }
 
 export type FieldOption = {
@@ -24,20 +26,38 @@ export const defineModel = (name: string, fields: { [key: string]: FieldOption }
     data[name] = {};
 
     for (const entry of Object.entries(fields)) {
-        const [key, value] = entry;
+        const [key, option] = entry;
 
         data[name][key] = (): ModelField => {
             return {
                 getName: () => {
-                    return value.name ? value.name : key;
+                    return option.name ? option.name : key;
                 },
                 getGQLField: (): string | object => {
-                    return value.gqlField !== undefined ? value.gqlField : value.name || key;
+                    return option.gqlField !== undefined ? option.gqlField : option.name || key;
                 },
-                getRaw: () => {
-                    return value;
-                }
+                getRaw() {
+                    return option;
+                },
+                getValue(model: any) {
+                    if (option.field && typeof option.field == 'function') {
+                        return option.field(model)
+                    }
 
+                    //if field is string
+                    if (option.field && typeof option.field == 'string') {
+                        return model[option.field]
+                    }
+
+                    return model[this.getName()]
+                },
+                getFormattedValue(model: any) {
+                    const v = this.getValue(model);
+                    if (option.format) {
+                        return option.format(v)
+                    }
+                    return v;
+                }
             }
         }
     }
