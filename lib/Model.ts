@@ -1,3 +1,7 @@
+import { toQuery, query, mutation } from ".";
+
+
+
 export type ModelField = {
     name: string,
     raw: FieldOption,
@@ -97,6 +101,72 @@ export const getGQLFields = (model: string, fields: (string | object)[]) => {
     return result;
 }
 
+export const model = (name: string) => {
+
+    const _name = name;
+
+    return {
+        name: _name,
+        async update(id: number, data: Object) {
+            return await mutation('update' + _name, { id, data })
+        },
+        async delete(id: number) {
+            return await mutation('delete' + _name, { id })
+        },
+        async add(data: Object) {
+            return await mutation('add' + _name, { data })
+        },
+        fields(fields: string[]) {
+            let result: Array<ModelField> = [];
+
+            for (let field of fields) {
+                const f = getModelField(_name, field);
+                if (!f) continue;
+
+                result.push(f);
+            }
+            return result;
+        },
+        async get(filters: any, fields: Array<string | object>) {
+
+            const resp = await query({
+                ['list' + _name]: {
+                    __args: {
+                        filters
+                    },
+                    data: {
+                        __args: {
+                            limit: 1
+                        },
+                        ...toQuery(fields)
+                    }
+
+                }
+            })
+
+            return resp['list' + _name]['data'][0];
+
+        },
+        async list(filters: any, fields: Array<string | object>) {
+            const resp = await query({
+                ['list' + _name]: {
+                    __args: {
+                        filters
+                    },
+                    data: {
+                        ...toQuery(fields)
+                    }
+
+                }
+            })
+
+            return resp['list' + _name]['data'];
+        }
+
+
+    }
+
+};
 
 
 
