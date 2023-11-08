@@ -1,4 +1,5 @@
-import { toQuery, query, mutation } from ".";
+import { VariableType } from "json-to-graphql-query";
+import { toQuery, query, mutation, type Fields } from ".";
 
 
 
@@ -101,6 +102,53 @@ export const getGQLFields = (model: string, fields: (string | object)[]) => {
     return result;
 }
 
+export const convertData = (data: Object) => {
+
+    //check data has file
+    const fd = new FormData();
+    const map: any = {};
+    const variables: any = {};
+    const d: any = {}
+    let i = 0;
+    let hasFile = false;
+    Object.entries(data).forEach(([key, value]) => {
+        if (value instanceof File) {
+
+            hasFile = true;
+
+            variables[key] = "Upload!";
+            d[key] = new VariableType(key);
+
+            fd.append(i.toString(), value);
+            map[i] = ["variables." + key];
+            i++;
+
+        } else {
+            d[key] = value;
+        }
+    });
+
+    if (hasFile) {
+        fd.append("map", JSON.stringify(map));
+
+        return {
+            data: d,
+            formData: fd,
+            mutation: {
+                __variables: variables
+            }
+        }
+    } else {
+        return {
+            data: d,
+            formData: null,
+            mutation: {}
+        }
+    }
+
+
+}
+
 export const model = (name: string) => {
 
     const _name = name;
@@ -108,13 +156,15 @@ export const model = (name: string) => {
     return {
         name: _name,
         async update(id: number, data: Object) {
-            return await mutation('update' + _name, { id, data })
+            const d = convertData(data);
+            return await mutation('update' + _name, { id, data: d.data }, [], d.mutation, d.formData)
         },
         async delete(id: number) {
             return await mutation('delete' + _name, { id })
         },
         async add(data: Object) {
-            return await mutation('add' + _name, { data })
+            const d = convertData(data);
+            return await mutation('add' + _name, { data: d.data }, [], d.mutation, d.formData)
         },
         fields(fields: string[]) {
             let result: Array<ModelField> = [];
@@ -127,7 +177,7 @@ export const model = (name: string) => {
             }
             return result;
         },
-        async get(filters: any, fields: Array<string | object>) {
+        async get(filters: any, fields: Fields) {
 
             const resp = await query({
                 ['list' + _name]: {
@@ -147,7 +197,7 @@ export const model = (name: string) => {
             return resp['list' + _name]['data'][0];
 
         },
-        async list(filters: any, fields: Array<string | object>) {
+        async list(filters: any, fields: Fields) {
             const resp = await query({
                 ['list' + _name]: {
                     __args: {

@@ -25,9 +25,9 @@ await init();
 
 describe("login", () => {
     it("my", async () => {
-        let r = await query({ my: ["username", "name", "canDelete", "canUpdate", "canView"] });
+        let r = await query({ my: ["user_id", "username", "name", "canDelete", "canUpdate", "canView"] });
         expect(r.my.username).toBe("admin");
-        expect(r.my.name).toBe("admin");
+        expect(r.my.user_id).toBe(1);
         expect(r.my.canDelete).toBe(false);
         expect(r.my.canUpdate).toBe(true);
         expect(r.my.canView).toBe(true);
@@ -55,7 +55,7 @@ describe("login", () => {
         let data = await granted(["fs.folder.create"]);
 
         expect(data).toContain("fs.folder.create");
-        
+
     })
 
 })

@@ -7,8 +7,32 @@ import getConfig from "../lib/getConfig"
 import webauthnRegister from "../lib/webauthnRegister"
 import webauthnLogin from "../lib/webauthnLogin"
 import toQuery from "../lib/toQuery"
+import { model } from "../lib/model"
+/* import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 
-const qq = toQuery([{
+const query = {
+    query: {
+        __variables: {
+            variable1: 'String!',
+            variableWithDefault: 'String = "default_value"'
+        },
+        Posts: {
+            __args: {
+                arg1: 20,
+                arg2: new VariableType('variable1')
+            },
+            id: true,
+            title: true
+        }
+    }
+};
+const graphql_query = jsonToGraphQLQuery(query, { pretty: true });
+
+console.log(graphql_query);
+ */
+
+
+/* const qq = toQuery([{
     listUpdates: {
         __args: {
             filters: {
@@ -24,8 +48,8 @@ const qq = toQuery([{
     },
 }, "abc"]);
 console.log(qq);
-
-await logout();
+ */
+//await logout();
 
 await login("admin", "111111")
 
@@ -42,12 +66,12 @@ document.getElementById("webauthn_login")?.addEventListener("click", async () =>
 
 
 
-console.log(await getConfig("company"));
+//console.log(await getConfig("company"));
 
-console.log(await query({
+/* console.log(await query({
     my: ["name"]
 }));
-
+ */
 
 document.getElementById("sendMail")?.addEventListener("click", async () => {
     console.log(await sendMail("raymond@hostlink.com.hk", "Testing", "Testing"));
@@ -70,3 +94,34 @@ document.getElementById("upload")?.addEventListener("click", async () => {
 
     console.log(resp)
 });
+
+document.getElementById("upload2")?.addEventListener("click", async () => {
+    console.log("upload2");
+
+    const fileInput = document.getElementById("file2") as HTMLInputElement | null;
+    if (!fileInput) {
+        console.error("File2 input not found");
+        return;
+    }
+
+    const file = fileInput.files?.[0];
+    if (!file) {
+        console.error("No file selected");
+        return;
+    }
+
+    /*  await model("Test").add({
+         a: 1,
+         file: file
+     }) */
+
+    await model("Test").update(1, {
+        a: 1,
+        file: file
+    })
+});
+
+
+
+//console.log(await model("User").get({ user_id: 1 }, ["username"]));
+
