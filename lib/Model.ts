@@ -1,5 +1,6 @@
-
 export type ModelField = {
+    name: string,
+    raw: FieldOption,
     getName: () => string,
     getGQLField: () => string | object,
     getRaw: () => FieldOption,
@@ -30,6 +31,9 @@ export const defineModel = (name: string, fields: { [key: string]: FieldOption }
 
         data[name][key] = (): ModelField => {
             return {
+                name: option.name ? option.name : key,
+                raw: option,
+
                 getName: () => {
                     return option.name ? option.name : key;
                 },
