@@ -2,6 +2,7 @@ export * from './auth'
 export * from './axios'
 export * from './granted'
 export * from './model'
+export * from './file'
 
 import query from './query'
 import mutation from './mutation'

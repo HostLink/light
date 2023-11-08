@@ -1,6 +1,6 @@
 import { mutation } from '.';
 import query from './query';
-export type File = {
+export type FSFile = {
     name: string,
     path: string,
     size: number,
@@ -10,7 +10,7 @@ export type File = {
 }
 
 
-export type Folder = {
+export type FSFolder = {
     name: String
     path: String
 }
@@ -36,7 +36,7 @@ export const fsListFiles = async (path: string): Promise<Array<File>> => {
 }
 
 
-export const fsListFolders = async (path: string): Promise<Array<Folder>> => {
+export const fsListFolders = async (path: string): Promise<Array<FSFolder>> => {
 
     let resp = await query({
         fsListFolders: {
