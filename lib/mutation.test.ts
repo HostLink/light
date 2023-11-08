@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { query, getConfig, granted, mutation, model } from "."
+import { mutation, model } from "."
 import { setAxios } from "./axios"
 import axios from "axios"
 
