@@ -38,7 +38,6 @@ export const defineModel = (name: string, fields: { [key: string]: FieldOption }
             return {
                 name: option.name ? option.name : key,
                 raw: option,
-
                 getName: () => {
                     return option.name ? option.name : key;
                 },
@@ -155,6 +154,7 @@ export const model = (name: string) => {
 
     return {
         name: _name,
+        $fields: data[name],
         async update(id: number, data: Object) {
             const d = convertData(data);
             return await mutation('update' + _name, { id, data: d.data }, [], d.mutation, d.formData)
