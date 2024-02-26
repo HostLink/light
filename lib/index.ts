@@ -4,30 +4,20 @@ export * from './granted'
 export * from './model'
 export * from './file'
 
-import query from './query'
-import mutation from './mutation'
-import toQuery from './toQuery'
+export { default as query } from './query'
+export { default as mutation } from './mutation'
+
+export { default as toQuery } from './toQuery'
 export * from './apiUrl'
 
-import uploadFile from './uploadFile'
-import sendMail from './sendMail'
+export { default as uploadFile } from './uploadFile'
+export { default as sendMail } from './sendMail'
 
-import getConfig from './getConfig'
+export { default as getConfig } from './getConfig'
 
-import webauthnLogin from './webauthnLogin'
-import webauthnRegister from './webauthnRegister'
+export { default as webauthnLogin } from './webauthnLogin'
+export { default as webauthnRegister } from './webauthnRegister'
 
 export type Fields = Object | Array<string | Object> | string
 
 export * from './fs'
-
-export {
-    toQuery,
-    query,
-    mutation,
-    uploadFile,
-    sendMail,
-    webauthnLogin,
-    webauthnRegister,
-    getConfig,
-}
