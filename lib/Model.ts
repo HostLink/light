@@ -101,53 +101,6 @@ export const getGQLFields = (model: string, fields: (string | object)[]) => {
     return result;
 }
 
-export const convertData = (data: Object) => {
-
-    //check data has file
-    const fd = new FormData();
-    const map: any = {};
-    const variables: any = {};
-    const d: any = {}
-    let i = 0;
-    let hasFile = false;
-    Object.entries(data).forEach(([key, value]) => {
-        if (value instanceof File) {
-
-            hasFile = true;
-
-            variables[key] = "Upload!";
-            d[key] = new VariableType(key);
-
-            fd.append(i.toString(), value);
-            map[i] = ["variables." + key];
-            i++;
-
-        } else {
-            d[key] = value;
-        }
-    });
-
-    if (hasFile) {
-        fd.append("map", JSON.stringify(map));
-
-        return {
-            data: d,
-            formData: fd,
-            mutation: {
-                __variables: variables
-            }
-        }
-    } else {
-        return {
-            data: d,
-            formData: null,
-            mutation: {}
-        }
-    }
-
-
-}
-
 export const model = (name: string) => {
 
     const _name = name;
