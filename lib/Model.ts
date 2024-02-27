@@ -1,7 +1,4 @@
-import { VariableType } from "json-to-graphql-query";
 import { toQuery, query, mutation, type Fields } from ".";
-
-
 
 export type ModelField = {
     name: string,
