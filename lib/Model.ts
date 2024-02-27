@@ -156,15 +156,13 @@ export const model = (name: string) => {
         name: _name,
         $fields: data[name],
         async update(id: number, data: Object) {
-            const d = convertData(data);
-            return await mutation('update' + _name, { id, data: d.data }, [], d.mutation, d.formData)
+            return await mutation('update' + _name, { id, data })
         },
         async delete(id: number) {
             return await mutation('delete' + _name, { id })
         },
         async add(data: Object) {
-            const d = convertData(data);
-            return await mutation('add' + _name, { data: d.data }, [], d.mutation, d.formData)
+            return await mutation('add' + _name, { data })
         },
         fields(fields: string[]) {
             let result: Array<ModelField> = [];

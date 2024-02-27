@@ -8,8 +8,15 @@ import webauthnRegister from "../lib/webauthnRegister"
 import webauthnLogin from "../lib/webauthnLogin"
 import toQuery from "../lib/toQuery"
 import { model } from "../lib/model"
-import { File } from "../lib"
 
+
+import { mutation } from "../lib"
+
+await mutation("test", {
+    a: 1,
+    b: "Hello",
+    //files: [new File(["Hello"], "test.txt"), new File(["Hello2"], "test2.txt")]
+})
 
 /* import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 
@@ -127,12 +134,12 @@ document.getElementById("upload2")?.addEventListener("click", async () => {
 
 document.getElementById("f_download")?.addEventListener("click", async () => {
     File.fromString("Hello").download("test.txt");
-    
+
 });
 
 document.getElementById("f_open")?.addEventListener("click", async () => {
-  //  console.log("open")
-//    File.fromBase64("SGVsbG8=").open("text/plain");
+    //  console.log("open")
+    //    File.fromBase64("SGVsbG8=").open("text/plain");
 
     File.fromBase85("9jqo^BlbD-").open("text/plain");
 });
