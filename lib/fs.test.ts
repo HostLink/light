@@ -7,7 +7,7 @@ async function init() {
     axios.defaults.withCredentials = true;
 
     let server = axios.create({
-        baseURL: "http://127.0.0.1:8888/api/"
+        baseURL: "http://127.0.0.1:8888/"
     });
     const resp = await server.post("/", {
         query: `mutation { login(username: "admin", password: "111111")  }`
