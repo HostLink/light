@@ -15,6 +15,9 @@ import { mutation } from "../lib"
 await mutation("test", {
     a: 1,
     b: "Hello",
+    data: {
+        file: new File(["Hello"], "test.txt")
+    }
     //files: [new File(["Hello"], "test.txt"), new File(["Hello2"], "test2.txt")]
 })
 
