@@ -71,6 +71,7 @@ export default async (operation: string, args: { [key: string]: any } | null = n
                         __args[key][k] = new VariableType(k);
                         map[i] = ["variables." + k];
                         fd.append(i.toString(), v);
+                        variables[k] = "Upload!";
                         i++;
                     } else {
                         __args[key][k] = v;
