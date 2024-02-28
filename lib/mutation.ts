@@ -65,7 +65,7 @@ export default async (operation: string, args: { [key: string]: any } | null = n
                 i++;
             } else if (value instanceof Object && objectHasFile(value)) {
                 hasFile = true;
-                if(__args[key] === undefined) __args[key] = {};
+                __args[key] = {};
                 Object.entries(value).forEach(([k, v]) => {
                     if (v instanceof File) {
                         __args[key][k] = new VariableType(k);
