@@ -79,7 +79,9 @@ export default async (operation: string, args: { [key: string]: any } | null = n
                 })
 
             } else {
-                __args[key] = value;
+                if (value !== undefined) {
+                    __args[key] = value;
+                }
             }
         });
 
