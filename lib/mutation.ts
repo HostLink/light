@@ -65,14 +65,15 @@ export default async (operation: string, args: { [key: string]: any } | null = n
                 i++;
             } else if (value instanceof Object && objectHasFile(value)) {
                 hasFile = true;
-                Object.entries(value).forEach(([key, v]) => {
+                if(__args[key] === undefined) __args[key] = {};
+                Object.entries(value).forEach(([k, v]) => {
                     if (v instanceof File) {
-                        __args[key] = new VariableType(key);
-                        map[i] = ["variables." + key];
+                        __args[key][k] = new VariableType(k);
+                        map[i] = ["variables." + k];
                         fd.append(i.toString(), v);
                         i++;
                     } else {
-                        __args[key] = v;
+                        __args[key][k] = v;
                     }
                 })
 
