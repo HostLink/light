@@ -72,7 +72,7 @@ export default async (operation: string, args: { [key: string]: any } | null = n
                         fd.append(i.toString(), v);
                         i++;
                     } else {
-                        __args[key] = value;
+                        __args[key] = v;
                     }
                 })
 
