@@ -1,4 +1,6 @@
 import { login, logout } from "../lib/auth"
+
+
 import query from "../lib/query"
 import uploadFile from "../lib/uploadFile"
 import sendMail from "../lib/sendMail"
@@ -10,16 +12,13 @@ import toQuery from "../lib/toQuery"
 import { model } from "../lib/model"
 
 
-import { mutation } from "../lib"
+import { mutation, getRoles, getUsers } from "../lib"
 
-await mutation("test", {
-    a: 1,
-    b: "Hello",
-    data: {
-        file: new File(["Hello"], "test.txt")
-    }
-    //files: [new File(["Hello"], "test.txt"), new File(["Hello2"], "test2.txt")]
-})
+console.log(await login("admin", "111111"))
+console.log(await getRoles());
+
+console.log(await getUsers());
+
 
 /* import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 
@@ -64,7 +63,10 @@ console.log(qq);
  */
 //await logout();
 
-await login("admin", "111111")
+console.log(await login("admin", "111111"))
+
+//list Roles
+
 
 
 document.getElementById("webauthn_register")?.addEventListener("click", async () => {

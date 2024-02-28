@@ -3,6 +3,8 @@ export * from './axios'
 export * from './granted'
 export * from './model'
 export * from './file'
+export * from './role'
+export * from './user'
 
 export { default as query } from './query'
 export { default as mutation } from './mutation'
