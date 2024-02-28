@@ -8,6 +8,11 @@
   "main": "./dist/light.umd.cjs",
   "module": "./dist/light.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/light.js"
+    }
+  },
   "scripts": {
     "dev": "vite --host",
     "build": "tsc && vite build",
