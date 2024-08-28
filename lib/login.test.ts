@@ -1,31 +1,18 @@
 import { describe, expect, it } from "vitest"
-import { query, getConfig, granted } from "."
-import { setAxios } from "./axios"
-import axios from "axios"
+import { createClient } from "."
 
+const client = createClient("http://127.0.0.1:8888/")
 
-async function init() {
-    axios.defaults.withCredentials = true;
-
-    let server = axios.create({
-        baseURL: "http://127.0.0.1:8888/"
-    });
-    const resp = await server.post("/", {
-        query: `mutation { login(username: "admin", password: "111111")  }`
-    })
-    if (resp.headers['set-cookie']) {
-        server.defaults.headers.cookie = resp.headers['set-cookie'][0];
-    }
-
-
-    setAxios(server);
+const resp = await client.axios.post("/", {
+    query: `mutation { login(username: "admin", password: "111111")  }`
+})
+if (resp.headers['set-cookie']) {
+    client.axios.defaults.headers.cookie = resp.headers['set-cookie'][0];
 }
-
-await init();
 
 describe("login", () => {
     it("my", async () => {
-        let r = await query({ my: ["user_id", "username", "name", "canDelete", "canUpdate", "canView"] });
+        let r = await client.query({ my: ["user_id", "username", "name", "canDelete", "canUpdate", "canView"] });
         expect(r.my.username).toBe("admin");
         expect(r.my.user_id).toBe(1);
         expect(r.my.canDelete).toBe(false);
@@ -34,12 +21,12 @@ describe("login", () => {
     })
 
     it("getConfig", async () => {
-        expect(await getConfig("company")).toBe("HostLink")
+        expect(await client.config.get("company")).toBe("HostLink")
     })
 
 
     it("query system", async () => {
-        let data = await query({
+        let data = await client.query({
             system: ["diskUsageSpace", "diskFreeSpacePercent", "diskFreeSpace", "diskTotalSpace", "package", "company", "companyLogo"]
         })
         expect(data.system.diskUsageSpace).toBeDefined();
@@ -52,7 +39,7 @@ describe("login", () => {
     })
 
     it("granted", async () => {
-        let data = await granted(["fs.folder.create"]);
+        let data = await client.auth.granted(["fs.folder.create"]);
 
         expect(data).toContain("fs.folder.create");
 

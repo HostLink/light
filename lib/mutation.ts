@@ -1,6 +1,7 @@
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
-import { getAxios } from './axios';
-import { Fields, toQuery, getApiUrl } from '.';
+import { AxiosInstance } from 'axios';
+
+import { Fields, toQuery } from '.';
 
 function arrayHasFile(arr: any[]): boolean {
     for (let i = 0; i < arr.length; i++) {
@@ -20,7 +21,7 @@ function objectHasFile(obj: any): boolean {
     return false;
 }
 
-export default async (operation: string, args: { [key: string]: any } | null = null, fields: Fields = []): Promise<any> => {
+export default async (axios: AxiosInstance, operation: string, args: { [key: string]: any } | null = null, fields: Fields = []): Promise<any> => {
 
     let mutation: any = {
         [operation]: {}
@@ -109,9 +110,9 @@ export default async (operation: string, args: { [key: string]: any } | null = n
         fd.append("operations", JSON.stringify({
             query: graphql_query
         }))
-        resp = await getAxios().post(getApiUrl(), fd)
+        resp = await axios.post("", fd)
     } else {
-        resp = await getAxios().post(getApiUrl(), {
+        resp = await axios.post("", {
             query: graphql_query
         })
     }

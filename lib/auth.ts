@@ -1,41 +1,49 @@
-import { mutation } from "."
+import { mutation, query } from "."
+import { AxiosInstance } from "axios"
+import { default as _WebAuthn } from "./webauthn"
 
-export const login = (username: string, password: string, code: string = ""): Promise<boolean> => {
-    return mutation("login", {
-        username,
-        password,
-        code
-    })
-}
+export default (axios: AxiosInstance) => {
+    return {
+        WebAuthn: _WebAuthn(axios),
+        login: (username: string, password: string, code: string = ""): Promise<boolean> => {
+            return mutation(axios, "login", {
+                username,
+                password,
+                code
+            })
+        },
+        logout: (): Promise<boolean> => {
+            return mutation(axios, "logout")
+        },
+        updatePassword: (oldPassword: string, newPassword: string): Promise<boolean> => {
+            return mutation(axios, "updatePassword", {
+                old_password: oldPassword,
+                new_password: newPassword
+            })
+        },
+        resetPassword: (email: string, password: string, code: string): Promise<boolean> => {
+            return mutation(axios, "resetPassword", {
+                email,
+                password,
+                code
+            })
+        },
+        forgetPassword: (email: string): Promise<boolean> => {
+            return mutation(axios, "forgetPassword", {
+                email
+            })
+        },
+        granted: async (rights: string[]): Promise<string[]> => {
+            const resp = await query(axios, {
+                granted: {
+                    __args: {
+                        rights: rights
+                    },
+                }
+            });
 
-export const logout = (): Promise<boolean> => {
-    return mutation("logout")
-}
+            return resp.granted;
+        }
+    }
 
-/**
- * Updates the user's password.
- * @param oldPassword The user's current password.
- * @param newPassword The user's new password.
- * @returns A Promise that resolves to a boolean indicating whether the password was successfully updated.
- */
-export const updatePassword = (oldPassword: string, newPassword: string): Promise<boolean> => {
-    return mutation("updatePassword", {
-        old_password: oldPassword,
-        new_password: newPassword
-    })
-}
-
-
-export const resetPassword = (email: string, password: string, code: string): Promise<boolean> => {
-    return mutation("resetPassword", {
-        email,
-        password,
-        code
-    })
-}
-
-export const forgetPassword = (email: string): Promise<boolean> => {
-    return mutation("forgetPassword", {
-        email
-    })
 }

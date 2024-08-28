@@ -1,5 +1,6 @@
-import { mutation } from '.';
-import query from './query';
+import { AxiosInstance } from 'axios';
+import { mutation, query } from '.';
+
 export type FSFile = {
     name: string,
     path: string,
@@ -15,102 +16,79 @@ export type FSFolder = {
     path: String
 }
 
-export const fsListFiles = async (path: string): Promise<Array<File>> => {
+export default (axios: AxiosInstance) => {
+    return {
+        folders: {
+            list: async (path: string) => {
+                let resp = await query(axios, {
+                    fsListFolders: {
+                        __args: {
+                            path: path
+                        },
+                        name: true,
+                        path: true,
+                    },
 
-    let resp = await query({
-        fsListFiles: {
-            __args: {
-                path: path
+                });
+
+                return resp.fsListFolders;
             },
-            name: true,
-            path: true,
-            size: true,
-            mime: true,
-            canPreview: true,
-            imagePath: true,
-        },
-
-    });
-
-    return resp.fsListFiles;
-}
-
-
-export const fsListFolders = async (path: string): Promise<Array<FSFolder>> => {
-
-    let resp = await query({
-        fsListFolders: {
-            __args: {
-                path: path
+            create: (path: string) => {
+                return mutation(axios, "fsCreateFolder", { path });
             },
-            name: true,
-            path: true,
-        },
-
-    });
-
-    return resp.fsListFolders;
-}
-
-export const fsReadFile = async (path: string): Promise<string> => {
-
-    let resp = await query({
-        fsFile: {
-            __args: {
-                path: path
+            delete: (path: string) => {
+                return mutation(axios, "fsDeleteFolder", { path });
             },
-            base64Content: true,
+            rename: (path: string, name: string) => {
+                return mutation(axios, "fsRenameFolder", { path, name });
+            }
         },
-    });
+        files: {
+            list: async (path: string) => {
+                let resp = await query(axios, {
+                    fsListFiles: {
+                        __args: {
+                            path: path
+                        },
+                        name: true,
+                        path: true,
+                        size: true,
+                        mime: true,
+                        canPreview: true,
+                        imagePath: true,
+                    },
 
-    return window.atob(resp.fsFile.base64Content);
+                });
 
-}
+                return resp.fsListFiles;
+            },
+            read: async (path: string) => {
+                let resp = await query(axios, {
+                    fsFile: {
+                        __args: {
+                            path: path
+                        },
+                        base64Content: true,
+                    },
+                });
 
-export const fsWriteFile = (path: string, content: string): Promise<boolean> => {
-    return mutation("fsWriteFile", {
-        path: path,
-        content: content,
-    });
-}
-
-export const fsDeleteFile = (path: string): Promise<boolean> => {
-    return mutation("fsDeleteFile", {
-        path: path,
-    });
-}
-
-export const fsCreateFolder = (path: string): Promise<boolean> => {
-    return mutation("fsCreateFolder", {
-        path: path,
-    });
-}
-
-export const fsDeleteFolder = (path: string): Promise<boolean> => {
-    return mutation("fsDeleteFolder", {
-        path: path,
-    });
-}
-
-
-export const fsRenameFile = (path: string, name: string): Promise<boolean> => {
-    return mutation("fsRenameFile", {
-        path: path,
-        name: name
-    });
-}
-
-export const fsRenameFolder = (path: string, name: string): Promise<boolean> => {
-    return mutation("fsRenameFolder", {
-        path: path,
-        name: name
-    });
-}
-
-
-export const fsMoveFile = (source: string, target: string): Promise<boolean> => {
-    return mutation("fsMoveFile", {
-        source: source,
-        target: target
-    });
+                return window.atob(resp.fsFile.base64Content);
+            },
+            write: (path: string, content: string) => {
+                return mutation(axios, "fsWriteFile", {
+                    path: path,
+                    content: content,
+                });
+            },
+            delete: (path: string) => {
+                return mutation(axios, "fsDeleteFile", { path });
+            },
+            rename: (path: string, name: string) => {
+                return mutation(axios, "fsRenameFile", { path, name });
+            },
+            move: (source: string, target: string) => {
+                return mutation(axios, "fsMoveFile", { source, target });
+            }
+        }
+    }
 }

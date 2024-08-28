@@ -1,3 +1,11 @@
+import { createClient } from "../lib/index.ts"
+const client = createClient("http://127.0.0.1:8888/");
+
+console.log(await client.auth.login("admin", "111111"));
+client.fs.folders.list("/").then(console.log);
+
+/* 
+
 import { login, logout } from "../lib/auth"
 
 
@@ -18,7 +26,7 @@ console.log(await login("admin", "111111"))
 console.log(await getRoles());
 
 console.log(await getUsers());
-
+ */
 
 /* import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 
@@ -62,7 +70,7 @@ console.log(graphql_query);
 console.log(qq);
  */
 //await logout();
-
+/* 
 console.log(await login("admin", "111111"))
 
 //list Roles
@@ -78,7 +86,7 @@ document.getElementById("webauthn_register")?.addEventListener("click", async ()
 document.getElementById("webauthn_login")?.addEventListener("click", async () => {
     webauthnLogin("admin");
 });
-
+ */
 
 
 //console.log(await getConfig("company"));
