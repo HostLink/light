@@ -18,6 +18,16 @@ export type FSFolder = {
 
 export default (axios: AxiosInstance) => {
     return {
+        uploadTempFile: (file: File) => {
+            return mutation(axios, "fsUploadTempFile", {
+                file
+            }, {
+                name: true,
+                path: true,
+                size: true,
+                mime: true,
+            })
+        },
         folders: {
             list: async (path: string) => {
                 let resp = await query(axios, {

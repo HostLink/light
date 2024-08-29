@@ -8,10 +8,6 @@ export { default as mutation } from './mutation'
 
 export { default as toQuery } from './toQuery'
 
-export { default as uploadFile } from './uploadFile'
-
-
-
 export type Fields = Object | Array<string | Object> | string
 
 export * from './fs'
