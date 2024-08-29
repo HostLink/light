@@ -11,6 +11,7 @@ import { default as _users } from './users';
 import { default as _fs } from './fs';
 import { default as models } from './models';
 import { default as model } from './model';
+import { default as roles } from './roles';
 
 export interface LightClient {
     baseURL: string;
@@ -24,6 +25,7 @@ export interface LightClient {
     fs: ReturnType<typeof _fs>;
     models: ReturnType<typeof models>;
     model(name: string): ReturnType<typeof model>;
+    roles: ReturnType<typeof roles>;
 }
 
 export default (baseURL: string): LightClient => {
@@ -56,6 +58,7 @@ export default (baseURL: string): LightClient => {
         models: _models,
         model(name: string) {
             return model(_axios, name, _models.get(name));
-        }
+        },
+        roles: roles(_axios)
     }
 }

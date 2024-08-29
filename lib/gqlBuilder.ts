@@ -1,17 +1,18 @@
 import { toQuery } from ".";
 
-export default function () {
-
-    const merge = (obj1: any, obj2: any) => {
-        for (let key in obj2) {
-            if (obj2.hasOwnProperty(key)) {
-                obj1[key] = obj1[key] && obj1[key].toString() === "[object Object]" ?
-                    merge(obj1[key], obj2[key]) : obj1[key] = obj2[key];
-            }
+const merge = (obj1: any, obj2: any) => {
+    for (let key in obj2) {
+        if (obj2.hasOwnProperty(key)) {
+            obj1[key] = obj1[key] && obj1[key].toString() === "[object Object]" ?
+                merge(obj1[key], obj2[key]) : obj1[key] = obj2[key];
         }
-        return obj1;
+    }
+    return obj1;
 
-    };
+};
+
+export default () => {
+
     let fields: any = {};
     return {
         //deep merge
