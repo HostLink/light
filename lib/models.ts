@@ -1,9 +1,8 @@
-import { AxiosInstance } from "axios"
 import { type ModelField, type FieldOption } from "./model"
 
-export default (axios: AxiosInstance) => {
+export default () => {
 
-    let data: any = {};
+    const data: any = {};
     return {
         create(name: string, fields: { [key: string]: FieldOption }) {
             data[name] = {};

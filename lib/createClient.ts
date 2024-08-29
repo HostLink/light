@@ -43,7 +43,7 @@ export default (baseURL: string): LightClient => {
         return query(_axios, q);
     }
 
-    const _models = models(_axios);
+    const _models = models();
 
     return {
         baseURL,
