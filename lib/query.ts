@@ -2,7 +2,7 @@ import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import toQuery from './toQuery';
 import { AxiosInstance } from 'axios';
 
-export default async (axios: AxiosInstance, q: Object | Array<string | Object | string>): Promise<any> => {
+export default async (axios: AxiosInstance, q: Object | Array<string | Object>): Promise<any> => {
 
     let query = jsonToGraphQLQuery(toQuery(q));
 

@@ -1,10 +1,10 @@
 import { mutation, query } from "."
 import { AxiosInstance } from "axios"
-import { default as _WebAuthn } from "./webauthn"
+import { default as WebAuthn } from "./webauthn"
 
 export default (axios: AxiosInstance) => {
     return {
-        WebAuthn: _WebAuthn(axios),
+        WebAuthn: WebAuthn(axios),
         login: (username: string, password: string, code: string = ""): Promise<boolean> => {
             return mutation(axios, "login", {
                 username,

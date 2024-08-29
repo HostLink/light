@@ -1,3 +1,4 @@
+import { AxiosInstance } from "axios";
 import { toQuery, query, mutation, type Fields } from ".";
 
 export type ModelField = {
@@ -67,6 +68,97 @@ export const defineModel = (name: string, fields: { [key: string]: FieldOption }
         }
     }
 }
+
+export default (axios: AxiosInstance, name: string, fields: any) => {
+    const _name = name;
+    const _axios = axios;
+    const _fields = fields;
+
+    const field = (field: string): ModelField | null => {
+        if (!_fields[field]) {
+            return null;
+        }
+        return _fields[field]();
+    }
+
+    return {
+        field,
+        $fields: _fields,
+        gqlFields(fields: (string | object)[]) {
+            const result: Array<any> = [];
+            for (const f of fields) {
+
+                if (typeof f === 'string') {
+                    const mf = field(f)
+                    if (mf) {
+                        result.push(mf.getGQLField());
+                    }
+                } else if (typeof f === 'object') {
+                    result.push(f)
+                }
+            }
+
+
+            return result;
+        }, async update(id: number, data: Object) {
+            return await mutation(_axios, 'update' + _name, { id, data })
+        },
+        async delete(id: number) {
+            return await mutation(_axios, 'delete' + _name, { id })
+        },
+        async add(data: Object) {
+            return await mutation(_axios, 'add' + _name, { data })
+        },
+        fields(fields: string[]) {
+            let result: Array<ModelField> = [];
+
+            for (let field of fields) {
+                const f = getModelField(_name, field);
+                if (!f) continue;
+
+                result.push(f);
+            }
+            return result;
+        },
+        async get(filters: any, fields: Fields) {
+
+            const resp = await query(_axios, {
+                ['list' + _name]: {
+                    __args: {
+                        filters
+                    },
+                    data: {
+                        __args: {
+                            limit: 1
+                        },
+                        ...toQuery(fields)
+                    }
+
+                }
+            })
+
+            return resp['list' + _name]['data'][0];
+
+        },
+        async list(filters: any, fields: Fields) {
+            const resp = await query(_axios, {
+                ['list' + _name]: {
+                    __args: {
+                        filters
+                    },
+                    data: {
+                        ...toQuery(fields)
+                    }
+
+                }
+            })
+
+            return resp['list' + _name]['data'];
+        }
+    }
+
+};
+
 
 export const getModelField = (name: string, field: string): ModelField | null => {
     if (!data[name]) {

@@ -9,8 +9,11 @@ import { default as _config } from './config';
 import { default as _mail } from './mail';
 import { default as _users } from './users';
 import { default as _fs } from './fs';
+import { default as models } from './models';
+import { default as model } from './model';
 
 export interface LightClient {
+    baseURL: string;
     axios: AxiosInstance;
     auth: ReturnType<typeof auth>;
     mutation: (operation: string, args: { [key: string]: any } | null, fields: Fields) => Promise<any>;
@@ -19,6 +22,8 @@ export interface LightClient {
     mail: ReturnType<typeof _mail>;
     users: ReturnType<typeof _users>;
     fs: ReturnType<typeof _fs>;
+    models: ReturnType<typeof models>;
+    model(name: string): ReturnType<typeof model>;
 }
 
 export default (baseURL: string): LightClient => {
@@ -36,7 +41,10 @@ export default (baseURL: string): LightClient => {
         return query(_axios, q);
     }
 
+    const _models = models(_axios);
+
     return {
+        baseURL,
         axios: _axios,
         auth: auth(_axios),
         mutation: _mutation,
@@ -45,6 +53,9 @@ export default (baseURL: string): LightClient => {
         mail: _mail(_axios),
         users: _users(_axios),
         fs: _fs(_axios),
-
+        models: _models,
+        model(name: string) {
+            return model(_axios, name, _models.get(name));
+        }
     }
 }
