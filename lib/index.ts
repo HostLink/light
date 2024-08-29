@@ -1,7 +1,6 @@
 export * from './auth'
 export * from './model'
 export * from './file'
-export * from './role'
 
 export { default as query } from './query'
 export { default as mutation } from './mutation'

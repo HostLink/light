@@ -1,29 +1,9 @@
 import { AxiosInstance } from "axios"
+import { type ModelField, type FieldOption } from "./model"
 
-export type ModelField = {
-    name: string,
-    raw: FieldOption,
-    getName: () => string,
-    getGQLField: () => string | object,
-    getRaw: () => FieldOption,
-    getValue: (model: object) => any,
-    getFormattedValue: (model: object) => any,
-}
-
-export type FieldOption = {
-    label: string,
-    name?: string
-    gqlField?: string | object,
-    sortable?: boolean,
-    searchable?: boolean,
-    searchableType?: string,
-    align?: string,
-    field?: any,
-    format?: any,
-}
 export default (axios: AxiosInstance) => {
 
-    const data: any = {};
+    let data: any = {};
     return {
         create(name: string, fields: { [key: string]: FieldOption }) {
             data[name] = {};
