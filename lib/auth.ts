@@ -5,6 +5,11 @@ import { default as WebAuthn } from "./webauthn"
 export default (axios: AxiosInstance) => {
     return {
         WebAuthn: WebAuthn(axios),
+        googleLogin: (credential: string): Promise<boolean> => {
+            return mutation(axios, "googleLogin", {
+                credential
+            })
+        },
         login: (username: string, password: string, code: string = ""): Promise<boolean> => {
             return mutation(axios, "login", {
                 username,
@@ -31,6 +36,12 @@ export default (axios: AxiosInstance) => {
         forgetPassword: (email: string): Promise<boolean> => {
             return mutation(axios, "forgetPassword", {
                 email
+            })
+        },
+        verifyCode(email: string, code: string): Promise<boolean> {
+            return mutation(axios, "verifyCode", {
+                email,
+                code
             })
         },
         granted: async (rights: string[]): Promise<string[]> => {
