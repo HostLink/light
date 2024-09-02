@@ -12,3 +12,4 @@ export type Fields = Object | Array<string | Object> | string
 export * from './fs'
 
 export { default as createClient } from './createClient'
+export type { LightClient } from './createClient'
