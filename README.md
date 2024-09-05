@@ -14,20 +14,20 @@ npm install @hostlink/light
 ```javascript
 import { createClient } from '@hostlink/light';
 
-const client=createClient('https://example.com/api');
+const api=createClient('https://example.com/api');
 
 ```
 
 ## Login
 
 ```javascript
-await client.auth.login('username','password');
+await api.auth.login('username','password');
 ```
 
 ## Logout
 
 ```javascript
-await client.auth.logout();
+await api.auth.logout();
 ```
 
 
