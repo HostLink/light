@@ -5,6 +5,16 @@ import { default as WebAuthn } from "./webauthn"
 export default (axios: AxiosInstance) => {
     return {
         WebAuthn: WebAuthn(axios),
+        facebookLogin: (accessToken: string): Promise<boolean> => {
+            return mutation(axios, "facebookLogin", {
+                access_token: accessToken
+            })
+        },
+        microsoftLogin: (accessToken: string): Promise<boolean> => {
+            return mutation(axios, "microsoftLogin", {
+                access_token: accessToken
+            })
+        },
         googleLogin: (credential: string): Promise<boolean> => {
             return mutation(axios, "googleLogin", {
                 credential
@@ -40,7 +50,7 @@ export default (axios: AxiosInstance) => {
             })
         },
         verifyCode(username: string, code: string): Promise<boolean> {
-            return mutation(axios, "verifyCode", {
+            return mutation(axios, "forgetPasswordVerifyCode", {
                 username,
                 code
             })
