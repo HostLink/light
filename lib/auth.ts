@@ -30,6 +30,13 @@ export default (axios: AxiosInstance) => {
         logout: (): Promise<boolean> => {
             return mutation(axios, "logout")
         },
+        changeExpiredPassword: (username: string, oldPassword: string, newPassword: string): Promise<boolean> => {
+            return mutation(axios, "changeExpiredPassword", {
+                username,
+                old_password: oldPassword,
+                new_password: newPassword
+            })
+        },
         updatePassword: (oldPassword: string, newPassword: string): Promise<boolean> => {
             return mutation(axios, "updatePassword", {
                 old_password: oldPassword,
