@@ -28,7 +28,7 @@ export interface LightClient {
     models: ReturnType<typeof models>;
     model(name: string): ReturnType<typeof model>;
     roles: ReturnType<typeof roles>;
-    collect(name: string): Collection;
+    collect(name: string, fields: Object): Collection;
 }
 
 export default (baseURL: string): LightClient => {
@@ -63,8 +63,8 @@ export default (baseURL: string): LightClient => {
             return model(_axios, name, _models.get(name));
         },
         roles: roles(_axios),
-        collect: (name: string): Collection => {
-            return new Collection(name, _axios);
+        collect: (name: string, fields: Object): Collection => {
+            return new Collection(name, fields, _axios);
 
         }
     }

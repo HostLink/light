@@ -15,15 +15,17 @@ export class Collection {
     private steps: Array<any>;
     private already_limit: boolean = false;
     private already_offset: boolean = false;
+    private fields: Object;
 
-    constructor(name: string, axios: AxiosInstance) {
+    constructor(name: string, fields: Object, axios: AxiosInstance) {
         this.name = name;
         this.axios = axios;
         this.filters = {};
         this.steps = [];
+        this.fields = fields;
     }
 
-    forPage(page: number, chunk: number) {
+    forPage(page: number, chunk: number): Collection {
         //clone self
         const clone = Object.create(this)
         this.steps.push({ type: 'forPage', page, chunk });
@@ -44,6 +46,7 @@ export class Collection {
         return clone;
     }
 
+
     sortByDesc(field: string) {
         //clone self
         const clone = Object.create(this);
@@ -51,8 +54,8 @@ export class Collection {
         return clone;
     }
 
-    async count(fields: Object) {
-        let data = await this.all(fields);
+    async count() {
+        let data = await this.all();
         return data.length;
 
     }
@@ -113,10 +116,17 @@ export class Collection {
         return args;
     }
 
-    async fetchData(fields: Object) {
+    map<T>(fn: (item: any, index: any) => T): Collection {
+        //clone self
+        const clone = Object.create(this);
+        this.steps.push({ type: 'map', fn });
+        return clone;
+    }
+
+    async fetchData() {
         let q: any = {};
         q.__args = this.buildArgs();
-        q.data = fields;
+        q.data = this.fields;
         if (this.already_limit) {
             q.data.__args = q.data.__args || {};
             q.data.__args.limit = this.limit;
@@ -136,7 +146,8 @@ export class Collection {
     }
 
 
-    async all(fields: Object) {
+
+    async all() {
 
         let c = null;
         for (const step of this.steps) {
@@ -145,7 +156,7 @@ export class Collection {
                 if (c) {
                     c = c.forPage(step.page, step.chunk);
                 } else if (this.already_limit || this.already_offset) {
-                    c = await this.fetchData(fields);
+                    c = await this.fetchData();
                     c = c.forPage(step.page, step.chunk);
                 } else {
                     this.offset = (step.page - 1) * step.chunk;
@@ -170,7 +181,7 @@ export class Collection {
                 if (c) {
                     c = c.pluck(step.field)
                 } else {
-                    c = await this.fetchData(fields);
+                    c = await this.fetchData();
                     c = c.pluck(step.field)
                 }
             }
@@ -179,7 +190,7 @@ export class Collection {
                 if (c) {
                     c = c.sortBy(step.field)
                 } else if (this.already_limit || this.already_offset) {
-                    c = await this.fetchData(fields);
+                    c = await this.fetchData();
                     c = c.sortBy(step.field)
                 } else {
                     this._sort = step.field;
@@ -192,7 +203,7 @@ export class Collection {
                 if (c) {
                     c = c.take(step.count)
                 } else if (this.already_offset || this.already_limit) {
-                    c = await this.fetchData(fields);
+                    c = await this.fetchData();
                     c = c.take(step.count)
                 } else {
                     this.limit = step.count;
@@ -209,12 +220,20 @@ export class Collection {
                 }
                 this.already_limit = true;
                 this.already_offset = true;
+            }
 
+            if (step.type === 'map') {
+                if (c) {
+                    c = c.map(step.fn)
+                } else {
+                    c = await this.fetchData();
+                    c = c.map(step.fn)
+                }
             }
         }
 
         if (!c) {
-            c = await this.fetchData(fields);
+            c = await this.fetchData();
         }
 
         return c.all();
