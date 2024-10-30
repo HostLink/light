@@ -1,7 +1,7 @@
 import collect from 'collect.js';
 import { AxiosInstance } from 'axios';
 import query from './query';
-class Collection {
+export class Collection {
 
 
     private filters: any;
@@ -9,6 +9,7 @@ class Collection {
     private axios: AxiosInstance;
     public limit: number | undefined;
     private _sort: string | undefined;
+    private _sortDesc: boolean = false;
     private offset: number | undefined;
 
     private steps: Array<any>;
@@ -20,6 +21,13 @@ class Collection {
         this.axios = axios;
         this.filters = {};
         this.steps = [];
+    }
+
+    forPage(page: number, chunk: number) {
+        //clone self
+        const clone = Object.create(this)
+        this.steps.push({ type: 'forPage', page, chunk });
+        return clone
     }
 
     splice(index: number, number: number) {
@@ -34,6 +42,19 @@ class Collection {
         const clone = Object.create(this);
         this.steps.push({ type: 'take', count });
         return clone;
+    }
+
+    sortByDesc(field: string) {
+        //clone self
+        const clone = Object.create(this);
+        this.steps.push({ type: 'sortBy', field, desc: true });
+        return clone;
+    }
+
+    async count(fields: Object) {
+        let data = await this.all(fields);
+        return data.length;
+
     }
 
     sortBy(field: string) {
@@ -57,7 +78,15 @@ class Collection {
           return clone;
       } */
 
-    where(field: string, operator: any, value: any) {
+    async first(fields: Object) {
+        let data = await this.take(1).all(fields);
+        if (data.length > 0) {
+            return data[0];
+        }
+        return null;
+    }
+
+    where(field: string, operator: any, value?: any) {
         if (arguments.length === 2) {
             value = operator;
             operator = '=';
@@ -68,10 +97,7 @@ class Collection {
         return this;
     }
 
-    async fetchData(fields: Object) {
-        let q: any = {};
-        q.data = fields;
-
+    buildArgs() {
         let args: any = {};
 
         if (Object.keys(this.filters).length > 0) {
@@ -79,37 +105,56 @@ class Collection {
         }
         if (this._sort) {
             args.sort = this._sort;
+            if (this._sortDesc) {
+                args.sort += ':desc';
+            }
         }
 
-        if (this.limit) {
+        return args;
+    }
+
+    async fetchData(fields: Object) {
+        let q: any = {};
+        q.__args = this.buildArgs();
+        q.data = fields;
+        if (this.already_limit) {
             q.data.__args = q.data.__args || {};
             q.data.__args.limit = this.limit;
         }
 
-        if (this.offset) {
+        if (this.already_offset) {
             q.data.__args = q.data.__args || {};
             q.data.__args.offset = this.offset;
         }
-
-
-        q.__args = args;
-
-
 
         const data = await query(this.axios, {
             ['list' + this.name]: q
         })
 
-        return collect(data['list' + this.name]['data']);
+        return collect(data['list' + this.name].data);
 
     }
-
 
 
     async all(fields: Object) {
 
         let c = null;
         for (const step of this.steps) {
+
+            if (step.type === "forPage") {
+                if (c) {
+                    c = c.forPage(step.page, step.chunk);
+                } else if (this.already_limit || this.already_offset) {
+                    c = await this.fetchData(fields);
+                    c = c.forPage(step.page, step.chunk);
+                } else {
+                    this.offset = (step.page - 1) * step.chunk;
+                    this.limit = step.chunk;
+                }
+                this.already_limit = true;
+                this.already_offset = true;
+            }
+
             if (step.type === 'where') {
                 if (c) {
                     c = c.where(step.field, step.operator, step.value)
@@ -138,6 +183,7 @@ class Collection {
                     c = c.sortBy(step.field)
                 } else {
                     this._sort = step.field;
+                    this._sortDesc = step.desc;
                 }
             }
 
@@ -174,9 +220,4 @@ class Collection {
         return c.all();
 
     }
-}
-
-export default (axios: AxiosInstance, name: string): any => {
-
-    return new Collection(name, axios);
 }

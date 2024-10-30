@@ -10,14 +10,10 @@ const resp = await client.axios.post("/", {
 if (resp.headers['set-cookie']) {
     client.axios.defaults.headers.cookie = resp.headers['set-cookie'][0];
 }
-//await client.auth.login("admin", "111111");
-const c = collect([10, 9, 8, 7, 6, 5, 4, 3, 2, 1]);
-
-console.log(c.sort().splice(2, 3).all());
-
 
 console.log(await client.collect("MailLog")
-    .where("maillog_id", 10)
+    .forPage(2, 10)
+
     .all({ maillog_id: true })
 );
 
