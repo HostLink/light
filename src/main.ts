@@ -14,7 +14,7 @@ if (resp.headers['set-cookie']) {
 let c = client.collect("MailLog", { maillog_id: true, subject: true });
 c = c.forPage(2, 10);
 
-console.log(await c.chunk(2).all());
+console.log(await c.all());
 
 
 

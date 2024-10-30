@@ -5,7 +5,7 @@ export class Collection {
 
 
     private filters: any;
-    private name: string;
+    private data_path: string[];
     private axios: AxiosInstance;
     public limit: number | undefined;
     private _sort: string | undefined;
@@ -17,8 +17,8 @@ export class Collection {
     private already_offset: boolean = false;
     private fields: Object;
 
-    constructor(name: string, fields: Object, axios: AxiosInstance) {
-        this.name = name;
+    constructor(data_path: string[], fields: Object, axios: AxiosInstance) {
+        this.data_path = data_path;
         this.axios = axios;
         this.filters = {};
         this.steps = [];
@@ -155,11 +155,29 @@ export class Collection {
             q.data.__args.offset = this.offset;
         }
 
-        const data = await query(this.axios, {
-            ['list' + this.name]: q
-        })
 
-        return collect(data['list' + this.name].data);
+        const t = this.data_path;
+
+        let n: any = {};
+        let current = n;
+        let last_key = t[t.length - 1];
+        for (const key of t) {
+            if (key === last_key) {
+                current[key] = q
+                break;
+            }
+            current[key] = {};
+            current = current[key];
+        }
+
+        const resp = await query(this.axios, n);
+
+        let data = resp;
+        for (const key of t) {
+            data = data[key];
+        }
+
+        return collect(data.data);
 
     }
 

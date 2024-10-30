@@ -50,7 +50,11 @@ export default () => {
         },
         get(name: string) {
             return data[name];
+        },
+        getDataPath(name: string) {
+            return ["list" + name];
         }
+
 
     }
 }
