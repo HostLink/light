@@ -25,6 +25,16 @@ export class Collection {
         this.fields = fields;
     }
 
+
+
+    dataPath(path: string) {
+        //clone
+        const clone = this.clone();
+        clone.data_path = path;
+        return clone;
+    }
+
+
     clone(): Collection {
         const clone = Object.create(this);
         clone.steps = [...this.steps];

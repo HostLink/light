@@ -12,10 +12,11 @@ if (resp.headers['set-cookie']) {
 }
 
 
-client.model("MailLog").setDataPath("listMailLog")
+client.model("MailLog")
 
-let c = client.collect("MailLog", { maillog_id: true, subject: true });
+let c = client.collect("MailLog", { maillog_id: true, subject: true }).dataPath("app.mailLogs");
 c = c.forPage(2, 10);
+
 
 console.log(await c.all());
 
