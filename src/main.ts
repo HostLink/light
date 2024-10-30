@@ -1,8 +1,26 @@
+import collect from "collect.js";
 import { createClient } from "../lib/index.ts"
+import mail from "../lib/mail.ts";
 const client = createClient("http://127.0.0.1:8888/");
 
-console.log(await client.auth.login("admin", "111111"));
-client.fs.folders.list("/").then(console.log);
+const resp = await client.axios.post("/", {
+    query: `mutation { login(username: "admin", password: "111111")  }`
+})
+
+if (resp.headers['set-cookie']) {
+    client.axios.defaults.headers.cookie = resp.headers['set-cookie'][0];
+}
+//await client.auth.login("admin", "111111");
+const c = collect([10, 9, 8, 7, 6, 5, 4, 3, 2, 1]);
+
+console.log(c.sort().splice(2, 3).all());
+
+
+console.log(await client.collect("MailLog")
+    .where("maillog_id", 10)
+    .all({ maillog_id: true })
+);
+
 
 /* 
 
