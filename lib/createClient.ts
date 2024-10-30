@@ -65,9 +65,8 @@ export default (baseURL: string): LightClient => {
         roles: roles(_axios),
         collect: (name: string, fields: Object): Collection => {
 
-
             //get data path
-            const data_path = _models.getDataPath(name);
+            const data_path = model(_axios, name, _models.get(name)).getDataPath();
             return new Collection(data_path, fields, _axios);
 
         }

@@ -5,7 +5,7 @@ export class Collection {
 
 
     private filters: any;
-    private data_path: string[];
+    private data_path: string;
     private axios: AxiosInstance;
     public limit: number | undefined;
     private _sort: string | undefined;
@@ -17,7 +17,7 @@ export class Collection {
     private already_offset: boolean = false;
     private fields: Object;
 
-    constructor(data_path: string[], fields: Object, axios: AxiosInstance) {
+    constructor(data_path: string, fields: Object, axios: AxiosInstance) {
         this.data_path = data_path;
         this.axios = axios;
         this.filters = {};
@@ -156,7 +156,7 @@ export class Collection {
         }
 
 
-        const t = this.data_path;
+        const t = this.data_path.split('.');
 
         let n: any = {};
         let current = n;

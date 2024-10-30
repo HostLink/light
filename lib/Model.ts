@@ -27,9 +27,10 @@ export default (axios: AxiosInstance, name: string, fields: any) => {
     const _name = name;
     const _axios = axios;
     const _fields = fields;
-    
+    let _dataPath = "list" + name;
+
     const field = (f: string): ModelField | null => {
-        
+
         if (!_fields[f]) {
             return null;
         }
@@ -39,6 +40,13 @@ export default (axios: AxiosInstance, name: string, fields: any) => {
     return {
         field,
         $fields: _fields,
+        setDataPath(path: string) {
+            _dataPath = path;
+            return _dataPath;
+        },
+        getDataPath() {
+            return _dataPath;
+        },
         gqlFields(fields: (string | object)[]) {
             const result: Array<any> = [];
             for (const f of fields) {
