@@ -11,10 +11,12 @@ if (resp.headers['set-cookie']) {
     client.axios.defaults.headers.cookie = resp.headers['set-cookie'][0];
 }
 
-console.log(await client.collect("MailLog", { maillog_id: true, subject: true })
-    .forPage(2, 10)
-    .all()
-);
+let c = client.collect("MailLog", { maillog_id: true, subject: true });
+c = c.forPage(2, 10);
+
+console.log(await c.chunk(2).all());
+
+
 
 
 /* 

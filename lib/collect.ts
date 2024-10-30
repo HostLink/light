@@ -25,23 +25,41 @@ export class Collection {
         this.fields = fields;
     }
 
-    forPage(page: number, chunk: number): Collection {
-        //clone self
-        const clone = Object.create(this)
-        this.steps.push({ type: 'forPage', page, chunk });
+    clone(): Collection {
+        const clone = Object.create(this);
+        clone.steps = [...this.steps];
+        return clone;
+    }
+
+    chunk(size: number) {
+        const clone = this.clone();
+        clone.steps.push({ type: 'chunk', size });
+        return clone;
+    }
+
+    shuffle() {
+        const c = this.clone();
+        c.steps.push({ type: 'shuffle' });
+        return c;
+    }
+
+    forPage(page: number, chunk: number) {
+        //deep clone self
+        const clone = this.clone();
+        clone.steps.push({ type: 'forPage', page, chunk });
         return clone
     }
 
     splice(index: number, number: number) {
         //clone self
-        const clone = Object.create(this);
+        const clone = this.clone();
         this.steps.push({ type: 'splice', index, number });
         return clone;
     }
 
     take(count: number) {
         //clone self
-        const clone = Object.create(this);
+        const clone = this.clone();
         this.steps.push({ type: 'take', count });
         return clone;
     }
@@ -49,7 +67,7 @@ export class Collection {
 
     sortByDesc(field: string) {
         //clone self
-        const clone = Object.create(this);
+        const clone = this.clone();
         this.steps.push({ type: 'sortBy', field, desc: true });
         return clone;
     }
@@ -62,27 +80,27 @@ export class Collection {
 
     sortBy(field: string) {
         //clone self
-        const clone = Object.create(this);
+        const clone = this.clone();
         this.steps.push({ type: 'sortBy', field });
         return clone;
     }
 
     pluck(field: string) {
         //clone self
-        const clone = Object.create(this);
+        const clone = this.clone();
         this.steps.push({ type: 'pluck', field });
         return clone;
     }
 
     /*   random(length?: number) {
           //clone self
-          const clone = Object.create(this);
+          const clone = this.clone();
           this.post_step.push({ type: 'random', length });
           return clone;
       } */
 
-    async first(fields: Object) {
-        let data = await this.take(1).all(fields);
+    async first() {
+        let data = await this.take(1).all();
         if (data.length > 0) {
             return data[0];
         }
@@ -92,7 +110,7 @@ export class Collection {
     where(field: string, operator: any, value?: any) {
         if (arguments.length === 2) {
             value = operator;
-            operator = '=';
+            operator = '==';
         }
 
         this.steps.push({ type: 'where', field, operator, value });
@@ -118,7 +136,7 @@ export class Collection {
 
     map<T>(fn: (item: any, index: any) => T): Collection {
         //clone self
-        const clone = Object.create(this);
+        const clone = this.clone();
         this.steps.push({ type: 'map', fn });
         return clone;
     }
@@ -145,12 +163,33 @@ export class Collection {
 
     }
 
+    reverse(): Collection {
+        //clone self
+        const clone = this.clone();
+        clone.steps.push({ type: 'reverse' });
+        return clone;
+    }
 
 
     async all() {
 
         let c = null;
         for (const step of this.steps) {
+
+            if (step.type === "chunk") {
+                if (!c) c = await this.fetchData();
+                c = c.chunk(step.size);
+            }
+
+            if (step.type === "reverse") {
+                if (!c) c = await this.fetchData();
+                c = c.reverse();
+            }
+
+            if (step.type === "shuffle") {
+                if (!c) c = await this.fetchData();
+                c = c.shuffle();
+            }
 
             if (step.type === "forPage") {
                 if (c) {
@@ -168,9 +207,9 @@ export class Collection {
 
             if (step.type === 'where') {
                 if (c) {
-                    c = c.where(step.field, step.operator, step.value)
+                    c = c.where(step.field, step.operator as Operator, step.value)
                 } else {
-                    if (step.operator === '=') {
+                    if (step.operator === '==') {
                         this.filters[step.field] = step.value
                     }
 
