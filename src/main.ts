@@ -14,16 +14,14 @@ if (resp.headers['set-cookie']) {
 
 client.model("MailLog")
 
-let c = client.collect("MailLog", { maillog_id: true, subject: true }).dataPath("app.mailLogs");
-c = c.forPage(2, 10);
-
+let c = client.collect("MailLog", { maillog_id: true, subject: true })
+    .groupBy("subject")
 
 console.log(await c.all());
 
 
-
-
 /* 
+
 
 import { login, logout } from "../lib/auth"
 

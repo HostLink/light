@@ -1,8 +1,10 @@
 import collect from 'collect.js';
+import { Collection as CollectionClass } from 'collect.js';
 import { AxiosInstance } from 'axios';
 import query from './query';
-export class Collection {
 
+class Collection<Item> {
+    [key: string]: any;
 
     private filters: any;
     private data_path: string;
@@ -12,7 +14,7 @@ export class Collection {
     private _sortDesc: boolean = false;
     private offset: number | undefined;
 
-    private steps: Array<any>;
+    public steps: Array<any>;
     private already_limit: boolean = false;
     private already_offset: boolean = false;
     private fields: Object;
@@ -25,7 +27,19 @@ export class Collection {
         this.fields = fields;
     }
 
+    avgerage(key?: string | undefined) {
+        return this.avg(key);
+    }
 
+    async first<V>(fn?: (item: Item, key: any) => boolean, defaultValue?: ((...any: any[]) => V | Item) | V | Item) {
+        let clone = this.clone();
+
+        if (!fn) {
+            clone = clone.take(1);
+        }
+
+        return (await clone.processData()).first(fn, defaultValue);
+    }
 
     dataPath(path: string) {
         //clone
@@ -34,87 +48,10 @@ export class Collection {
         return clone;
     }
 
-
-    clone(): Collection {
+    clone() {
         const clone = Object.create(this);
         clone.steps = [...this.steps];
-        return clone;
-    }
-
-    chunk(size: number) {
-        const clone = this.clone();
-        clone.steps.push({ type: 'chunk', size });
-        return clone;
-    }
-
-    shuffle() {
-        const c = this.clone();
-        c.steps.push({ type: 'shuffle' });
-        return c;
-    }
-
-    forPage(page: number, chunk: number) {
-        //deep clone self
-        const clone = this.clone();
-        clone.steps.push({ type: 'forPage', page, chunk });
-        return clone
-    }
-
-    splice(index: number, number: number) {
-        //clone self
-        const clone = this.clone();
-        this.steps.push({ type: 'splice', index, number });
-        return clone;
-    }
-
-    take(count: number) {
-        //clone self
-        const clone = this.clone();
-        this.steps.push({ type: 'take', count });
-        return clone;
-    }
-
-
-    sortByDesc(field: string) {
-        //clone self
-        const clone = this.clone();
-        this.steps.push({ type: 'sortBy', field, desc: true });
-        return clone;
-    }
-
-    async count() {
-        let data = await this.all();
-        return data.length;
-
-    }
-
-    sortBy(field: string) {
-        //clone self
-        const clone = this.clone();
-        this.steps.push({ type: 'sortBy', field });
-        return clone;
-    }
-
-    pluck(field: string) {
-        //clone self
-        const clone = this.clone();
-        this.steps.push({ type: 'pluck', field });
-        return clone;
-    }
-
-    /*   random(length?: number) {
-          //clone self
-          const clone = this.clone();
-          this.post_step.push({ type: 'random', length });
-          return clone;
-      } */
-
-    async first() {
-        let data = await this.take(1).all();
-        if (data.length > 0) {
-            return data[0];
-        }
-        return null;
+        return clone as Collection<Item>;
     }
 
     where(field: string, operator: any, value?: any) {
@@ -144,12 +81,6 @@ export class Collection {
         return args;
     }
 
-    map<T>(fn: (item: any, index: any) => T): Collection {
-        //clone self
-        const clone = this.clone();
-        this.steps.push({ type: 'map', fn });
-        return clone;
-    }
 
     async fetchData() {
         let q: any = {};
@@ -191,43 +122,26 @@ export class Collection {
 
     }
 
-    reverse(): Collection {
-        //clone self
-        const clone = this.clone();
-        clone.steps.push({ type: 'reverse' });
-        return clone;
-    }
-
-
-    async all() {
-
+    async processData(): Promise<CollectionClass<Item>> {
         let c = null;
+
         for (const step of this.steps) {
-
-            if (step.type === "chunk") {
+            if (["chunk", "shuffle", "forPage", "splice", "sortBy", "map", "reverse", "groupBy", "implode", "keyBy", "keys",
+                "mapToDictionary", "mapWithKeys", "nth"].includes(step.type)) {
                 if (!c) c = await this.fetchData();
-                c = c.chunk(step.size);
-            }
-
-            if (step.type === "reverse") {
-                if (!c) c = await this.fetchData();
-                c = c.reverse();
-            }
-
-            if (step.type === "shuffle") {
-                if (!c) c = await this.fetchData();
-                c = c.shuffle();
+                c = c[step.type](...step.args);
+                continue;
             }
 
             if (step.type === "forPage") {
                 if (c) {
-                    c = c.forPage(step.page, step.chunk);
+                    c = c.forPage(step.args[0], step.args[1]);
                 } else if (this.already_limit || this.already_offset) {
                     c = await this.fetchData();
-                    c = c.forPage(step.page, step.chunk);
+                    c = c.forPage(step.args[0], step.args[1]);
                 } else {
-                    this.offset = (step.page - 1) * step.chunk;
-                    this.limit = step.chunk;
+                    this.offset = (step.args[0] - 1) * step.args[1];
+                    this.limit = step.args[1];
                 }
                 this.already_limit = true;
                 this.already_offset = true;
@@ -244,66 +158,85 @@ export class Collection {
                 }
             }
 
-            if (step.type === 'pluck') {
-                if (c) {
-                    c = c.pluck(step.field)
-                } else {
-                    c = await this.fetchData();
-                    c = c.pluck(step.field)
-                }
-            }
 
             if (step.type === 'sortBy') {
                 if (c) {
-                    c = c.sortBy(step.field)
+                    c = c.sortBy(step.args[0])
                 } else if (this.already_limit || this.already_offset) {
                     c = await this.fetchData();
-                    c = c.sortBy(step.field)
+                    c = c.sortBy(step.args[0])
                 } else {
-                    this._sort = step.field;
+                    this._sort = step.args[0];
                     this._sortDesc = step.desc;
                 }
+            }
+
+            if (step.type === 'skip') {
+                if (c) {
+                    c = c.skip(step.args[0])
+                } else if (this.already_offset || this.already_limit) {
+                    c = await this.fetchData();
+                    c = c.skip(step.args[0])
+                } else {
+                    this.offset = step.args[0];
+                }
+                this.already_offset = true;
             }
 
 
             if (step.type === 'take') {
                 if (c) {
-                    c = c.take(step.count)
+                    c = c.take(...step.args)
                 } else if (this.already_offset || this.already_limit) {
                     c = await this.fetchData();
-                    c = c.take(step.count)
+                    c = c.take(step.args[0])
                 } else {
-                    this.limit = step.count;
+                    this.limit = step.args[0];
                 }
                 this.already_limit = true;
             }
 
             if (step.type === 'splice') {
                 if (c) {
-                    c = c.splice(step.index, step.number)
+                    c = c.splice(...step.args)
                 } else {
-                    this.offset = step.index;
-                    this.limit = step.number;
+                    this.offset = step.args[0];
+                    this.limit = step.args[1];
                 }
                 this.already_limit = true;
                 this.already_offset = true;
             }
 
-            if (step.type === 'map') {
-                if (c) {
-                    c = c.map(step.fn)
-                } else {
-                    c = await this.fetchData();
-                    c = c.map(step.fn)
-                }
-            }
         }
 
         if (!c) {
             c = await this.fetchData();
         }
+        return c;
+    }
 
-        return c.all();
-
+    async all() {
+        return (await this.processData()).all();
     }
 }
+
+for (const key of ["chunk", "shuffle", "forPage", "splice", "sortBy", "map", "take", "reverse", "groupBy", "implode", "keyBy", "keys",
+    "mapToDictionary", "mapWithKeys", "nth", "skip"]) {
+    Collection.prototype[key] = function (...args: any[]) {
+        const clone = this.clone();
+        clone.steps.push({ type: key, args });
+        return clone;
+    }
+}
+
+for (const key of ["avg", "count", "countBy", "dd", "each", "every", "filter", "firstWhere", "isEmpty", "isNotEmpty", "last", "mapToGroups",
+    "max", "median", "min", "mode", "contains"]) {
+    Collection.prototype[key] = async function (...args: any[]) {
+        const clone = this.clone();
+        return (await clone.processData())[key](...args);
+    }
+}
+
+
+
+export default Collection;
