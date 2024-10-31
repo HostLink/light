@@ -15,7 +15,7 @@ if (resp.headers['set-cookie']) {
 client.model("MailLog")
 
 let c = client.collect("MailLog", { maillog_id: true, subject: true })
-    .groupBy("subject")
+    .whereIn("maillog_id", [2, 10])
 
 console.log(await c.all());
 

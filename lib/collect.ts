@@ -3,6 +3,15 @@ import { Collection as CollectionClass } from 'collect.js';
 import { AxiosInstance } from 'axios';
 import query from './query';
 
+const methodSteps: string[] = ["chunk", "shuffle", "splice", "sortBy", "map", "reverse", "groupBy", "implode", "keyBy", "keys",
+    "mapToDictionary", "mapWithKeys", "nth", "skipUntil", "skipWhile", "takeUntil", "takeWhile", "unique"]
+
+const methodStepsSQL: string[] = ["forPage", "sortByDesc", "sortBy", "skip", "take", "splice", "whereBetween", "whereIn", "whereNotBetween", "whereNotIn"]
+
+//direct get result methods
+const methodFinal: string[] = ["avg", "count", "countBy", "dd", "each", "every", "filter", "first", "firstWhere", "isEmpty", "isNotEmpty",
+    "last", "mapToGroups", "max", "median", "min", "mode", "contains", "sole", "sort", "split", "sum", "toJson"]
+
 class Collection<Item> {
     [key: string]: any;
 
@@ -126,8 +135,7 @@ class Collection<Item> {
         let c = null;
 
         for (const step of this.steps) {
-            if (["chunk", "shuffle", "forPage", "splice", "sortBy", "map", "reverse", "groupBy", "implode", "keyBy", "keys",
-                "mapToDictionary", "mapWithKeys", "nth"].includes(step.type)) {
+            if (methodSteps.includes(step.type)) {
                 if (!c) c = await this.fetchData();
                 c = c[step.type](...step.args);
                 continue;
@@ -154,10 +162,57 @@ class Collection<Item> {
                     if (step.operator === '==') {
                         this.filters[step.field] = step.value
                     }
-
                 }
             }
 
+            if (step.type === 'whereIn') {
+                if (!c) {
+                    this.filters[step.args[0]] = { in: step.args[1] }
+                }
+                else {
+                    c = c.whereIn(...step.args)
+                }
+            }
+
+            if (step.type === 'whereNotBetween') {
+                if (!c) {
+                    this.filters[step.args[0]] = { notBetween: step.args[1] }
+                }
+                else {
+                    c = c.whereNotBetween(...step.args)
+                }
+            }
+
+            if (step.type === 'whereNotIn') {
+                if (!c) {
+                    this.filters[step.args[0]] = { notIn: step.args[1] }
+                }
+                else {
+                    c = c.whereNotIn(...step.args)
+                }
+            }
+
+            if (step.type == "whereBetween") {
+                if (!c) {
+                    this.filters[step.args[0]] = { between: step.args[1] }
+                }
+                else {
+                    c = c.whereBetween(...step.args)
+                }
+            }
+
+
+            if (step.type === 'sortByDesc') {
+                if (c) {
+                    c = c.sortByDesc(step.args[0])
+                } else if (this.already_limit || this.already_offset) {
+                    c = await this.fetchData();
+                    c = c.sortByDesc(step.args[0])
+                } else {
+                    this._sort = step.args[0];
+                    this._sortDesc = true;
+                }
+            }
 
             if (step.type === 'sortBy') {
                 if (c) {
@@ -167,7 +222,6 @@ class Collection<Item> {
                     c = c.sortBy(step.args[0])
                 } else {
                     this._sort = step.args[0];
-                    this._sortDesc = step.desc;
                 }
             }
 
@@ -220,8 +274,7 @@ class Collection<Item> {
     }
 }
 
-for (const key of ["chunk", "shuffle", "forPage", "splice", "sortBy", "map", "take", "reverse", "groupBy", "implode", "keyBy", "keys",
-    "mapToDictionary", "mapWithKeys", "nth", "skip"]) {
+for (const key of [...methodSteps, ...methodStepsSQL]) {
     Collection.prototype[key] = function (...args: any[]) {
         const clone = this.clone();
         clone.steps.push({ type: key, args });
@@ -229,8 +282,7 @@ for (const key of ["chunk", "shuffle", "forPage", "splice", "sortBy", "map", "ta
     }
 }
 
-for (const key of ["avg", "count", "countBy", "dd", "each", "every", "filter", "firstWhere", "isEmpty", "isNotEmpty", "last", "mapToGroups",
-    "max", "median", "min", "mode", "contains"]) {
+for (const key of methodFinal) {
     Collection.prototype[key] = async function (...args: any[]) {
         const clone = this.clone();
         return (await clone.processData())[key](...args);
