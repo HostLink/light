@@ -6,7 +6,7 @@ import query from './query';
 const methodSteps: string[] = ["chunk", "shuffle", "splice", "sortBy", "map", "reverse", "groupBy", "implode", "keyBy", "keys",
     "mapToDictionary", "mapWithKeys", "nth", "skipUntil", "skipWhile", "takeUntil", "takeWhile", "unique"]
 
-const methodStepsSQL: string[] = ["forPage", "sortByDesc", "sortBy", "skip", "take", "splice", "whereBetween", "whereIn", "whereNotBetween", "whereNotIn", "first"]
+const methodStepsSQL: string[] = ["forPage", "sortByDesc", "sortBy", "skip", "take", "splice", "whereBetween", "whereIn", "whereNotBetween", "whereNotIn", "first", "where", "whereContains"]
 
 //direct get result methods
 const methodFinal: string[] = ["avg", "count", "countBy", "dd", "each", "every", "filter", "firstWhere", "isEmpty", "isNotEmpty",
@@ -568,6 +568,14 @@ Collection.prototype.clone = function (): Collection<Item> {
     return clone;
 }
 
+collect().macro('whereContains', function (field: string, value: string) {
+    return this.filter((item: any) => {
+        //check value is in item[field] (case insensitive)
+        return item[field].toLowerCase().includes(value.toLowerCase());
+
+    });
+});
+
 Collection.prototype.fetchData = async function () {
     let q: any = {
         meta: {
@@ -644,13 +652,57 @@ Collection.prototype.processData = async function (): Promise<CollectionClass<It
 
         if (step.type === 'where') {
             if (c) {
-                c = c.where(step.field, step.operator as Operator, step.value)
+                c = c.where(...step.args)
             } else {
-                if (step.operator === '==') {
-                    this.filters[step.field] = step.value
+
+                const field = step.args[0];
+                let operator = "=="
+                let value = null;
+                if (step.args.length == 2) {
+                    value = step.args[1];
                 }
+
+                if (step.args.length == 3) {
+                    operator = step.args[1];
+                    value = step.args[2];
+                }
+
+                if (operator === '==') {
+                    this.filters[field] = value
+                }
+
+                if (operator === "<") {
+                    this.filters[field] = { "lt": value }
+                }
+
+                if (operator === "<=") {
+                    this.filters[field] = { "lte": value }
+                }
+
+                if (operator === ">") {
+                    this.filters[field] = { "gt": value }
+                }
+
+                if (operator === ">=") {
+                    this.filters[field] = { "gte": value }
+                }
+
+                if (operator === "!==") {
+                    this.filters[field] = { "ne": value }
+                }
+
             }
         }
+
+        if (step.type === 'whereContains') {
+            if (!c) {
+                this.filters[step.args[0]] = { contains: step.args[1] }
+            }
+            else {
+                c = c.whereContains(...step.args)
+            }
+        }
+
 
         if (step.type === 'whereIn') {
             if (!c) {

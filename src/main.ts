@@ -13,173 +13,18 @@ if (resp.headers['set-cookie']) {
 client.model("MailLog")
 
 let c = client.collect("MailLog", { maillog_id: true, subject: true })
-let d = c.sortByDesc("maillog_id").take(10);
-
-console.log(await d.all());
-console.log(await d.meta.total);
-
-//.whereIn("maillog_id", [2, 10])
-
-//console.log(await c.all());
-
-
-/* 
+let d = c.sortByDesc("maillog_id")
+    .where("maillog_id", "<", 100)
+    .take(100)
+    .sortBy("maillog_id")
+    .whereContains("subject", "GET")
+    
+    
 
 
-import { login, logout } from "../lib/auth"
-
-
-import query from "../lib/query"
-import uploadFile from "../lib/uploadFile"
-import sendMail from "../lib/sendMail"
-import getConfig from "../lib/getConfig"
-
-import webauthnRegister from "../lib/webauthnRegister"
-import webauthnLogin from "../lib/webauthnLogin"
-import toQuery from "../lib/toQuery"
-import { model } from "../lib/model"
-
-
-import { mutation, getRoles, getUsers } from "../lib"
-
-console.log(await login("admin", "111111"))
-console.log(await getRoles());
-
-console.log(await getUsers());
- */
-
-/* import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
-
-const query = {
-    query: {
-        __variables: {
-            variable1: 'String!',
-            variableWithDefault: 'String = "default_value"'
-        },
-        Posts: {
-            __args: {
-                arg1: 20,
-                arg2: new VariableType('variable1')
-            },
-            id: true,
-            title: true
-        }
-    }
-};
-const graphql_query = jsonToGraphQLQuery(query, { pretty: true });
-
-console.log(graphql_query);
- */
-
-
-/* const qq = toQuery([{
-    listUpdates: {
-        __args: {
-            filters: {
-                type: 1
-            },
-        },
-        x: [{
-            __args: {
-                ay: 1
-            },
-        }, "z", "dd"],
-        b: false,
-    },
-}, "abc"]);
-console.log(qq);
- */
-//await logout();
-/* 
-console.log(await login("admin", "111111"))
-
-//list Roles
+const data = await d.all();
+const meta = d.meta.total
 
 
 
-document.getElementById("webauthn_register")?.addEventListener("click", async () => {
-    //download creation credential options
-    console.log(await webauthnRegister());
-});
-
-
-document.getElementById("webauthn_login")?.addEventListener("click", async () => {
-    webauthnLogin("admin");
-});
- */
-
-
-//console.log(await getConfig("company"));
-
-/* console.log(await query({
-    my: ["name"]
-}));
- */
-
-document.getElementById("sendMail")?.addEventListener("click", async () => {
-    console.log(await sendMail("raymond@hostlink.com.hk", "Testing", "Testing"));
-});
-
-document.getElementById("upload")?.addEventListener("click", async () => {
-    //get file
-    const fileInput = document.getElementById("file") as HTMLInputElement | null;
-    if (!fileInput) {
-        console.error("File input not found");
-        return;
-    }
-    const file = fileInput.files?.[0];
-    if (!file) {
-        console.error("No file selected");
-        return;
-    }
-    //upload file
-    const resp = await uploadFile(file);
-
-    console.log(resp)
-});
-
-document.getElementById("upload2")?.addEventListener("click", async () => {
-    console.log("upload2");
-
-    const fileInput = document.getElementById("file2") as HTMLInputElement | null;
-    if (!fileInput) {
-        console.error("File2 input not found");
-        return;
-    }
-
-    const file = fileInput.files?.[0];
-    if (!file) {
-        console.error("No file selected");
-        return;
-    }
-
-    /*  await model("Test").add({
-         a: 1,
-         file: file
-     }) */
-
-    await model("Test").update(1, {
-        a: 1,
-        file: file
-    })
-});
-
-
-document.getElementById("f_download")?.addEventListener("click", async () => {
-    File.fromString("Hello").download("test.txt");
-
-});
-
-document.getElementById("f_open")?.addEventListener("click", async () => {
-    //  console.log("open")
-    //    File.fromBase64("SGVsbG8=").open("text/plain");
-
-    File.fromBase85("9jqo^BlbD-").open("text/plain");
-});
-
-
-
-
-
-//console.log(await model("User").get({ user_id: 1 }, ["username"]));
-
+document.getElementById("content").innerHTML = JSON.stringify(data, null, 4);
