@@ -58,6 +58,13 @@ export default (axios: AxiosInstance) => {
 
         },
         get(name: string) {
+
+            if (!data[name]) {
+                //create new model
+                this.create(name, {});
+            }
+
+
             return data[name];
         }
 

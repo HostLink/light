@@ -10,7 +10,7 @@ if (resp.headers['set-cookie']) {
 }
 
 
-client.model("MailLog")
+client.model("MailLog").setDataPath("app.mailLogs")
 
 let c = client.collect("MailLog", { maillog_id: true, subject: true })
 let d = c.sortByDesc("maillog_id")
@@ -18,8 +18,8 @@ let d = c.sortByDesc("maillog_id")
     .take(100)
     .sortBy("maillog_id")
     .whereContains("subject", "GET")
-    
-    
+
+
 
 
 const data = await d.all();
