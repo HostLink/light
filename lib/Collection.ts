@@ -568,11 +568,10 @@ Collection.prototype.clone = function (): Collection<Item> {
     return clone;
 }
 
-collect().macro('whereContains', function (field: string, value: string) {
+collect().macro('whereContains', function (this: any, field: string, value: string) {
     return this.filter((item: any) => {
         //check value is in item[field] (case insensitive)
         return item[field].toLowerCase().includes(value.toLowerCase());
-
     });
 });
 
