@@ -515,14 +515,6 @@ interface Collection<Item> {
 
 type Item = Object;
 
-/* const Collection = function (this: Collection<Item>, data_path: string, fields: Object, axios: AxiosInstance) {
-    this.data_path = data_path;
-    this.axios = axios;
-    this.filters = {};
-    this.steps = [];
-    this.fields = fields;
-} */
-
 class Collection<Item> {
     data_path: string;
     axios: AxiosInstance;
@@ -535,6 +527,7 @@ class Collection<Item> {
     offset: null | number = null;
     _sort: string | null = null;
     _sortDesc: boolean = false;
+    meta: any = {};
 
     constructor(data_path: string, fields: Object, axios: AxiosInstance) {
         this.data_path = data_path;
@@ -576,7 +569,11 @@ Collection.prototype.clone = function (): Collection<Item> {
 }
 
 Collection.prototype.fetchData = async function () {
-    let q: any = {};
+    let q: any = {
+        meta: {
+            total: true
+        }
+    };
     q.__args = this.buildArgs();
     q.data = this.fields;
     if (this.already_limit) {
@@ -604,6 +601,7 @@ Collection.prototype.fetchData = async function () {
         current = current[key];
     }
 
+
     const resp = await query(this.axios, n);
 
     let data = resp;
@@ -611,8 +609,9 @@ Collection.prototype.fetchData = async function () {
         data = data[key];
     }
 
-    return collect(data.data);
+    this.meta = data.meta;
 
+    return collect(data.data);
 }
 
 

@@ -13,7 +13,11 @@ if (resp.headers['set-cookie']) {
 client.model("MailLog")
 
 let c = client.collect("MailLog", { maillog_id: true, subject: true })
-console.log(await c.sortByDesc("maillog_id").take(10).first());
+let d = c.sortByDesc("maillog_id").take(10);
+
+console.log(await d.all());
+console.log(await d.meta.total);
+
 //.whereIn("maillog_id", [2, 10])
 
 //console.log(await c.all());
