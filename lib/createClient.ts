@@ -46,7 +46,7 @@ export default (baseURL: string): LightClient => {
         return query(_axios, q);
     }
 
-    const _models = models();
+    const _models = models(_axios);
 
     return {
         baseURL,
@@ -60,13 +60,12 @@ export default (baseURL: string): LightClient => {
         fs: _fs(_axios),
         models: _models,
         model(name: string) {
-            return model(_axios, name, _models.get(name));
+            return _models.get(name);
         },
         roles: roles(_axios),
         collect: (name: string, fields: Object) => {
-
             //get data path
-            const data_path = model(_axios, name, _models.get(name)).getDataPath();
+            const data_path = _models.get(name).getDataPath();
             return new Collection(data_path, fields, _axios);
 
         }

@@ -1,16 +1,23 @@
+import { AxiosInstance } from "axios"
 import { type ModelField, type FieldOption } from "./model"
+import { default as model } from './model';
 
-export default () => {
+export default (axios: AxiosInstance) => {
+    const _axios = axios;
 
     const data: any = {};
+
     return {
         create(name: string, fields: { [key: string]: FieldOption }) {
-            data[name] = {};
+            data[name] = null;
+
+
+            let f: any = {};
 
             for (const entry of Object.entries(fields)) {
                 const [key, option] = entry;
 
-                data[name][key] = (): ModelField => {
+                f[key] = (): ModelField => {
                     return {
                         name: option.name ? option.name : key,
                         raw: option,
@@ -46,13 +53,13 @@ export default () => {
                 }
             }
 
-            return data[name];
+
+            data[name] = model(_axios, name, f);
+
         },
         get(name: string) {
             return data[name];
         }
-      
-
 
     }
 }
