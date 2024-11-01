@@ -12,7 +12,7 @@ import { default as _fs } from './fs';
 import { default as models } from './models';
 import { default as model } from './model';
 import { default as roles } from './roles';
-import { default as Collection } from './collect';
+import { default as Collection } from './Collection';
 
 
 export interface LightClient {

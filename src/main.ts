@@ -1,6 +1,4 @@
-import collect from "collect.js";
 import { createClient } from "../lib/index.ts"
-import mail from "../lib/mail.ts";
 const client = createClient("http://127.0.0.1:8888/");
 
 const resp = await client.axios.post("/", {
@@ -15,9 +13,10 @@ if (resp.headers['set-cookie']) {
 client.model("MailLog")
 
 let c = client.collect("MailLog", { maillog_id: true, subject: true })
-    .whereIn("maillog_id", [2, 10])
+console.log(await c.sortByDesc("maillog_id").first());
+//.whereIn("maillog_id", [2, 10])
 
-console.log(await c.all());
+//console.log(await c.all());
 
 
 /* 
