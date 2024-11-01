@@ -571,7 +571,9 @@ Collection.prototype.clone = function (): Collection<Item> {
 Collection.prototype.fetchData = async function () {
     let q: any = {
         meta: {
-            total: true
+            total: true,
+            key: true,
+            name: true
         }
     };
     q.__args = this.buildArgs();
