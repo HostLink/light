@@ -1,7 +1,6 @@
-import { describe, expect, it } from "vitest"
+import { describe, it } from "vitest"
 import { createClient } from "."
 
-import collect from "./collect"
 const client = createClient("http://127.0.0.1:8888/")
 
 const resp = await client.axios.post("/", {
@@ -15,7 +14,7 @@ if (resp.headers['set-cookie']) {
 describe("collect", () => {
     it("collectAll", async () => {
 
-        await client.collect("MailLog").all({ maillog_id: true });
+        await client.collect("MailLog", { maillog_id: true }).all();
 
     });
 });
