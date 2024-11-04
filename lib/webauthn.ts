@@ -5,16 +5,19 @@ import { parseRequestOptionsFromJSON, get, parseCreationOptionsFromJSON, create 
 export default (axios: AxiosInstance) => {
     return {
         login: async (username: string) => {
-            const json = await query(axios, {
-                webAuthnRequestOptions: {
-                    __args: {
-                        username
+            const { app } = await query(axios, {
+                app: {
+                    auth: {
+                        webAuthnRequestOptions: {
+                            __args: {
+                                username
+                            }
+                        }
                     }
                 }
             })
 
-            const options = json.webAuthnRequestOptions;
-
+            const options = app.auth.webAuthnRequestOptions;
 
             const requestOptions = parseRequestOptionsFromJSON({
                 publicKey: options
@@ -28,10 +31,16 @@ export default (axios: AxiosInstance) => {
             })
         },
         register: async () => {
-            const json = await query(axios, { webAuthnCreationOptions: true });
+            const { app } = await query(axios, {
+                app: {
+                    auth: {
+                        webAuthnCreationOptions: true
+                    }
+                }
+            });
 
             const options = parseCreationOptionsFromJSON({
-                publicKey: json.webAuthnCreationOptions
+                publicKey: app.auth.webAuthnCreationOptions
             });
 
             const response = await create(options);
