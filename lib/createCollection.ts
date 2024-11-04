@@ -516,7 +516,7 @@ interface Collection<Item> {
 type Item = Object;
 
 class Collection<Item> {
-    data_path: string;
+    data_path: string = '';
     axios: AxiosInstance;
     filters: any;
     steps: any[];

@@ -13,3 +13,5 @@ export * from './fs'
 
 export { default as createClient } from './createClient'
 export type { LightClient } from './createClient'
+
+export { default as createCollection } from './createCollection'
