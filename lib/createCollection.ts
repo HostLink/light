@@ -15,7 +15,7 @@ const methodFinal: string[] = ["avg", "count", "countBy", "dd", "each", "every",
 
 interface Collection<Item> {
 
-    constructor(data_path: string, fields: Object, axios: AxiosInstance): void;
+    constructor(fields: Object, axios: AxiosInstance): void;
 
     [key: string]: any;
     /**
@@ -529,8 +529,7 @@ class Collection<Item> {
     _sortDesc: boolean = false;
     meta: any = {};
 
-    constructor(data_path: string, fields: Object, axios: AxiosInstance) {
-        this.data_path = data_path;
+    constructor(fields: Object, axios: AxiosInstance) {
         this.axios = axios;
         this.filters = {};
         this.steps = [];
@@ -835,4 +834,8 @@ Collection.prototype.first = async function () {
 }
 
 
-export default Collection;
+export default (name: string, axios: AxiosInstance, fields: Object): Collection<any> => {
+    const c = new Collection(fields, axios);
+    c.data_path = 'list' + name;
+    return c;
+}

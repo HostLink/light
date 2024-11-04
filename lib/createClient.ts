@@ -12,7 +12,7 @@ import { default as _fs } from './fs';
 import { default as models } from './models';
 import { default as model } from './model';
 import { default as roles } from './roles';
-import { default as Collection } from './Collection';
+import { default as createCollection } from './createCollection';
 
 
 export interface LightClient {
@@ -28,7 +28,7 @@ export interface LightClient {
     models: ReturnType<typeof models>;
     model(name: string): ReturnType<typeof model>;
     roles: ReturnType<typeof roles>;
-    collect(name: string, fields: Object): Collection<any>;
+    collect(name: string, fields: Object): ReturnType<typeof createCollection>;
 }
 
 export default (baseURL: string): LightClient => {
@@ -64,9 +64,9 @@ export default (baseURL: string): LightClient => {
         },
         roles: roles(_axios),
         collect: (name: string, fields: Object) => {
-            //get data path
-            const data_path = _models.get(name).getDataPath();
-            return new Collection(data_path, fields, _axios);
+            const c = createCollection(name, _axios, fields);
+            c.data_path = _models.get(name).getDataPath();
+            return c;
 
         }
     }
