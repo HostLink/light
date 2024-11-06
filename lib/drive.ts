@@ -1,10 +1,22 @@
 import type { AxiosInstance } from 'axios';
 import { mutation, query } from '.';
 
+export type FolderFields = {
+    name?: boolean,
+    path?: boolean
+}
+
+export type FileFields = {
+    path?: boolean,
+    size?: boolean,
+    mime?: boolean,
+    url?: boolean
+}
+
 export default (index: number, axios: AxiosInstance) => {
     return {
         folders: {
-            list: async (path: string, fields: Object = {
+            list: async (path: string, fields: FolderFields = {
                 name: true,
                 path: true
             }) => {
@@ -37,7 +49,7 @@ export default (index: number, axios: AxiosInstance) => {
             }
         },
         files: {
-            list: async (path: string, fields: Object = {
+            list: async (path: string, fields: FileFields = {
                 path: true,
                 size: true,
                 mime: true,
@@ -60,6 +72,25 @@ export default (index: number, axios: AxiosInstance) => {
                 });
 
                 return resp.app.drive.files;
+            },
+            get: async (path: string, fields: FileFields) => {
+                let resp = await query(axios, {
+                    app: {
+                        drive: {
+                            __args: {
+                                index
+                            },
+                            file: {
+                                __args: {
+                                    path
+                                },
+                                ...fields
+                            }
+                        }
+                    }
+                });
+
+                return resp.app.drive.file;
             },
             read: async (path: string) => {
                 let resp = await query(axios, {
