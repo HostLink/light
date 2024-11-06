@@ -9,7 +9,7 @@ if (resp.headers['set-cookie']) {
     client.axios.defaults.headers.cookie = resp.headers['set-cookie'][0];
 }
 
-const data = (await client.drive(0).files.list("/"));
+const data = (await client.drive(0).files.read("a.txt"))
 
 /* 
 

@@ -1,6 +1,5 @@
-import { AxiosInstance } from 'axios';
+import type { AxiosInstance } from 'axios';
 import { mutation, query } from '.';
-
 
 export default (index: number, axios: AxiosInstance) => {
     return {
@@ -42,7 +41,6 @@ export default (index: number, axios: AxiosInstance) => {
                 path: true,
                 size: true,
                 mime: true,
-                canPreview: true,
                 url: true
             }) => {
                 let resp = await query(axios, {
@@ -69,18 +67,17 @@ export default (index: number, axios: AxiosInstance) => {
                         drive: {
                             __args: {
                                 index
-                            }
-                        },
-                        fsFile: {
-                            __args: {
-                                path
                             },
-                            base64Content: true,
-                        },
+                            file: {
+                                __args: {
+                                    path
+                                },
+                                base64Content: true,
+                            }
+                        }
                     }
                 });
-
-                return window.atob(resp.app.fsFile.base64Content);
+                return window.atob(resp.app.drive.file.base64Content);
             },
             write: (path: string, content: string) => {
                 return mutation(axios, "lightDriveWriteFile", { index, path, content });
