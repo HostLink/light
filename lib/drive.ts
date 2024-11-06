@@ -7,6 +7,7 @@ export type FolderFields = {
 }
 
 export type FileFields = {
+    name?: boolean,
     path?: boolean,
     size?: boolean,
     mime?: boolean,
@@ -50,6 +51,7 @@ export default (index: number, axios: AxiosInstance) => {
         },
         files: {
             list: async (path: string, fields: FileFields = {
+                name: true,
                 path: true,
                 size: true,
                 mime: true,
@@ -73,7 +75,13 @@ export default (index: number, axios: AxiosInstance) => {
 
                 return resp.app.drive.files;
             },
-            get: async (path: string, fields: FileFields) => {
+            get: async (path: string, fields: FileFields = {
+                name: true,
+                path: true,
+                size: true,
+                mime: true,
+                url: true
+            }) => {
                 let resp = await query(axios, {
                     app: {
                         drive: {
