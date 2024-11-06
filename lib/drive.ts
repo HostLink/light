@@ -64,15 +64,22 @@ export default (index: number, axios: AxiosInstance) => {
             },
             read: async (path: string) => {
                 let resp = await query(axios, {
-                    fsFile: {
-                        __args: {
-                            path
+                    app: {
+                        drive: {
+                            __args: {
+                                index
+                            }
                         },
-                        base64Content: true,
-                    },
+                        fsFile: {
+                            __args: {
+                                path
+                            },
+                            base64Content: true,
+                        },
+                    }
                 });
 
-                return window.atob(resp.fsFile.base64Content);
+                return window.atob(resp.app.fsFile.base64Content);
             },
             write: (path: string, content: string) => {
                 return mutation(axios, "lightDriveWriteFile", { index, path, content });
@@ -83,8 +90,8 @@ export default (index: number, axios: AxiosInstance) => {
             rename: (path: string, name: string) => {
                 return mutation(axios, "lightDriveRenameFile", { index, path, name });
             },
-            move: (source: string, target: string) => {
-                return mutation(axios, "lightDriveMoveFile", { index, source, target });
+            move: (source: string, destination: string) => {
+                return mutation(axios, "lightDriveMoveFile", { index, source, destination });
             }
         }
     }
