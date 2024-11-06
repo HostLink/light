@@ -42,7 +42,8 @@ export default (index: number, axios: AxiosInstance) => {
                 path: true,
                 size: true,
                 mime: true,
-                canPreview: true
+                canPreview: true,
+                url: true
             }) => {
                 let resp = await query(axios, {
                     app: {

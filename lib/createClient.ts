@@ -13,6 +13,7 @@ import { default as models } from './models';
 import { default as model } from './model';
 import { default as roles } from './roles';
 import { default as createCollection } from './createCollection';
+import { default as drive } from './drive';
 
 
 export interface LightClient {
@@ -29,8 +30,8 @@ export interface LightClient {
     model(name: string): ReturnType<typeof model>;
     roles: ReturnType<typeof roles>;
     collect(name: string, fields: Object): ReturnType<typeof createCollection>;
+    drive(index: number): ReturnType<typeof drive>;
 }
-
 export default (baseURL: string): LightClient => {
 
     const _axios = axios.create({
@@ -67,7 +68,9 @@ export default (baseURL: string): LightClient => {
             const c = createCollection(name, _axios, fields);
             c.data_path = _models.get(name).getDataPath();
             return c;
-
+        },
+        drive(index: number) {
+            return drive(index, _axios);
         }
     }
 }

@@ -9,6 +9,10 @@ if (resp.headers['set-cookie']) {
     client.axios.defaults.headers.cookie = resp.headers['set-cookie'][0];
 }
 
+const data = (await client.drive(0).files.list("/"));
+
+/* 
+
 
 client.model("MailLog").setDataPath("app.mailLogs")
 
@@ -19,12 +23,7 @@ let d = c.sortByDesc("maillog_id")
     .sortBy("maillog_id")
     .whereContains("subject", "GET")
 
-
-
-
 const data = await d.all();
 const meta = d.meta.total
-
-
-
+ */
 document.getElementById("content").innerHTML = JSON.stringify(data, null, 4);
