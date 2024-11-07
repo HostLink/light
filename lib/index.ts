@@ -15,3 +15,7 @@ export { default as createClient } from './createClient'
 export type { LightClient } from './createClient'
 
 export { default as createCollection } from './createCollection'
+
+
+export type { UserFields } from './users'
+export type { RoleFields } from './roles'
