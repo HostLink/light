@@ -1,17 +1,22 @@
 import { createClient } from "../lib/index.ts"
-const client = createClient("http://127.0.0.1:8888/");
+const api = createClient("http://127.0.0.1:8888/");
 
-const resp = await client.axios.post("/", {
+const resp = await api.axios.post("/", {
     query: `mutation { login(username: "admin", password: "111111")  }`
 })
 
 if (resp.headers['set-cookie']) {
-    client.axios.defaults.headers.cookie = resp.headers['set-cookie'][0];
+    api.axios.defaults.headers.cookie = resp.headers['set-cookie'][0];
 }
 
-const data = (await client.drive(0).files.get("test1/1.jpg"));
+console.log(await api.roles.list({
+    name: true,
+    user: {
+        username: true,
+    }
+}));
 
-/* 
+/*
 
 
 client.model("MailLog").setDataPath("app.mailLogs")
@@ -26,4 +31,4 @@ let d = c.sortByDesc("maillog_id")
 const data = await d.all();
 const meta = d.meta.total
  */
-document.getElementById("content").innerHTML = JSON.stringify(data, null, 4);
+//document.getElementById("content").innerHTML = JSON.stringify(data, null, 4);
