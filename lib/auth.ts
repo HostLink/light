@@ -5,20 +5,50 @@ import { default as WebAuthn } from "./webauthn"
 export default (axios: AxiosInstance) => {
     return {
         WebAuthn: WebAuthn(axios),
-        facebookLogin: (accessToken: string): Promise<boolean> => {
-            return mutation(axios, "facebookLogin", {
-                access_token: accessToken
-            })
+        google: {
+            unlink: (): Promise<boolean> => {
+                return mutation(axios, "lightAuthUnlinkGoogle")
+            },
+            login: (accessToken: string): Promise<boolean> => {
+                return mutation(axios, "lightAuthLoginGoogle", {
+                    access_token: accessToken
+                })
+            },
+            register: (credential: string): Promise<boolean> => {
+                return mutation(axios, "lightAuthRegisterGoogle", {
+                    credential
+                })
+            }
         },
-        microsoftLogin: (accessToken: string): Promise<boolean> => {
-            return mutation(axios, "microsoftLogin", {
-                access_token: accessToken
-            })
+        facebook: {
+            unlink: (): Promise<boolean> => {
+                return mutation(axios, "lightAuthUnlinkFacebook")
+            },
+            login: (accessToken: string): Promise<boolean> => {
+                return mutation(axios, "lightAuthLoginFacebook", {
+                    access_token: accessToken
+                })
+            },
+            register: (accessToken: string): Promise<boolean> => {
+                return mutation(axios, "lightAuthRegisterFacebook", {
+                    access_token: accessToken
+                })
+            }
         },
-        googleLogin: (credential: string): Promise<boolean> => {
-            return mutation(axios, "googleLogin", {
-                credential
-            })
+        microsoft: {
+            unlink: (): Promise<boolean> => {
+                return mutation(axios, "lightAuthUnlinkMicrosoft")
+            },
+            login: (accessToken: string): Promise<boolean> => {
+                return mutation(axios, "lightAuthLoginMicrosoft", {
+                    access_token: accessToken
+                })
+            },
+            register: (account_id: string): Promise<boolean> => {
+                return mutation(axios, "lightAuthRegisterMicrosoft", {
+                    account_id
+                })
+            }
         },
         login: (username: string, password: string, code: string = ""): Promise<boolean> => {
             return mutation(axios, "login", {
