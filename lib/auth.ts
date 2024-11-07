@@ -9,9 +9,9 @@ export default (axios: AxiosInstance) => {
             unlink: (): Promise<boolean> => {
                 return mutation(axios, "lightAuthUnlinkGoogle")
             },
-            login: (accessToken: string): Promise<boolean> => {
+            login: (credential: string): Promise<boolean> => {
                 return mutation(axios, "lightAuthLoginGoogle", {
-                    access_token: accessToken
+                    credential
                 })
             },
             register: (credential: string): Promise<boolean> => {
