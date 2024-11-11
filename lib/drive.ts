@@ -16,6 +16,17 @@ export type FileFields = {
 
 export default (index: number, axios: AxiosInstance) => {
     return {
+        uploadTempFile: (file: File) => {
+            return mutation(axios, "lightDriveUploadTempFile", {
+                index,
+                file
+            }, {
+                name: true,
+                path: true,
+                size: true,
+                mime: true,
+            })
+        },
         folders: {
             list: async (path: string, fields: FolderFields = {
                 name: true,
