@@ -1,6 +1,9 @@
-import collect from "..";
+import { collect } from "collect.js";
 import { createClient } from "../lib/index.ts"
 const api = createClient("http://127.0.0.1:8888/");
+
+
+
 
 const resp = await api.axios.post("/", {
     query: `mutation { login(username: "admin", password: "111111")  }`
@@ -9,9 +12,12 @@ const resp = await api.axios.post("/", {
 if (resp.headers['set-cookie']) {
     api.axios.defaults.headers.cookie = resp.headers['set-cookie'][0];
 }
+const c = await api.collect('User', { username: true, status: true }).transform((item) => {
+    item.username = item.username + "1";
+}).all();
+console.log(c);
+//console.log(collect(c).has(10))
 
-const c =await api.collect('User', { username: true, status: true }).mapToGroups(item => [item.status, item])
-console.log(c.all());
 
 /*
 

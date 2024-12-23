@@ -3,14 +3,16 @@ import { Collection as CollectionClass } from 'collect.js';
 import { AxiosInstance } from 'axios';
 import query from './query';
 
-const methodSteps: string[] = ["chunk", "shuffle", "splice", "sortBy", "map", "reverse", "groupBy", "implode", "keyBy", "keys",
-    "mapToDictionary", "mapWithKeys", "nth", "skipUntil", "skipWhile", "takeUntil", "takeWhile", "unique", "pluck", "push"]
+const methodSteps: string[] = ["flatMap", "chunk", "shuffle", "splice", "sortBy", "map", "reverse", "groupBy", "keyBy", "keys",
+    "mapToDictionary", "mapWithKeys", "nth", "skipUntil", "skipWhile", "takeUntil", "takeWhile", "unique", "pluck", "push", "only", "pad",
+    "slice", "tap"]
 
 const methodStepsSQL: string[] = ["forPage", "sortByDesc", "sortBy", "skip", "take", "splice", "whereBetween", "whereIn", "whereNotBetween", "whereNotIn", "first", "where", "whereContains"]
 
 //direct get result methods
 const methodFinal: string[] = ["avg", "count", "countBy", "dd", "each", "every", "filter", "firstWhere", "isEmpty", "isNotEmpty",
-    "last", "mapToGroups", "max", "median", "min", "mode", "contains", "sole", "sort", "split", "sum", "toJson"]
+    "last", "mapToGroups", "max", "median", "min", "mode", "contains", "sole", "sort", "split", "sum", "toJson", "get", "has", "implode", "partition",
+    "sole"]
 
 
 interface Collection<Item> {
@@ -868,6 +870,22 @@ Collection.prototype.pop = async function (...args: any[]) {
 Collection.prototype.prepend = function (...args: any[]) {
     this.steps.push({ type: 'prepend', args });
     return this;
+}
+
+
+
+Collection.prototype.shift = async function (...args: any[]) {
+    const clone = this.clone();
+    const result = (await clone.processData()).shift(...args);
+
+    this.steps.push({ type: 'shift', args });
+
+    return result;
+}
+
+Collection.prototype.transform = function (...args: any[]) {
+    this.steps.push({ type: 'transform', args });
+    return this;    
 }
 
 
