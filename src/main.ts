@@ -12,9 +12,13 @@ const resp = await api.axios.post("/", {
 if (resp.headers['set-cookie']) {
     api.axios.defaults.headers.cookie = resp.headers['set-cookie'][0];
 }
-const c = await api.collect('User', { username: true, status: true }).transform((item) => {
+const c = await api.collect('User', { username: true, status: true });
+
+c.transform((item) => {
     item.username = item.username + "1";
-}).all();
+});
+
+c.all();
 console.log(c);
 //console.log(collect(c).has(10))
 
