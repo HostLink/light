@@ -4,7 +4,7 @@ import { AxiosInstance } from 'axios';
 import query from './query';
 
 const methodSteps: string[] = ["chunk", "shuffle", "splice", "sortBy", "map", "reverse", "groupBy", "implode", "keyBy", "keys",
-    "mapToDictionary", "mapWithKeys", "nth", "skipUntil", "skipWhile", "takeUntil", "takeWhile", "unique"]
+    "mapToDictionary", "mapWithKeys", "nth", "skipUntil", "skipWhile", "takeUntil", "takeWhile", "unique", "pluck", "push"]
 
 const methodStepsSQL: string[] = ["forPage", "sortByDesc", "sortBy", "skip", "take", "splice", "whereBetween", "whereIn", "whereNotBetween", "whereNotIn", "first", "where", "whereContains"]
 
@@ -798,6 +798,24 @@ Collection.prototype.processData = async function (): Promise<CollectionClass<It
             this.already_offset = true;
         }
 
+        if (step.type === 'pop') {
+            if (c) {
+                c = c.pop(...step.args)
+            } else {
+                c = await this.fetchData();
+                c.pop(...step.args)
+            }
+        }
+
+        if (step.type === 'prepend') {
+            if (c) {
+                c = c.prepend(...step.args)
+            } else {
+                c = await this.fetchData();
+                c.prepend(...step.args)
+            }
+        }
+
     }
 
     if (!c) {
@@ -832,6 +850,29 @@ Collection.prototype.first = async function () {
     return (await this.processData()).first();
 
 }
+
+Collection.prototype.push = function (item: Item) {
+    this.steps.push({ type: 'push', args: [item] });
+    return this;
+}
+
+Collection.prototype.pop = async function (...args: any[]) {
+    const clone = this.clone();
+    const result = (await clone.processData()).pop(...args);
+
+    this.steps.push({ type: 'pop', args });
+
+    return result;
+}
+
+Collection.prototype.prepend = function (...args: any[]) {
+    this.steps.push({ type: 'prepend', args });
+    return this;
+}
+
+
+
+
 
 
 export default (name: string, axios: AxiosInstance, fields: Object): Collection<any> => {

@@ -1,3 +1,4 @@
+import collect from "..";
 import { createClient } from "../lib/index.ts"
 const api = createClient("http://127.0.0.1:8888/");
 
@@ -9,12 +10,8 @@ if (resp.headers['set-cookie']) {
     api.axios.defaults.headers.cookie = resp.headers['set-cookie'][0];
 }
 
-console.log(await api.roles.list({
-    name: true,
-    user: {
-        username: true,
-    }
-}));
+const c =await api.collect('User', { username: true, status: true }).mapToGroups(item => [item.status, item])
+console.log(c.all());
 
 /*
 
