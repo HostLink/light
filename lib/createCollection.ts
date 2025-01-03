@@ -5,7 +5,7 @@ import query from './query';
 
 const methodSteps: string[] = ["flatMap", "chunk", "shuffle", "splice", "sortBy", "map", "reverse", "groupBy", "keyBy", "keys",
     "mapToDictionary", "mapWithKeys", "nth", "skipUntil", "skipWhile", "takeUntil", "takeWhile", "unique", "pluck", "push", "only", "pad",
-    "slice", "tap"]
+    "slice", "tap", "sort"]
 
 const methodStepsSQL: string[] = ["forPage", "sortByDesc", "sortBy", "skip", "take", "splice", "whereBetween", "whereIn", "whereNotBetween", "whereNotIn", "first", "where", "whereContains"]
 
