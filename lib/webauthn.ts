@@ -4,15 +4,11 @@ import { parseRequestOptionsFromJSON, get, parseCreationOptionsFromJSON, create 
 
 export default (axios: AxiosInstance) => {
     return {
-        login: async (username: string) => {
+        login: async () => {
             const { app } = await query(axios, {
                 app: {
                     auth: {
-                        webAuthnRequestOptions: {
-                            __args: {
-                                username
-                            }
-                        }
+                        webAuthnRequestOptions: true
                     }
                 }
             })
@@ -26,7 +22,6 @@ export default (axios: AxiosInstance) => {
             const response = await get(requestOptions);
 
             await mutation(axios, "webAuthnAssertion", {
-                username,
                 assertion: response.toJSON()
             })
         },
