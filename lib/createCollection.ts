@@ -597,7 +597,9 @@ Collection.prototype.buildArgs = function () {
 
 Collection.prototype.clone = function (): Collection<Item> {
     const clone = Object.create(this);
-    clone.steps = [...this.steps];
+    clone.steps = JSON.parse(JSON.stringify(this.steps));
+    clone.filters = JSON.parse(JSON.stringify(this.filters));
+    clone.fields = JSON.parse(JSON.stringify(this.fields));
     return clone;
 }
 
@@ -743,14 +745,6 @@ Collection.prototype.where = function (...args: any[]) {
     return this;
 }
 
-Collection.prototype.take = function (length: number) {
-
-    this.steps.push({ type: 'take', args: [length] });
-    this.limit = length;
-    this.already_limit = true;
-    return this;
-}
-
 Collection.prototype.whereContains = function (field: string, value: string) {
     this.steps.push({ type: 'whereContains', args: [field, value] });
     this.filters[field] = { contains: value }
@@ -758,7 +752,7 @@ Collection.prototype.whereContains = function (field: string, value: string) {
 }
 
 Collection.prototype.forPage = function (page: number, limit: number) {
-
+    page = Math.max(1, page);
     if (this.already_limit) {
         this.steps.push({ type: 'forPage', args: [page, limit] });   
         return this;
