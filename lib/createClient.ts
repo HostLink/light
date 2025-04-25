@@ -31,6 +31,7 @@ export interface LightClient {
     roles: ReturnType<typeof roles>;
     collect(name: string, fields: Object): ReturnType<typeof createCollection>;
     drive(index: number): ReturnType<typeof drive>;
+    collects(collections: { [key: string]: any }): Promise<{ [key: string]: any }>;
 }
 export default (baseURL: string): LightClient => {
 
@@ -71,6 +72,59 @@ export default (baseURL: string): LightClient => {
         },
         drive(index: number) {
             return drive(index, _axios);
+        },
+        async collects(collections: { [key: string]: any }) {
+            // 1. 收集所有 payload
+            const payload: any = {};
+            const dataPath: any = {};
+            for (const key in collections) {
+                const p = collections[key].getQueryPayload()
+
+                dataPath[key] = p.data_path;
+
+                payload[key] = {};
+            
+
+                const t = p.data_path.split('.');
+                //payload[key].__aliasFor =  t[0]; // 這行是為了讓後端知道這個 query 是屬於哪個 collection 的
+
+                let last_key = t[t.length - 1];
+                let current = payload[key]
+
+                for (const k of t) {
+                    if (k === last_key) {
+                        current[k] = p.query;
+                        break;
+                    }
+                    current[k] = current[k] || {}
+                }
+                payload[key].__aliasFor = t[0]; // 這行是為了讓後端知道這個 query 是屬於哪個 collection 的
+
+
+            }
+
+
+            // 2. 發送 batch request
+            const data = await query(_axios, payload);
+            
+            // 3. 將 data 設返入每個 collection
+            for (const key in collections) {
+
+                //map the datapath to _batchData
+                const t = dataPath[key].split('.');
+                let last_key = t[t.length - 1];
+                let current =data[key]
+                for (const k of t) {
+                    if (k === last_key) {
+                        collections[key]._batchData = data[key][k];
+                        break;
+                    }
+                    current[k] = current[k] || {}
+                    
+                }
+                               
+            }
+            return collections;
         }
     }
 }

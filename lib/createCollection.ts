@@ -7,7 +7,6 @@ const methodSteps: string[] = ["flatMap", "chunk", "shuffle", "splice", "sortBy"
     "mapToDictionary", "mapWithKeys", "nth", "skipUntil", "skipWhile", "takeUntil", "takeWhile", "unique", "pluck", "push", "only", "pad",
     "slice", "tap", "sort"]
 
-const methodStepsSQL: string[] = ["forPage", "sortByDesc", "sortBy", "skip", "take", "splice", "whereBetween", "whereIn", "whereNotBetween", "whereNotIn", "first", "where", "whereContains"]
 
 //direct get result methods
 const methodFinal: string[] = ["avg", "count", "countBy", "dd", "each", "every", "filter", "firstWhere", "isEmpty", "isNotEmpty",
@@ -513,11 +512,14 @@ interface Collection<Item> {
      * of the original collection at the corresponding index.
      */
     zip<T>(array: T[]): Collection<[Item, T]>;
+
 }
 
 type Item = Object;
 
 class Collection<Item> {
+
+    _batchData: any = null; // 新增
     data_path: string = '';
     axios: AxiosInstance;
     filters: any;
@@ -537,6 +539,36 @@ class Collection<Item> {
         this.steps = [];
         this.fields = fields;
     }
+}
+
+Collection.prototype.getQueryPayload = function () {
+    // 跟 processData 一樣，根據 steps/filter/sort/take 組出 query payload
+    // 但唔好 call fetchData，只係組 payload
+    let q: any = {
+        meta: {
+            total: true,
+            key: true,
+            name: true
+        }
+    };
+    q.__args = this.buildArgs();
+    q.data = this.fields;
+
+    q.data.__args = q.data.__args || {};
+    if (this.limit) {
+        q.data.__args.limit = this.limit;
+    }
+
+    if (this.offset) {
+        q.data.__args.offset = this.offset;
+    }
+
+    // 你可以根據 data_path 組成一個扁平 payload
+    return {
+        data_path: this.data_path,
+        query: q,
+        steps: this.steps,
+    };
 }
 
 
@@ -577,6 +609,12 @@ collect().macro('whereContains', function (this: any, field: string, value: stri
 });
 
 Collection.prototype.fetchData = async function () {
+    if (this._batchData) {
+        // 如果 batchCollect 已經 set 過 data，就直接用
+        const data = this._batchData;
+        this.meta = data.meta;
+        return collect(data.data);
+    }
     let q: any = {
         meta: {
             total: true,
@@ -626,202 +664,9 @@ Collection.prototype.fetchData = async function () {
 
 
 Collection.prototype.processData = async function (): Promise<CollectionClass<Item>> {
-
-    let c = null;
-
+    let c = await this.fetchData();
     for (const step of this.steps) {
-        if (methodSteps.includes(step.type)) {
-            if (!c) c = await this.fetchData();
-            c = c[step.type](...step.args);
-            continue;
-        }
-
-        if (step.type === "forPage") {
-            if (c) {
-                c = c.forPage(step.args[0], step.args[1]);
-            } else if (this.already_limit || this.already_offset) {
-                c = await this.fetchData();
-                c = c.forPage(step.args[0], step.args[1]);
-            } else {
-                this.offset = (step.args[0] - 1) * step.args[1];
-                this.limit = step.args[1];
-            }
-            this.already_limit = true;
-            this.already_offset = true;
-        }
-
-        if (step.type === 'where') {
-            if (c) {
-                c = c.where(...step.args)
-            } else {
-
-                const field = step.args[0];
-                let operator = "=="
-                let value = null;
-                if (step.args.length == 2) {
-                    value = step.args[1];
-                }
-
-                if (step.args.length == 3) {
-                    operator = step.args[1];
-                    value = step.args[2];
-                }
-
-                if (operator === '==') {
-                    this.filters[field] = value
-                }
-
-                if (operator === "<") {
-                    this.filters[field] = { "lt": value }
-                }
-
-                if (operator === "<=") {
-                    this.filters[field] = { "lte": value }
-                }
-
-                if (operator === ">") {
-                    this.filters[field] = { "gt": value }
-                }
-
-                if (operator === ">=") {
-                    this.filters[field] = { "gte": value }
-                }
-
-                if (operator === "!==") {
-                    this.filters[field] = { "ne": value }
-                }
-
-            }
-        }
-
-        if (step.type === 'whereContains') {
-            if (!c) {
-                this.filters[step.args[0]] = { contains: step.args[1] }
-            }
-            else {
-                c = c.whereContains(...step.args)
-            }
-        }
-
-
-        if (step.type === 'whereIn') {
-            if (!c) {
-                this.filters[step.args[0]] = { in: step.args[1] }
-            }
-            else {
-                c = c.whereIn(...step.args)
-            }
-        }
-
-        if (step.type === 'whereNotBetween') {
-            if (!c) {
-                this.filters[step.args[0]] = { notBetween: step.args[1] }
-            }
-            else {
-                c = c.whereNotBetween(...step.args)
-            }
-        }
-
-        if (step.type === 'whereNotIn') {
-            if (!c) {
-                this.filters[step.args[0]] = { notIn: step.args[1] }
-            }
-            else {
-                c = c.whereNotIn(...step.args)
-            }
-        }
-
-        if (step.type == "whereBetween") {
-            if (!c) {
-                this.filters[step.args[0]] = { between: step.args[1] }
-            }
-            else {
-                c = c.whereBetween(...step.args)
-            }
-        }
-
-
-        if (step.type === 'sortByDesc') {
-            if (c) {
-                c = c.sortByDesc(step.args[0])
-            } else if (this.already_limit || this.already_offset) {
-                c = await this.fetchData();
-                c = c.sortByDesc(step.args[0])
-            } else {
-                this._sort = step.args[0];
-                this._sortDesc = true;
-            }
-        }
-
-        if (step.type === 'sortBy') {
-            if (c) {
-                c = c.sortBy(step.args[0])
-            } else if (this.already_limit || this.already_offset) {
-                c = await this.fetchData();
-                c = c.sortBy(step.args[0])
-            } else {
-                this._sort = step.args[0];
-            }
-        }
-
-        if (step.type === 'skip') {
-            if (c) {
-                c = c.skip(step.args[0])
-            } else if (this.already_offset || this.already_limit) {
-                c = await this.fetchData();
-                c = c.skip(step.args[0])
-            } else {
-                this.offset = step.args[0];
-            }
-            this.already_offset = true;
-        }
-
-
-        if (step.type === 'take') {
-            if (c) {
-                c = c.take(...step.args)
-            } else if (this.already_offset || this.already_limit) {
-                c = await this.fetchData();
-                c = c.take(step.args[0])
-            } else {
-                this.limit = step.args[0];
-            }
-            this.already_limit = true;
-        }
-
-        if (step.type === 'splice') {
-            if (c) {
-                c = c.splice(...step.args)
-            } else {
-                this.offset = step.args[0];
-                this.limit = step.args[1];
-            }
-            this.already_limit = true;
-            this.already_offset = true;
-        }
-
-        if (step.type === 'pop') {
-            if (c) {
-                c = c.pop(...step.args)
-            } else {
-                c = await this.fetchData();
-                c.pop(...step.args)
-            }
-        }
-
-        if (step.type === 'prepend') {
-            if (c) {
-                c = c.prepend(...step.args)
-            } else {
-                c = await this.fetchData();
-                c.prepend(...step.args)
-            }
-        }
-
-    }
-
-    if (!c) {
-        c = await this.fetchData();
+        c = c[step.type](...step.args);
     }
     return c;
 }
@@ -830,7 +675,7 @@ Collection.prototype.all = async function () {
     return (await this.processData()).all();
 }
 
-for (const key of [...methodSteps, ...methodStepsSQL]) {
+for (const key of methodSteps) {
     Collection.prototype[key] = function (...args: any[]) {
         const new_obj = this.clone();
         new_obj.steps.push({ type: key, args });
@@ -853,42 +698,150 @@ Collection.prototype.first = async function () {
 
 }
 
-Collection.prototype.push = function (item: Item) {
-    this.steps.push({ type: 'push', args: [item] });
+
+Collection.prototype.where = function (...args: any[]) {
+
+    if (args.length == 2) {
+        this.filters[args[0]] = args[1]
+    } else if (args.length == 3) {
+
+        let operator = "=="
+
+        let field = args[0];
+        let value = null;
+
+        if (args.length == 3) {
+            operator = args[1];
+            value = args[2];
+        }
+
+        if (operator === '==') {
+            this.filters[field] = value
+        }
+
+        if (operator === "<") {
+            this.filters[field] = { "lt": value }
+        }
+
+        if (operator === "<=") {
+            this.filters[field] = { "lte": value }
+        }
+
+        if (operator === ">") {
+            this.filters[field] = { "gt": value }
+        }
+
+        if (operator === ">=") {
+            this.filters[field] = { "gte": value }
+        }
+
+        if (operator === "!==") {
+            this.filters[field] = { "ne": value }
+        }
+    }
+    this.steps.push({ type: 'where', args });
     return this;
 }
 
-Collection.prototype.pop = async function (...args: any[]) {
-    const clone = this.clone();
-    const result = (await clone.processData()).pop(...args);
+Collection.prototype.take = function (length: number) {
 
-    this.steps.push({ type: 'pop', args });
-
-    return result;
-}
-
-Collection.prototype.prepend = function (...args: any[]) {
-    this.steps.push({ type: 'prepend', args });
+    this.steps.push({ type: 'take', args: [length] });
+    this.limit = length;
+    this.already_limit = true;
     return this;
 }
 
-
-
-Collection.prototype.shift = async function (...args: any[]) {
-    const clone = this.clone();
-    const result = (await clone.processData()).shift(...args);
-
-    this.steps.push({ type: 'shift', args });
-
-    return result;
+Collection.prototype.whereContains = function (field: string, value: string) {
+    this.steps.push({ type: 'whereContains', args: [field, value] });
+    this.filters[field] = { contains: value }
+    return this;
 }
 
-Collection.prototype.transform = function (...args: any[]) {
-    this.steps.push({ type: 'transform', args });
-    return this;    
+Collection.prototype.forPage = function (page: number, limit: number) {
+
+    if (this.already_limit) {
+        this.steps.push({ type: 'forPage', args: [page, limit] });   
+        return this;
+    }
+    
+    
+    this.limit = limit;
+    this.offset = (page - 1) * limit;
+    this.already_limit = true;
+    this.already_offset = true;
+    return this;
 }
 
+Collection.prototype.whereIn = function (field: string, values: any[]) {
+    this.steps.push({ type: 'whereIn', args: [field, values] });
+    this.filters[field] = { in: values }
+    return this;
+}
 
+Collection.prototype.whereNotIn = function (field: string, values: any[]) {
+    this.steps.push({ type: 'whereNotIn', args: [field, values] });
+    this.filters[field] = { nin: values }
+    return this;
+}
+
+Collection.prototype.whereNotBetween = function (field: string, values: any[]) {
+    this.steps.push({ type: 'whereNotBetween', args: [field, values] });
+    this.filters[field] = { notBetween: values }
+    return this;
+}
+
+Collection.prototype.whereBetween = function (field: string, values: any[]) {
+    this.steps.push({ type: 'whereBetween', args: [field, values] });
+    this.filters[field] = { between: values }
+    return this;
+}
+
+Collection.prototype.sortBy = function <V>(valueOrFn: V | ((item: any) => number)) {
+    this.steps.push({ type: 'sortBy', args: [valueOrFn] });
+    if (typeof valueOrFn === 'string') {
+        this._sort = valueOrFn as string;
+    }
+    return this;
+}
+
+Collection.prototype.sortByDesc = function <V>(valueOrFn: V | ((item: any) => number)) {
+    this.steps.push({ type: 'sortByDesc', args: [valueOrFn] });
+    if (typeof valueOrFn === 'string') {
+        this._sort = valueOrFn as string;
+        this._sortDesc = true;
+    }
+    return this;
+}
+
+Collection.prototype.skip = function (offset: number) {
+    if (this.already_offset) {
+        this.steps.push({ type: 'skip', args: [offset] });
+    }
+    this.offset = offset;
+    this.already_offset = true;
+    return this;
+}
+
+Collection.prototype.take = function (length: number) {
+
+    if (this.already_limit) {
+        this.steps.push({ type: 'take', args: [length] });
+        return this;
+    }
+
+    this.limit = length;
+    this.already_limit = true;
+    return this;
+}
+
+Collection.prototype.splice = function (index: number, limit: number) {
+    this.steps.push({ type: 'splice', args: [index, limit] });
+    this.offset = index;
+    this.limit = limit;
+    this.already_limit = true;
+    this.already_offset = true;
+    return this;
+}
 
 
 

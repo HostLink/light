@@ -1,9 +1,5 @@
-import { collect } from "collect.js";
 import { createClient } from "../lib/index.ts"
 const api = createClient("http://127.0.0.1:8888/");
-
-
-
 
 const resp = await api.axios.post("/", {
     query: `mutation { login(username: "admin", password: "111111")  }`
@@ -12,14 +8,36 @@ const resp = await api.axios.post("/", {
 if (resp.headers['set-cookie']) {
     api.axios.defaults.headers.cookie = resp.headers['set-cookie'][0];
 }
-const c = await api.collect('User', { username: true, status: true });
+api.model("User").setDataPath("app.listUser")
+
+
+console.log(await  api.collect("User", { username: true, status: true, user_id: true }).push("test").all())
+
+const { users, users2, userCount } = await api.collects({
+    users: api.collect("User", { username: true, status: true, user_id: true }).where("user_id",1),
+})
+
+console.log(await users.all());
+////console.log(await mail.all());
+
+
+
+
+/*
+
+const userCollection = await api.collect('User', { username: true, status: true });
+userCollection.transform((item) => {
+    item.username = item.username + "1";
+});
+const allUsers = await userCollection.all();
+console.log(allUsers);
 
 c.transform((item) => {
     item.username = item.username + "1";
 });
 
 c.all();
-console.log(c);
+console.log(c); */
 //console.log(collect(c).has(10))
 
 
