@@ -5,13 +5,14 @@ const resp = await api.axios.post("/", {
     query: `mutation { login(username: "admin", password: "111111")  }`
 })
 
+
 if (resp.headers['set-cookie']) {
     api.axios.defaults.headers.cookie = resp.headers['set-cookie'][0];
 }
 api.model("User").setDataPath("app.listUser")
 
 
-console.log(await  api.collect("User", { username: true, status: true, user_id: true }).push("test").all())
+console.log(await  api.collect("User", { username: true, user_id: true }).where("status",0).all())
 
 const { users, users2, userCount } = await api.collects({
     users: api.collect("User", { username: true, status: true, user_id: true }).where("user_id",1),

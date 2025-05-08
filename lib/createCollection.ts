@@ -703,6 +703,11 @@ Collection.prototype.first = async function () {
 
 Collection.prototype.where = function (...args: any[]) {
 
+    if (this._batchData) {
+        this.steps.push({ type: 'where', args });
+        return this;
+    }
+
     if (args.length == 2) {
         this.filters[args[0]] = args[1]
     } else if (args.length == 3) {
@@ -741,12 +746,16 @@ Collection.prototype.where = function (...args: any[]) {
             this.filters[field] = { "ne": value }
         }
     }
-    this.steps.push({ type: 'where', args });
+
     return this;
 }
 
 Collection.prototype.whereContains = function (field: string, value: string) {
-    this.steps.push({ type: 'whereContains', args: [field, value] });
+    if (this._batchData) {
+        this.steps.push({ type: 'whereContains', args: [field, value] });
+        return this;
+    }
+
     this.filters[field] = { contains: value }
     return this;
 }
@@ -754,11 +763,11 @@ Collection.prototype.whereContains = function (field: string, value: string) {
 Collection.prototype.forPage = function (page: number, limit: number) {
     page = Math.max(1, page);
     if (this.already_limit) {
-        this.steps.push({ type: 'forPage', args: [page, limit] });   
+        this.steps.push({ type: 'forPage', args: [page, limit] });
         return this;
     }
-    
-    
+
+
     this.limit = limit;
     this.offset = (page - 1) * limit;
     this.already_limit = true;
@@ -767,25 +776,37 @@ Collection.prototype.forPage = function (page: number, limit: number) {
 }
 
 Collection.prototype.whereIn = function (field: string, values: any[]) {
-    this.steps.push({ type: 'whereIn', args: [field, values] });
+    if (this._batchData) {
+        this.steps.push({ type: 'whereIn', args: [field, values] });
+        return this;
+    }
     this.filters[field] = { in: values }
     return this;
 }
 
 Collection.prototype.whereNotIn = function (field: string, values: any[]) {
-    this.steps.push({ type: 'whereNotIn', args: [field, values] });
+    if (this._batchData) {
+        this.steps.push({ type: 'whereNotIn', args: [field, values] });
+        return this;
+    }
     this.filters[field] = { nin: values }
     return this;
 }
 
 Collection.prototype.whereNotBetween = function (field: string, values: any[]) {
-    this.steps.push({ type: 'whereNotBetween', args: [field, values] });
+    if (this._batchData) {
+        this.steps.push({ type: 'whereNotBetween', args: [field, values] });
+        return this;
+    }
     this.filters[field] = { notBetween: values }
     return this;
 }
 
 Collection.prototype.whereBetween = function (field: string, values: any[]) {
-    this.steps.push({ type: 'whereBetween', args: [field, values] });
+    if (this._batchData) {
+        this.steps.push({ type: 'whereBetween', args: [field, values] });
+        return this;
+    }
     this.filters[field] = { between: values }
     return this;
 }
@@ -836,9 +857,6 @@ Collection.prototype.splice = function (index: number, limit: number) {
     this.already_offset = true;
     return this;
 }
-
-
-
 
 export default (name: string, axios: AxiosInstance, fields: Object): Collection<any> => {
     const c = new Collection(fields, axios);
