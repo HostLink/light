@@ -68,7 +68,7 @@ export default (axios: AxiosInstance) => {
             })
         },
         updatePassword: (oldPassword: string, newPassword: string): Promise<boolean> => {
-            return mutation(axios, "updatePassword", {
+            return mutation(axios, "changeUserPassword", {
                 old_password: oldPassword,
                 new_password: newPassword
             })
