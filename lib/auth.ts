@@ -73,22 +73,22 @@ export default (axios: AxiosInstance) => {
                 new_password: newPassword
             })
         },
-        resetPassword: (username: string, password: string, code: string): Promise<boolean> => {
+        resetPassword: (jwt: string, password: string, code: string): Promise<boolean> => {
             return mutation(axios, "resetPassword", {
-                username,
+                jwt,
                 password,
                 code
             })
         },
-        forgetPassword: (username: string, email: string): Promise<boolean> => {
+        forgetPassword: (username: string, email: string): Promise<string> => {
             return mutation(axios, "forgetPassword", {
                 username,
                 email
             })
         },
-        verifyCode(username: string, code: string): Promise<boolean> {
+        verifyCode(jwt: string, code: string): Promise<boolean> {
             return mutation(axios, "forgetPasswordVerifyCode", {
-                username,
+                jwt,
                 code
             })
         },
