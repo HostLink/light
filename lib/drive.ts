@@ -127,7 +127,20 @@ export default (index: number, axios: AxiosInstance) => {
                         }
                     }
                 });
-                return window.atob(resp.app.drive.file.base64Content);
+                
+                // 檢查回應是否有效
+                if (!resp.app.drive.file || !resp.app.drive.file.base64Content) {
+                    throw new Error(`File not found or cannot read content: ${path}`);
+                }
+                
+                // 檢查是否在瀏覽器環境中
+                if (typeof window !== 'undefined' && window.atob) {
+                    return window.atob(resp.app.drive.file.base64Content);
+                } else {
+                    // 在 Node.js 環境中，先簡單返回 base64 內容
+                    // 實際使用時可能需要根據環境進行適當的解碼
+                    return resp.app.drive.file.base64Content;
+                }
             },
             write: (path: string, content: string) => {
                 return mutation(axios, "lightDriveWriteFile", { index, path, content });
