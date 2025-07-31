@@ -22,15 +22,15 @@
     "test": "vitest"
   },
   "devDependencies": {
-    "typescript": "^5.3.3",
-    "vite": "^5.1.4",
-    "vite-plugin-dts": "^4.0.3",
-    "vitest": "^2.0.5"
+    "typescript": "^5.8.3",
+    "vite": "^5.4.19",
+    "vite-plugin-dts": "^4.5.4",
+    "vitest": "^2.1.9"
   },
   "dependencies": {
     "@github/webauthn-json": "^2.1.1",
-    "axios": "^1.5.1",
+    "axios": "^1.11.0",
     "collect.js": "^4.36.1",
-    "json-to-graphql-query": "^2.2.5"
+    "json-to-graphql-query": "^2.3.0"
   }
 }
