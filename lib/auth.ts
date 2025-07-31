@@ -93,15 +93,18 @@ export default (axios: AxiosInstance) => {
             })
         },
         granted: async (rights: string[]): Promise<string[]> => {
-            const resp = await query(axios, {
-                granted: {
-                    __args: {
-                        rights: rights
-                    },
+            const { my } = await query(axios, {
+                my: {
+                    grantedRights: {
+                        __args: {
+                            rights: rights
+                        },
+                    }
                 }
-            });
 
-            return resp.granted;
+            });
+            return my.grantedRights;
+
         }
     }
 

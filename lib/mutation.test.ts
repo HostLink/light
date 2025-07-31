@@ -1,19 +1,16 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, beforeAll } from "vitest"
 import { createClient } from "."
 
-const client = createClient("http://127.0.0.1:8888/")
-
-const resp = await client.axios.post("/", {
-    query: `mutation { login(username: "admin", password: "111111")  }`
-})
-if (resp.headers['set-cookie']) {
-    client.axios.defaults.headers.cookie = resp.headers['set-cookie'][0];
-}
-
+const client = createClient("http://localhost:8888/")
 
 describe("mutation", () => {
+    beforeAll(async () => {
+        // 使用統一的登入方式
+        const loginResult = await client.auth.login("admin", "111111")
+        expect(loginResult).toBe(true)
+    })
     it("mutation", async () => {
-        expect(client.baseURL).toBe("http://127.0.0.1:8888/");
+        expect(client.baseURL).toBe("http://localhost:8888/");
 
         const resp = await client.mutation("updateUser", { id: 1, data: { first_name: "test" } }, [])
         expect(resp).toBe(true);

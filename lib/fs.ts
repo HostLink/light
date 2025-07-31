@@ -55,34 +55,45 @@ export default (axios: AxiosInstance) => {
         },
         files: {
             list: async (path: string) => {
-                let resp = await query(axios, {
-                    fsListFiles: {
-                        __args: {
-                            path: path
-                        },
-                        name: true,
-                        path: true,
-                        size: true,
-                        mime: true,
-                        canPreview: true,
-                        imagePath: true,
-                    },
+                let { app } = await query(axios, {
+                    app: {
+                        drive: {
+                            files: {
+                                __args: {
+                                    path
+                                },
+                                name: true,
+                                path: true,
+                                size: true,
+                                mime: true,
+                                canPreview: true,
+                                imagePath: true,
+
+                            }
+                        }
+                    }
 
                 });
 
-                return resp.fsListFiles;
+                return app.drive.files as FSFile[];
             },
             read: async (path: string) => {
-                let resp = await query(axios, {
-                    fsFile: {
-                        __args: {
-                            path: path
-                        },
-                        base64Content: true,
-                    },
+                let { app } = await query(axios, {
+                    app: {
+                        drive: {
+                            files: {
+                                __args: {
+                                    path
+                                },
+                                base64Content: true,
+
+                            }
+                        }
+                    }
+
                 });
 
-                return window.atob(resp.fsFile.base64Content);
+                return window.atob(app.drive.files[0].base64Content);
             },
             write: (path: string, content: string) => {
                 return mutation(axios, "fsWriteFile", {

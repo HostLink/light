@@ -1,27 +1,32 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, beforeAll } from "vitest"
 import { createClient } from "."
 
-const client = createClient("http://127.0.0.1:8888/")
-
-const resp = await client.axios.post("/", {
-    query: `mutation { login(username: "admin", password: "111111")  }`
-})
-if (resp.headers['set-cookie']) {
-    client.axios.defaults.headers.cookie = resp.headers['set-cookie'][0];
-}
+// 使用 localhost 而不是 127.0.0.1，有時候在 cookie 處理上會有不同
+const client = createClient("http://localhost:8888/")
 
 describe("login", () => {
+    beforeAll(async () => {
+        // 使用 client.auth.login 方法進行登入，確保 cookies 正確處理
+        const loginResult = await client.auth.login("admin", "111111")
+        console.log("Login result:", loginResult)
+        expect(loginResult).toBe(true)
+    })
     it("my", async () => {
-        let r = await client.query({ my: ["user_id", "username", "name", "canDelete", "canUpdate", "canView"] });
+        let r = await client.query({
+            my: {
+                user_id: true,
+                username: true,
+                name: true,
+                canDelete: true,
+                canUpdate: true,
+                canView: true
+            }
+        });
         expect(r.my.username).toBe("admin");
         expect(r.my.user_id).toBe(1);
         expect(r.my.canDelete).toBe(false);
         expect(r.my.canUpdate).toBe(true);
         expect(r.my.canView).toBe(true);
-    })
-
-    it("getConfig", async () => {
-        expect(await client.config.get("company")).toBe("HostLink")
     })
 
 

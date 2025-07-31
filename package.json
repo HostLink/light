@@ -19,7 +19,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "release": "npm run build && npm publish --access public && git push --follow-tags",
-    "test": "vitest"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
     "typescript": "^5.8.3",

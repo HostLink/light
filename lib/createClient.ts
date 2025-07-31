@@ -35,10 +35,47 @@ export interface LightClient {
 }
 export default (baseURL: string): LightClient => {
 
+    // 檢測是否在 Node.js 環境中
+    const isNodeEnvironment = typeof window === 'undefined';
+    let savedCookies: string[] = [];
+
     const _axios = axios.create({
         baseURL,
         withCredentials: true,
     });
+
+    // 只在 Node.js 環境中啟用手動 cookie 管理
+    if (isNodeEnvironment) {
+        // 添加請求攔截器來手動設置 cookies
+        _axios.interceptors.request.use((config) => {
+            config.withCredentials = true;
+            if (savedCookies.length > 0) {
+                config.headers.Cookie = savedCookies.join('; ');
+            }
+            return config;
+        });
+
+        // 添加響應攔截器來手動保存 cookies
+        _axios.interceptors.response.use((response) => {
+            if (response.headers['set-cookie']) {
+                // 手動保存 cookies，保留現有的 cookies 並添加新的
+                const newCookies = response.headers['set-cookie'].map((cookie: string) => {
+                    // 提取 cookie 名稱和值（移除額外的屬性）
+                    return cookie.split(';')[0];
+                });
+                
+                // 合併現有 cookies 和新 cookies，避免重複
+                const existingCookieNames = savedCookies.map(cookie => cookie.split('=')[0]);
+                const filteredNewCookies = newCookies.filter(newCookie => {
+                    const cookieName = newCookie.split('=')[0];
+                    return !existingCookieNames.includes(cookieName);
+                });
+                
+                savedCookies = [...savedCookies, ...filteredNewCookies];
+            }
+            return response;
+        });
+    }
 
     const _mutation = (operation: string, args: { [key: string]: any } | null = null, fields: Fields = []) => {
         return mutation(_axios, operation, args, fields);
