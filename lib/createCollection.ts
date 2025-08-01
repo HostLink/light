@@ -3,6 +3,44 @@ import { Collection as CollectionClass } from 'collect.js';
 import { AxiosInstance } from 'axios';
 import query from './query';
 
+// 定義操作符類型
+type Operator = '==' | '<' | '<=' | '>' | '>=' | '!==';
+
+// 定義過濾器類型
+interface FilterValue {
+    lt?: any;
+    lte?: any;
+    gt?: any;
+    gte?: any;
+    ne?: any;
+    contains?: string;
+    in?: any[];
+    nin?: any[];
+    between?: any[];
+    notBetween?: any[];
+}
+
+interface Filters {
+    [key: string]: any | FilterValue;
+}
+
+// 定義步驟類型
+interface Step {
+    type: string;
+    args: any[];
+}
+
+// 定義 meta 資料類型
+interface MetaData {
+    total?: boolean;
+    key?: boolean;
+    name?: boolean;
+    [key: string]: any;
+}
+
+// 常數定義
+const COLLECTION_PREFIX = 'list';
+
 const methodSteps: string[] = ["flatMap", "chunk", "shuffle", "splice", "sortBy", "map", "reverse", "groupBy", "keyBy", "keys",
     "mapToDictionary", "mapWithKeys", "nth", "skipUntil", "skipWhile", "takeUntil", "takeWhile", "unique", "pluck", "push", "only", "pad",
     "slice", "tap", "sort"]
@@ -10,13 +48,12 @@ const methodSteps: string[] = ["flatMap", "chunk", "shuffle", "splice", "sortBy"
 
 //direct get result methods
 const methodFinal: string[] = ["avg", "count", "countBy", "dd", "each", "every", "filter", "firstWhere", "isEmpty", "isNotEmpty",
-    "last", "mapToGroups", "max", "median", "min", "mode", "contains", "sole", "sort", "split", "sum", "toJson", "get", "has", "implode", "partition",
-    "sole"]
+    "last", "mapToGroups", "max", "median", "min", "mode", "contains", "sole", "sort", "split", "sum", "toJson", "get", "has", "implode", "partition"]
 
 
 interface Collection<Item> {
 
-    constructor(fields: Object, axios: AxiosInstance): void;
+    constructor(fields: Record<string, any>, axios: AxiosInstance): void;
 
     [key: string]: any;
     /**
@@ -519,21 +556,21 @@ type Item = Object;
 
 class Collection<Item> {
 
-    _batchData: any = null; // 新增
+    _batchData: any = null;
     data_path: string = '';
     axios: AxiosInstance;
-    filters: any;
-    steps: any[];
-    fields: Object;
+    filters: Filters;
+    steps: Step[];
+    fields: Record<string, any>;
     already_limit: boolean = false;
     already_offset: boolean = false
     limit: null | number = null;
     offset: null | number = null;
     _sort: string | null = null;
     _sortDesc: boolean = false;
-    meta: any = {};
+    meta: MetaData = {};
 
-    constructor(fields: Object, axios: AxiosInstance) {
+    constructor(fields: Record<string, any>, axios: AxiosInstance) {
         this.axios = axios;
         this.filters = {};
         this.steps = [];
@@ -542,8 +579,7 @@ class Collection<Item> {
 }
 
 Collection.prototype.getQueryPayload = function () {
-    // 跟 processData 一樣，根據 steps/filter/sort/take 組出 query payload
-    // 但唔好 call fetchData，只係組 payload
+    // 組建查詢 payload，但不執行 fetchData
     let q: any = {
         meta: {
             total: true,
@@ -563,7 +599,6 @@ Collection.prototype.getQueryPayload = function () {
         q.data.__args.offset = this.offset;
     }
 
-    // 你可以根據 data_path 組成一個扁平 payload
     return {
         data_path: this.data_path,
         query: q,
@@ -573,7 +608,7 @@ Collection.prototype.getQueryPayload = function () {
 
 
 Collection.prototype.dataPath = function (path: string) {
-    //clone
+    // 複製當前集合並設定新的資料路徑
     const clone = this.clone();
     clone.data_path = path;
     return clone;
@@ -611,57 +646,61 @@ collect().macro('whereContains', function (this: any, field: string, value: stri
 });
 
 Collection.prototype.fetchData = async function () {
-    if (this._batchData) {
-        // 如果 batchCollect 已經 set 過 data，就直接用
-        const data = this._batchData;
+    try {
+        if (this._batchData) {
+            // 如果有批次資料，直接使用
+            const data = this._batchData;
+            this.meta = data.meta;
+            return collect(data.data);
+        }
+        
+        let q: any = {
+            meta: {
+                total: true,
+                key: true,
+                name: true
+            }
+        };
+        q.__args = this.buildArgs();
+        q.data = this.fields;
+        
+        if (this.already_limit) {
+            q.data.__args = q.data.__args || {};
+            q.data.__args.limit = this.limit;
+        }
+
+        if (this.already_offset) {
+            q.data.__args = q.data.__args || {};
+            q.data.__args.offset = this.offset;
+        }
+
+        const t = this.data_path.split('.');
+
+        let n: any = {};
+        let current = n;
+        let last_key = t[t.length - 1];
+        for (const key of t) {
+            if (key === last_key) {
+                current[key] = q
+                break;
+            }
+            current[key] = {};
+            current = current[key];
+        }
+
+        const resp = await query(this.axios, n);
+
+        let data = resp;
+        for (const key of t) {
+            data = data[key];
+        }
+
         this.meta = data.meta;
         return collect(data.data);
+    } catch (error) {
+        console.error('Error fetching collection data:', error);
+        throw error;
     }
-    let q: any = {
-        meta: {
-            total: true,
-            key: true,
-            name: true
-        }
-    };
-    q.__args = this.buildArgs();
-    q.data = this.fields;
-    if (this.already_limit) {
-        q.data.__args = q.data.__args || {};
-        q.data.__args.limit = this.limit;
-    }
-
-    if (this.already_offset) {
-        q.data.__args = q.data.__args || {};
-        q.data.__args.offset = this.offset;
-    }
-
-
-    const t = this.data_path.split('.');
-
-    let n: any = {};
-    let current = n;
-    let last_key = t[t.length - 1];
-    for (const key of t) {
-        if (key === last_key) {
-            current[key] = q
-            break;
-        }
-        current[key] = {};
-        current = current[key];
-    }
-
-
-    const resp = await query(this.axios, n);
-
-    let data = resp;
-    for (const key of t) {
-        data = data[key];
-    }
-
-    this.meta = data.meta;
-
-    return collect(data.data);
 }
 
 
@@ -701,49 +740,47 @@ Collection.prototype.first = async function () {
 }
 
 
-Collection.prototype.where = function (...args: any[]) {
-
+// 新增通用的批次資料檢查方法
+Collection.prototype._handleBatchData = function(methodType: string, args: any[]) {
     if (this._batchData) {
-        this.steps.push({ type: 'where', args });
+        this.steps.push({ type: methodType, args });
         return this;
     }
+    return null;
+};
 
-    if (args.length == 2) {
-        this.filters[args[0]] = args[1]
-    } else if (args.length == 3) {
+Collection.prototype.where = function (...args: any[]) {
+    const batchResult = this._handleBatchData('where', args);
+    if (batchResult) return batchResult;
 
-        let operator = "=="
+    if (args.length === 2) {
+        this.filters[args[0]] = args[1];
+    } else if (args.length === 3) {
+        const field = args[0];
+        const operator = args[1] as Operator;
+        const value = args[2];
 
-        let field = args[0];
-        let value = null;
-
-        if (args.length == 3) {
-            operator = args[1];
-            value = args[2];
-        }
-
-        if (operator === '==') {
-            this.filters[field] = value
-        }
-
-        if (operator === "<") {
-            this.filters[field] = { "lt": value }
-        }
-
-        if (operator === "<=") {
-            this.filters[field] = { "lte": value }
-        }
-
-        if (operator === ">") {
-            this.filters[field] = { "gt": value }
-        }
-
-        if (operator === ">=") {
-            this.filters[field] = { "gte": value }
-        }
-
-        if (operator === "!==") {
-            this.filters[field] = { "ne": value }
+        switch (operator) {
+            case '==':
+                this.filters[field] = value;
+                break;
+            case '<':
+                this.filters[field] = { lt: value };
+                break;
+            case '<=':
+                this.filters[field] = { lte: value };
+                break;
+            case '>':
+                this.filters[field] = { gt: value };
+                break;
+            case '>=':
+                this.filters[field] = { gte: value };
+                break;
+            case '!==':
+                this.filters[field] = { ne: value };
+                break;
+            default:
+                throw new Error(`Unsupported operator: ${operator}`);
         }
     }
 
@@ -751,12 +788,10 @@ Collection.prototype.where = function (...args: any[]) {
 }
 
 Collection.prototype.whereContains = function (field: string, value: string) {
-    if (this._batchData) {
-        this.steps.push({ type: 'whereContains', args: [field, value] });
-        return this;
-    }
+    const batchResult = this._handleBatchData('whereContains', [field, value]);
+    if (batchResult) return batchResult;
 
-    this.filters[field] = { contains: value }
+    this.filters[field] = { contains: value };
     return this;
 }
 
@@ -776,38 +811,34 @@ Collection.prototype.forPage = function (page: number, limit: number) {
 }
 
 Collection.prototype.whereIn = function (field: string, values: any[]) {
-    if (this._batchData) {
-        this.steps.push({ type: 'whereIn', args: [field, values] });
-        return this;
-    }
-    this.filters[field] = { in: values }
+    const batchResult = this._handleBatchData('whereIn', [field, values]);
+    if (batchResult) return batchResult;
+    
+    this.filters[field] = { in: values };
     return this;
 }
 
 Collection.prototype.whereNotIn = function (field: string, values: any[]) {
-    if (this._batchData) {
-        this.steps.push({ type: 'whereNotIn', args: [field, values] });
-        return this;
-    }
-    this.filters[field] = { nin: values }
+    const batchResult = this._handleBatchData('whereNotIn', [field, values]);
+    if (batchResult) return batchResult;
+    
+    this.filters[field] = { nin: values };
     return this;
 }
 
 Collection.prototype.whereNotBetween = function (field: string, values: any[]) {
-    if (this._batchData) {
-        this.steps.push({ type: 'whereNotBetween', args: [field, values] });
-        return this;
-    }
-    this.filters[field] = { notBetween: values }
+    const batchResult = this._handleBatchData('whereNotBetween', [field, values]);
+    if (batchResult) return batchResult;
+    
+    this.filters[field] = { notBetween: values };
     return this;
 }
 
 Collection.prototype.whereBetween = function (field: string, values: any[]) {
-    if (this._batchData) {
-        this.steps.push({ type: 'whereBetween', args: [field, values] });
-        return this;
-    }
-    this.filters[field] = { between: values }
+    const batchResult = this._handleBatchData('whereBetween', [field, values]);
+    if (batchResult) return batchResult;
+    
+    this.filters[field] = { between: values };
     return this;
 }
 
@@ -829,6 +860,10 @@ Collection.prototype.sortByDesc = function <V>(valueOrFn: V | ((item: any) => nu
 }
 
 Collection.prototype.skip = function (offset: number) {
+    if (offset < 0) {
+        throw new Error('Offset must be non-negative');
+    }
+    
     if (this.already_offset) {
         this.steps.push({ type: 'skip', args: [offset] });
     }
@@ -838,7 +873,10 @@ Collection.prototype.skip = function (offset: number) {
 }
 
 Collection.prototype.take = function (length: number) {
-
+    if (length < 0) {
+        throw new Error('Length must be non-negative');
+    }
+    
     if (this.already_limit) {
         this.steps.push({ type: 'take', args: [length] });
         return this;
@@ -858,8 +896,8 @@ Collection.prototype.splice = function (index: number, limit: number) {
     return this;
 }
 
-export default (name: string, axios: AxiosInstance, fields: Object): Collection<any> => {
+export default (name: string, axios: AxiosInstance, fields: Record<string, any>): Collection<any> => {
     const c = new Collection(fields, axios);
-    c.data_path = 'list' + name;
+    c.data_path = COLLECTION_PREFIX + name;
     return c;
 }
