@@ -16,10 +16,7 @@ client.models.create("Client", {
     }
 })
 
-
 describe("model", () => {
-
-
     it("getModelField", () => {
         const field = client.model("Client").field("client_no");
         expect(field?.getName()).toBe("client_no");

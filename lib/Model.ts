@@ -1,5 +1,5 @@
 import { AxiosInstance } from "axios";
-import { toQuery, query, mutation, type Fields } from ".";
+import { toQuery, mutation, type Fields } from ".";
 
 export type ModelField = {
     name: string,
@@ -84,39 +84,28 @@ export default (axios: AxiosInstance, name: string, fields: any) => {
             return result;
         },
         async get(filters: any, fields: Fields) {
-
-            const resp = await query(_axios, {
-                ['list' + _name]: {
-                    __args: {
-                        filters
-                    },
-                    data: {
-                        __args: {
-                            limit: 1
-                        },
-                        ...toQuery(fields)
-                    }
-
-                }
-            })
-
-            return resp['list' + _name]['data'][0];
-
+            // 使用 createCollection 來獲取單筆資料
+            const createCollection = (await import('./createCollection')).default;
+            const collection = createCollection(_name, _axios, toQuery(fields));
+            
+            // 應用過濾器
+            for (const [key, value] of Object.entries(filters)) {
+                collection.where(key, '==', value);
+            }
+            
+            return await collection.first();
         },
         async list(filters: any, fields: Fields) {
-            const resp = await query(_axios, {
-                ['list' + _name]: {
-                    __args: {
-                        filters
-                    },
-                    data: {
-                        ...toQuery(fields)
-                    }
-
-                }
-            })
-
-            return resp['list' + _name]['data'];
+            // 使用 createCollection 來獲取資料列表
+            const createCollection = (await import('./createCollection')).default;
+            const collection = createCollection(_name, _axios, toQuery(fields));
+            
+            // 應用過濾器
+            for (const [key, value] of Object.entries(filters)) {
+                collection.where(key, '==', value);
+            }
+            
+            return await collection.all();
         }
     }
 
