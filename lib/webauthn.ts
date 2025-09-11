@@ -1,6 +1,5 @@
 import { AxiosInstance } from "axios"
 import { query, mutation } from "."
-import { parseRequestOptionsFromJSON, get, parseCreationOptionsFromJSON, create } from "@github/webauthn-json/browser-ponyfill"
 
 export default (axios: AxiosInstance) => {
     return {
@@ -15,14 +14,10 @@ export default (axios: AxiosInstance) => {
 
             const options = app.auth.webAuthnRequestOptions;
 
-            const requestOptions = parseRequestOptionsFromJSON({
-                publicKey: options
-            });
-
-            const response = await get(requestOptions);
-
+            const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(options);
+            const credential = (await navigator.credentials.get({ publicKey })) as PublicKeyCredential;
             await mutation(axios, "webAuthnAssertion", {
-                assertion: response.toJSON()
+                assertion: credential.toJSON()
             })
         },
         register: async () => {
@@ -34,14 +29,11 @@ export default (axios: AxiosInstance) => {
                 }
             });
 
-            const options = parseCreationOptionsFromJSON({
-                publicKey: app.auth.webAuthnCreationOptions
-            });
-
-            const response = await create(options);
+            const publicKey = PublicKeyCredential.parseCreationOptionsFromJSON(app.auth.webAuthnCreationOptions);
+            const credential = (await navigator.credentials.create({ publicKey })) as PublicKeyCredential;
 
             await mutation(axios, "webAuthnRegister", {
-                registration: response.toJSON()
+                registration: credential.toJSON()
             })
 
         }
