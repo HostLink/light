@@ -14,6 +14,7 @@ import { default as model } from './model';
 import { default as roles } from './roles';
 import { default as createCollection } from './createCollection';
 import { default as drive } from './drive';
+import createList from './createList';
 
 
 export interface LightClient {
@@ -32,6 +33,7 @@ export interface LightClient {
     collect(name: string, fields: Object): ReturnType<typeof createCollection>;
     drive(index: number): ReturnType<typeof drive>;
     collects(collections: { [key: string]: any }): Promise<{ [key: string]: any }>;
+    list(entity: string, fields: Fields): ReturnType<typeof createList>;
 }
 export default (baseURL: string): LightClient => {
 
@@ -63,15 +65,23 @@ export default (baseURL: string): LightClient => {
                     // 提取 cookie 名稱和值（移除額外的屬性）
                     return cookie.split(';')[0];
                 });
-                
-                // 合併現有 cookies 和新 cookies，避免重複
-                const existingCookieNames = savedCookies.map(cookie => cookie.split('=')[0]);
-                const filteredNewCookies = newCookies.filter(newCookie => {
-                    const cookieName = newCookie.split('=')[0];
-                    return !existingCookieNames.includes(cookieName);
+
+                // 使用 Map 來合併 cookies，新的 cookie 會覆蓋舊的同名 cookie
+                const cookieMap = new Map<string, string>();
+
+                // 先加入現有的 cookies
+                savedCookies.forEach(cookie => {
+                    const cookieName = cookie.split('=')[0];
+                    cookieMap.set(cookieName, cookie);
                 });
-                
-                savedCookies = [...savedCookies, ...filteredNewCookies];
+
+                // 用新的 cookies 覆蓋或添加
+                newCookies.forEach(cookie => {
+                    const cookieName = cookie.split('=')[0];
+                    cookieMap.set(cookieName, cookie);
+                });
+
+                savedCookies = Array.from(cookieMap.values());
             }
             return response;
         });
@@ -107,6 +117,10 @@ export default (baseURL: string): LightClient => {
             c.data_path = _models.get(name).getDataPath();
             return c;
         },
+        list: (entity: string, fields: Record<string, any>) => {
+            const l = createList(_axios, entity, fields);
+            return l.dataPath(_models.get(entity).getDataPath());
+        },
         drive(index: number) {
             return drive(index, _axios);
         },
@@ -120,7 +134,7 @@ export default (baseURL: string): LightClient => {
                 dataPath[key] = p.data_path;
 
                 payload[key] = {};
-            
+
 
                 const t = p.data_path.split('.');
                 //payload[key].__aliasFor =  t[0]; // 這行是為了讓後端知道這個 query 是屬於哪個 collection 的
@@ -143,23 +157,23 @@ export default (baseURL: string): LightClient => {
 
             // 2. 發送 batch request
             const data = await query(_axios, payload);
-            
+
             // 3. 將 data 設返入每個 collection
             for (const key in collections) {
 
                 //map the datapath to _batchData
                 const t = dataPath[key].split('.');
                 let last_key = t[t.length - 1];
-                let current =data[key]
+                let current = data[key]
                 for (const k of t) {
                     if (k === last_key) {
                         collections[key]._batchData = data[key][k];
                         break;
                     }
                     current[k] = current[k] || {}
-                    
+
                 }
-                               
+
             }
             return collections;
         }
