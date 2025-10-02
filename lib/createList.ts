@@ -44,6 +44,7 @@ export default function createList(axios: AxiosInstance, entity: string, fields:
 				for (const part of pathParts) {
 					result = result[part];
 				}
+				return result;
 			}
 			return result[`list${entity}`];
 		},
@@ -58,11 +59,10 @@ export default function createList(axios: AxiosInstance, entity: string, fields:
 				for (const part of pathParts) {
 					result = result[part];
 				}
+				return result.data;
 			}
 			return result[`list${entity}`].data;
-		},
-
-		dataPath(dataPath?: string) {
+		}, dataPath(dataPath?: string) {
 			if (dataPath && typeof dataPath === 'string') {
 				dataPathStr = dataPath;
 			}
@@ -263,14 +263,14 @@ export default function createList(axios: AxiosInstance, entity: string, fields:
 			if (dataPathStr) {
 				const pathParts = dataPathStr.split('.');
 				let result: any = listQuery;
-				
+
 				// Build nested structure from inside out
 				for (let i = pathParts.length - 1; i >= 0; i--) {
 					result = {
 						[pathParts[i]]: result
 					};
 				}
-				
+
 				return result;
 			}
 
