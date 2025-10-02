@@ -34,6 +34,12 @@ export default function createList(axios: AxiosInstance, entity: string, fields:
 
 	return {
 
+		async fetchFirst() {
+			// perform the query and return the first item from data array
+			let l = this.limit(1);
+			return await l.fetch().then((data: any[]) => (Array.isArray(data) && data.length > 0 ? data[0] : null));
+		},
+
 		async fetchWithMeta() {
 			// perform the query with meta and return both data and meta
 			const resp = await query(axios, this.toQuery(true));
