@@ -19,7 +19,7 @@ const globalModels: Record<string, any> = {}
  * @param axios AxiosInstance 實例
  * @returns ModelManager 實例
  */
-export const createModelManager = (axios: AxiosInstance): ModelManager => {
+export const createModelManager = (axios: AxiosInstance, useGlobal: boolean = false): ModelManager => {
     const _axios = axios
     const data: Record<string, any> = {}
 
@@ -30,53 +30,13 @@ export const createModelManager = (axios: AxiosInstance): ModelManager => {
          * @param fields 模型欄位定義
          */
         create(name: string, fields: Record<string, Field>) {
-            data[name] = null
+            const modelInstance = model(_axios, name, fields)
+            data[name] = modelInstance
 
-            let f: any = {}
-
-            for (const entry of Object.entries(fields)) {
-                const [key, option] = entry
-
-                f[key] = (): Model => {
-                    return {
-                        name: option.name ? option.name : key,
-                        raw: option,
-                        getName: () => {
-                            return option.name ? option.name : key
-                        },
-                        getGQLField: (): string | object => {
-                            return option.gqlField !== undefined ? option.gqlField : option.name || key
-                        },
-                        getRaw() {
-                            return option
-                        },
-                        getValue(model: any) {
-                            if (option.field && typeof option.field == 'function') {
-                                return option.field(model)
-                            }
-
-                            // if field is string
-                            if (option.field && typeof option.field == 'string') {
-                                return model[option.field]
-                            }
-
-                            return model[this.getName()]
-                        },
-                        getFormattedValue(model: any) {
-                            const v = this.getValue(model)
-                            if (option.format) {
-                                return option.format(v)
-                            }
-                            return v
-                        }
-                    }
-                }
+            // 只有在明確指定使用全域時才同步到全域存儲
+            if (useGlobal) {
+                globalModels[name] = modelInstance
             }
-
-            data[name] = model(_axios, name, f)
-            
-            // 同步到全域存儲
-            globalModels[name] = data[name]
         },
 
         /**
@@ -86,8 +46,8 @@ export const createModelManager = (axios: AxiosInstance): ModelManager => {
          */
         get(name: string) {
             if (!data[name]) {
-                // 嘗試從全域存儲獲取
-                if (globalModels[name]) {
+                // 如果啟用全域模式，嘗試從全域存儲獲取
+                if (useGlobal && globalModels[name]) {
                     data[name] = globalModels[name]
                 } else {
                     // 創建新模型
@@ -104,7 +64,7 @@ export const createModelManager = (axios: AxiosInstance): ModelManager => {
          * @returns 是否存在
          */
         has(name: string): boolean {
-            return !!data[name] || !!globalModels[name]
+            return !!data[name] || (useGlobal && !!globalModels[name])
         },
 
         /**
@@ -112,7 +72,9 @@ export const createModelManager = (axios: AxiosInstance): ModelManager => {
          * @returns 模型名稱陣列
          */
         list(): string[] {
-            return [...new Set([...Object.keys(data), ...Object.keys(globalModels)])]
+            const localKeys = Object.keys(data)
+            const globalKeys = useGlobal ? Object.keys(globalModels) : []
+            return [...new Set([...localKeys, ...globalKeys])]
         },
 
         /**
@@ -130,12 +92,54 @@ export const createModelManager = (axios: AxiosInstance): ModelManager => {
  * @returns 模型管理器和便利方法
  */
 export const useModel = (axios: AxiosInstance) => {
-    const manager = createModelManager(axios)
+    const manager = createModelManager(axios, false) // 不使用全域
 
     return {
         // 暴露完整的管理器
         manager,
-        
+
+        // 便利方法 - 直接暴露常用功能
+        createModel: manager.create,
+        getModel: manager.get,
+        hasModel: manager.has,
+        listModels: manager.list,
+        clearModels: manager.clear,
+
+        /**
+         * 快速創建並獲取模型
+         * @param name 模型名稱
+         * @param fields 模型欄位定義
+         * @returns 模型實例
+         */
+        defineModel(name: string, fields: Record<string, Field>) {
+            manager.create(name, fields)
+            return manager.get(name)
+        },
+
+        /**
+         * 批量創建模型
+         * @param models 模型定義對象
+         */
+        defineModels(models: Record<string, Record<string, Field>>) {
+            Object.entries(models).forEach(([name, fields]) => {
+                manager.create(name, fields)
+            })
+        }
+    }
+}
+
+/**
+ * 創建一個會自動使用全域模型的 useModel
+ * @param axios AxiosInstance 實例
+ * @returns 使用全域模型的管理器
+ */
+export const useGlobalModel = (axios: AxiosInstance) => {
+    const manager = createModelManager(axios, true) // 使用全域
+
+    return {
+        // 暴露完整的管理器
+        manager,
+
         // 便利方法 - 直接暴露常用功能
         createModel: manager.create,
         getModel: manager.get,
@@ -168,6 +172,7 @@ export const useModel = (axios: AxiosInstance) => {
 
 /**
  * 全域模型管理器 - 用於跨組件共享模型
+ * 所有創建的模型都會儲存在全域範圍內，可以在不同的組件或模組中共享
  */
 export const useGlobalModels = (axios: AxiosInstance) => {
     return {
@@ -177,9 +182,9 @@ export const useGlobalModels = (axios: AxiosInstance) => {
          * @param fields 模型欄位定義
          */
         define(name: string, fields: Record<string, Field>) {
-            const manager = createModelManager(axios)
-            manager.create(name, fields)
-            globalModels[name] = manager.get(name)
+            const modelInstance = model(axios, name, fields)
+            globalModels[name] = modelInstance
+            return modelInstance
         },
 
         /**
