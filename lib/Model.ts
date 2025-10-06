@@ -1,17 +1,11 @@
 import { AxiosInstance } from "axios";
 import { toQuery, mutation, type Fields } from ".";
+import { default as createList } from './createList';
+import { defu } from "defu";
 
-export type ModelField = {
-    name: string,
-    raw: FieldOption,
-    getName: () => string,
-    getGQLField: () => string | object,
-    getRaw: () => FieldOption,
-    getValue: (model: object) => any,
-    getFormattedValue: (model: object) => any,
-}
 
-export type FieldOption = {
+
+export type Field = {
     label: string,
     name?: string
     gqlField?: string | object,
@@ -23,18 +17,29 @@ export type FieldOption = {
     format?: any,
 }
 
-export default (axios: AxiosInstance, name: string, fields: any) => {
+
+export type Model = {
+    name: string,
+    raw: Field,
+    getName: () => string,
+    getGQLField: () => string | object,
+    getRaw: () => Field,
+    getValue: (model: object) => any,
+    getFormattedValue: (model: object) => any,
+}
+
+
+export default (axios: AxiosInstance, name: string, fields: Record<string, Field>) => {
     const _name = name;
     const _axios = axios;
     const _fields = fields;
     let _dataPath = "list" + name;
 
-    const field = (f: string): ModelField | null => {
-
+    const field = (f: string): Field | null => {
         if (!_fields[f]) {
             return null;
         }
-        return _fields[f]();
+        return _fields[f];
     }
 
     return {
@@ -48,21 +53,18 @@ export default (axios: AxiosInstance, name: string, fields: any) => {
             return _dataPath;
         },
         gqlFields(fields: (string | object)[]) {
-            const result: Array<any> = [];
+            let fs: Record<string, any> = {};
             for (const f of fields) {
-
                 if (typeof f === 'string') {
                     const mf = field(f)
                     if (mf) {
-                        result.push(mf.getGQLField());
+                        fs = defu(fs, mf.gqlField ? (typeof mf.gqlField === 'string' ? { [mf.gqlField]: true } : mf.gqlField) : { [mf.name || f]: true });
                     }
                 } else if (typeof f === 'object') {
-                    result.push(f)
+                    fs = defu(fs, f);
                 }
             }
-
-
-            return result;
+            return fs;
         }, async update(id: number, data: Object) {
             return await mutation(_axios, 'update' + _name, { id, data })
         },
@@ -73,7 +75,7 @@ export default (axios: AxiosInstance, name: string, fields: any) => {
             return await mutation(_axios, 'add' + _name, { data })
         },
         fields(fields: string[]) {
-            let result: Array<ModelField> = [];
+            let result: Array<Field> = [];
 
             for (let f of fields) {
                 const f1 = field(f);
@@ -87,47 +89,74 @@ export default (axios: AxiosInstance, name: string, fields: any) => {
             // 使用 createCollection 來獲取單筆資料
             const createCollection = (await import('./createCollection')).default;
             const collection = createCollection(_name, _axios, toQuery(fields));
-            
+
             // 應用過濾器
             for (const [key, value] of Object.entries(filters)) {
                 collection.where(key, '==', value);
             }
-            
+
             return await collection.first();
         },
-        async list(filters: any, fields: Fields) {
-            // 使用 createCollection 來獲取資料列表
-            const createCollection = (await import('./createCollection')).default;
-            const collection = createCollection(_name, _axios, toQuery(fields));
-            
-            // 應用過濾器
-            for (const [key, value] of Object.entries(filters)) {
-                collection.where(key, '==', value);
-            }
-            
-            return await collection.all();
+        list(fields: Record<string, any>) {
+            let f: Record<string, any> = fields;
+            const fieldConfigs: Record<string, any> = {};
+
+            Object.entries(fields).forEach(([key]) => {
+                if (_fields[key]) {
+                    // 保存欄位配置（包含 format 函數）
+                    fieldConfigs[key] = _fields[key];
+
+                    if (_fields[key].gqlField) {
+                        //remove the original field
+                        delete f[key];
+                        //merge the gqlField
+                        f = defu(f, _fields[key].gqlField);
+                    }
+                }
+            });
+
+            const originalList = createList(_axios, _name, f).dataPath(_dataPath);
+
+            // 包裝原始的 fetch 方法
+            const originalFetch = originalList.fetch.bind(originalList);
+
+            return {
+                ...originalList,
+                async fetch() {
+                    const data = await originalFetch();
+
+                    // 應用格式化函數
+                    return data.map((item: any) => {
+                        const formattedItem = { ...item };
+
+                        Object.entries(fieldConfigs).forEach(([fieldName, fieldConfig]) => {
+                            if (fieldConfig.format && typeof fieldConfig.format === 'function') {
+                                formattedItem[fieldName] = fieldConfig.format(item);
+                            }
+                        });
+
+                        return formattedItem;
+                    });
+                }, async fetchFirst() {
+                    // 包裝原始的 fetchFirst 方法
+                    const originalFetchFirst = originalList.fetchFirst.bind(originalList);
+                    const data = await originalFetchFirst();
+
+                    // 如果沒有資料，直接返回
+                    if (!data) return data;
+
+                    // 應用格式化函數到單筆資料
+                    const formattedItem = { ...data };
+
+                    Object.entries(fieldConfigs).forEach(([fieldName, fieldConfig]) => {
+                        if (fieldConfig.format && typeof fieldConfig.format === 'function') {
+                            formattedItem[fieldName] = fieldConfig.format(data);
+                        }
+                    });
+
+                    return formattedItem;
+                }
+            };
         }
     }
-
 };
-
-/* 
-
-export const getGQLFields = (model: string, fields: (string | object)[]) => {
-    const result: Array<any> = [];
-    for (const field of fields) {
-
-        if (typeof field === 'string') {
-            const mf = getModelField(model, field)
-            if (mf) {
-                result.push(mf.getGQLField());
-            }
-        } else if (typeof field === 'object') {
-            result.push(field)
-        }
-    }
-
-
-    return result;
-}
- */

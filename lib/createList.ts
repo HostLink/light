@@ -34,6 +34,12 @@ export default function createList(axios: AxiosInstance, entity: string, fields:
 
 	return {
 
+		first() {
+			return this.fetchFirst();
+		},
+		all() {
+			return this.fetch();
+		},
 		async fetchFirst() {
 			// perform the query and return the first item from data array
 			let l = this.limit(1);
@@ -55,7 +61,7 @@ export default function createList(axios: AxiosInstance, entity: string, fields:
 			}
 			return result[`list${entity}`];
 		},
-		async fetch() {
+		async fetch(): Promise<any[]> {
 
 			// perform the query and return the data array
 			const resp = await query(axios, this.toQuery());
