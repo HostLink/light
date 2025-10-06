@@ -5,7 +5,6 @@ import { defu } from "defu";
 
 
 export type Field = {
-    label: string,
     name?: string
 
     /**

@@ -39,7 +39,7 @@ console.log(await m.list({
 client.models.create("User", {
     Name: {
         label: "Username",
-        gqlField: {
+        gql: {
             first_name: true,
             last_name: true,
         }, format: (model: any) => {
