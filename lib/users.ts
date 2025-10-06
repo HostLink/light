@@ -1,5 +1,5 @@
 import { AxiosInstance } from "axios";
-import { createCollection } from "."
+import { createList } from "."
 
 export type UserFields = {
     user_id?: boolean;
@@ -11,16 +11,14 @@ export type UserFields = {
 
 export default (axios: AxiosInstance) => {
     return {
-        list: async (fields: UserFields = {
+        list: (fields: UserFields = {
             user_id: true,
             username: true,
             first_name: true,
             last_name: true,
             status: true
         }) => {
-            const c = createCollection("Users", axios, fields)
-            c.data_path = "app.users";
-            return c.all();
+            return createList(axios, "Users", fields).dataPath("app.users");
         }
     }
 }

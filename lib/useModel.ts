@@ -1,5 +1,5 @@
 import { AxiosInstance } from "axios"
-import { type Model, type Field } from "./model"
+import { type Field } from "./model"
 import { default as model } from './model'
 
 // 模型管理器的類型定義
