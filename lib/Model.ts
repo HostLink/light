@@ -4,30 +4,25 @@ import { default as createList } from './createList';
 import { defu } from "defu";
 
 
-
 export type Field = {
     label: string,
     name?: string
+
+    /**
+     * @deprecated use gql instead
+     */
     gqlField?: string | object,
-    sortable?: boolean,
-    searchable?: boolean,
-    searchableType?: string,
-    align?: string,
+
+    gql?: Record<string, any>,
+  
     field?: any,
     format?: any,
 }
 
-
 export type Model = {
     name: string,
-    raw: Field,
-    getName: () => string,
-    getGQLField: () => string | object,
-    getRaw: () => Field,
-    getValue: (model: object) => any,
-    getFormattedValue: (model: object) => any,
+    fields: Record<string, Field>,
 }
-
 
 export default (axios: AxiosInstance, name: string, fields: Record<string, Field>) => {
     const _name = name;
@@ -111,6 +106,11 @@ export default (axios: AxiosInstance, name: string, fields: Record<string, Field
                         delete f[key];
                         //merge the gqlField
                         f = defu(f, _fields[key].gqlField);
+                    }
+
+                    if (_fields[key].gql) {
+                        f = defu(f, _fields[key].gql);
+                        delete f[key]; // 移除原始欄位以避免重複
                     }
                 }
             });

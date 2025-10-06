@@ -9,10 +9,11 @@ await client.auth.login("admin", "111111");
 const m = model(client.axios, "User", {
     Name: {
         label: "Username",
-        gqlField: {
+        gql: {
             first_name: true,
             last_name: true,
-        }, format: (model: any) => {
+        },
+        format: (model: any) => {
             return model.first_name + " " + model.last_name;
         },
 
