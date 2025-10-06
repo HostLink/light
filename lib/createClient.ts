@@ -9,7 +9,7 @@ import { default as _config } from './config';
 import { default as _mail } from './mail';
 import { default as _users } from './users';
 import { default as _fs } from './fs';
-import { default as models } from './models';
+import { createModelManager, type ModelManager } from './useModel';
 import { default as model } from './model';
 import { default as roles } from './roles';
 import { default as createCollection } from './createCollection';
@@ -27,7 +27,7 @@ export interface LightClient {
     mail: ReturnType<typeof _mail>;
     users: ReturnType<typeof _users>;
     fs: ReturnType<typeof _fs>;
-    models: ReturnType<typeof models>;
+    models: ModelManager;
     model(name: string): ReturnType<typeof model>;
     roles: ReturnType<typeof roles>;
     collect(name: string, fields: Object): ReturnType<typeof createCollection>;
@@ -95,7 +95,7 @@ export default (baseURL: string): LightClient => {
         return query(_axios, q);
     }
 
-    const _models = models(_axios);
+    const _models = createModelManager(_axios);
 
     return {
         baseURL,
