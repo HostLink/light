@@ -13,7 +13,7 @@ export type Field = {
     gqlField?: string | object,
 
     gql?: Record<string, any>,
-  
+
     field?: any,
     format?: any,
 }
@@ -59,14 +59,27 @@ export default (axios: AxiosInstance, name: string, fields: Record<string, Field
                 }
             }
             return fs;
-        }, async update(id: number, data: Object) {
-            return await mutation(_axios, 'update' + _name, { id, data })
+        }, update(id: number, data: Object) {
+            return mutation(_axios, {
+                ['update' + _name]: {
+                    __args: { id, data }
+                }
+            }).then(res => res['update' + _name]);
         },
         async delete(id: number) {
-            return await mutation(_axios, 'delete' + _name, { id })
+
+            return mutation(_axios, {
+                ['delete' + _name]: {
+                    __args: { id }
+                }
+            }).then(res => res['delete' + _name]);
         },
-        async add(data: Object) {
-            return await mutation(_axios, 'add' + _name, { data })
+        add(data: Object) {
+            return mutation(_axios, {
+                ['add' + _name]: {
+                    __args: { data }
+                }
+            }).then(res => res['add' + _name]);
         },
         fields(fields: string[]) {
             let result: Array<Field> = [];

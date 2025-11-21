@@ -19,14 +19,8 @@ export type FSFolder = {
 export default (axios: AxiosInstance) => {
     return {
         uploadTempFile: (file: File) => {
-            return mutation(axios, "fsUploadTempFile", {
-                file
-            }, {
-                name: true,
-                path: true,
-                size: true,
-                mime: true,
-            })
+            return mutation(axios, { fsUploadTempFile: { __args: { file }, name: true, path: true, size: true, mime: true } })
+                .then(resp => resp.fsUploadTempFile);
         },
         folders: {
             list: async (path: string) => {
@@ -44,13 +38,14 @@ export default (axios: AxiosInstance) => {
                 return resp.fsListFolders;
             },
             create: (path: string) => {
-                return mutation(axios, "fsCreateFolder", { path });
+
+                return mutation(axios, { fsCreateFolder: { __args: { path } } }).then(res => res.fsCreateFolder);
             },
             delete: (path: string) => {
-                return mutation(axios, "fsDeleteFolder", { path });
+                return mutation(axios, { fsDeleteFolder: { __args: { path } } }).then(res => res.fsDeleteFolder);
             },
             rename: (path: string, name: string) => {
-                return mutation(axios, "fsRenameFolder", { path, name });
+                return mutation(axios, { fsRenameFolder: { __args: { path, name } } }).then(res => res.fsRenameFolder);
             }
         },
         files: {
@@ -96,19 +91,16 @@ export default (axios: AxiosInstance) => {
                 return window.atob(app.drive.files[0].base64Content);
             },
             write: (path: string, content: string) => {
-                return mutation(axios, "fsWriteFile", {
-                    path: path,
-                    content: content,
-                });
+                return mutation(axios, { fsWriteFile: { __args: { path, content } } }).then(res => res.fsWriteFile);
             },
             delete: (path: string) => {
-                return mutation(axios, "fsDeleteFile", { path });
+                return mutation(axios, { fsDeleteFile: { __args: { path } } }).then(res => res.fsDeleteFile);
             },
             rename: (path: string, name: string) => {
-                return mutation(axios, "fsRenameFile", { path, name });
+                return mutation(axios, { fsRenameFile: { __args: { path, name } } }).then(res => res.fsRenameFile);
             },
             move: (source: string, target: string) => {
-                return mutation(axios, "fsMoveFile", { source, target });
+                return mutation(axios, { fsMoveFile: { __args: { source, target } } }).then(res => res.fsMoveFile);
             }
         }
     }

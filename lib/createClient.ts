@@ -21,8 +21,8 @@ export interface LightClient {
     baseURL: string;
     axios: AxiosInstance;
     auth: ReturnType<typeof auth>;
-    mutation: (operation: string, args: { [key: string]: any } | null, fields: Fields) => Promise<any>;
-    query: (q: Object | Array<string | Object | string>) => Promise<any>;
+    mutation: (q: Record<string, any>) => Promise<any>;
+    query: (q: Record<string, any>) => Promise<any>;
     config: ReturnType<typeof _config>;
     mail: ReturnType<typeof _mail>;
     users: ReturnType<typeof _users>;
@@ -87,11 +87,11 @@ export default (baseURL: string): LightClient => {
         });
     }
 
-    const _mutation = (operation: string, args: { [key: string]: any } | null = null, fields: Fields = []) => {
-        return mutation(_axios, operation, args, fields);
+    const _mutation = (q: Record<string, any>) => {
+        return mutation(_axios, q);
     }
 
-    const _query = (q: Object | Array<string | Object | string>) => {
+    const _query = (q: Record<string, any>) => {
         return query(_axios, q);
     }
 

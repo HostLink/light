@@ -8,15 +8,19 @@ export default (axios: AxiosInstance) => {
     return {
         login: async () => {
             const credential = await assertion();
-            await mutation(axios, "webAuthnAssertion", {
-                assertion: credential.toJSON()
-            })
+            return await mutation(axios, {
+                webAuthnAssertion: {
+                    assertion: credential.toJSON()
+                }
+            }).then(res => res.webAuthnAssertion);
         },
         register: async () => {
             const credential = await attestation();
-            await mutation(axios, "webAuthnRegister", {
-                registration: credential.toJSON()
-            })
+            return await mutation(axios, {
+                webAuthnRegister: {
+                    registration: credential.toJSON()
+                }
+            }).then(res => res.webAuthnRegister);
         }
     }
 }

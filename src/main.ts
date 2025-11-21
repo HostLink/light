@@ -10,7 +10,7 @@ const client = createClient("http://127.0.0.1:8888/");
 //{"query":"mutation ($file1: Upload!) { test (file1: $file1) { a } }"}
 
 
-await client.query({
+await client.mutation({
     test: {
         __args: {
             input: {
