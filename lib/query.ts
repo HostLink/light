@@ -4,6 +4,70 @@ import { AxiosInstance } from 'axios';
 
 import { arrayHasFile, objectHasFile } from './fileUtils';
 
+// Recursive function to process __args at all levels
+function processArgs(obj: any, allVariables: any, map: any, fd: FormData, fileIndexRef: { current: number }) {
+    if (!obj || typeof obj !== 'object') {
+        return;
+    }
+
+    for (let key in obj) {
+        const field = obj[key];
+        if (field && typeof field === 'object') {
+            // Process __args if exists
+            if ('__args' in field) {
+                const args = field.__args;
+                const __args: any = {};
+
+                Object.entries(args).forEach(([argKey, value]) => {
+                    // Check if value is array of File
+                    if (value instanceof Array && arrayHasFile(value)) {
+                        let j = 0;
+                        value.forEach((v) => {
+                            if (v instanceof File) {
+                                __args[argKey] = new VariableType(argKey);
+                                map[fileIndexRef.current] = ["variables." + argKey + "." + j];
+                                fd.append(fileIndexRef.current.toString(), v);
+                                fileIndexRef.current++;
+                            }
+                        })
+                        allVariables[argKey] = "[Upload!]!";
+
+                    } else if (value instanceof File) {
+                        __args[argKey] = new VariableType(argKey);
+                        map[fileIndexRef.current] = ["variables." + argKey];
+                        fd.append(fileIndexRef.current.toString(), value);
+                        allVariables[argKey] = "Upload!";
+                        fileIndexRef.current++;
+                    } else if (value instanceof Object && objectHasFile(value)) {
+                        __args[argKey] = {};
+                        Object.entries(value).forEach(([k, v]) => {
+                            if (v instanceof File) {
+                                __args[argKey][k] = new VariableType(k);
+                                map[fileIndexRef.current] = ["variables." + k];
+                                fd.append(fileIndexRef.current.toString(), v);
+                                allVariables[k] = "Upload!";
+                                fileIndexRef.current++;
+                            } else {
+                                __args[argKey][k] = v;
+                            }
+                        })
+
+                    } else {
+                        if (value !== undefined) {
+                            __args[argKey] = value;
+                        }
+                    }
+                });
+
+                field.__args = __args;
+            }
+
+            // Recursively process nested fields
+            processArgs(field, allVariables, map, fd, fileIndexRef);
+        }
+    }
+}
+
 export default async (axios: AxiosInstance, q: Object | Array<string | Object>): Promise<any> => {
 
     const convertedQ = toQuery(q);
@@ -12,64 +76,14 @@ export default async (axios: AxiosInstance, q: Object | Array<string | Object>):
     let hasFile = false;
     const allVariables: any = {};
     const map: { [key: number]: string[] } = {};
-    let fileIndex = 0;
+    const fileIndexRef = { current: 0 };
 
-    // Check if any field has __args with File
-    for (let key in convertedQ) {
-        const field = convertedQ[key];
-        if (field && typeof field === 'object' && '__args' in field) {
-            const args = field.__args;
-            const __args: any = {};
+    // Process __args recursively at all levels
+    processArgs(convertedQ, allVariables, map, fd, fileIndexRef);
 
-            Object.entries(args).forEach(([argKey, value]) => {
-                // Check if value is array of File
-                if (value instanceof Array && arrayHasFile(value)) {
-                    hasFile = true;
-                    let j = 0;
-                    value.forEach((v) => {
-                        if (v instanceof File) {
-                            __args[argKey] = new VariableType(argKey);
-                            map[fileIndex] = ["variables." + argKey + "." + j];
-                            fd.append(fileIndex.toString(), v);
-                            fileIndex++;
-                        }
-                    })
-                    allVariables[argKey] = "[Upload!]!";
+    hasFile = Object.keys(allVariables).length > 0;
 
-                } else if (value instanceof File) {
-                    hasFile = true;
-                    __args[argKey] = new VariableType(argKey);
-                    map[fileIndex] = ["variables." + argKey];
-                    fd.append(fileIndex.toString(), value);
-                    allVariables[argKey] = "Upload!";
-                    fileIndex++;
-                } else if (value instanceof Object && objectHasFile(value)) {
-                    hasFile = true;
-                    __args[argKey] = {};
-                    Object.entries(value).forEach(([k, v]) => {
-                        if (v instanceof File) {
-                            __args[argKey][k] = new VariableType(k);
-                            map[fileIndex] = ["variables." + k];
-                            fd.append(fileIndex.toString(), v);
-                            allVariables[k] = "Upload!";
-                            fileIndex++;
-                        } else {
-                            __args[argKey][k] = v;
-                        }
-                    })
-
-                } else {
-                    if (value !== undefined) {
-                        __args[argKey] = value;
-                    }
-                }
-            });
-
-            convertedQ[key].__args = __args;
-        }
-    }
-
-    if (Object.keys(allVariables).length > 0) {
+    if (hasFile) {
         convertedQ.__variables = allVariables;
     }
 

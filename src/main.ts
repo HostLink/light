@@ -13,10 +13,10 @@ const client = createClient("http://127.0.0.1:8888/");
 await client.query({
     test: {
         __args: {
-            a:1,
-            file1: new File(["content"], "test.txt"),
-
+            a: 1,
+            file1: [new File(["content"], "test.txt"), new File(["content2"], "test2.txt")]
         }
+        
 
     }
 })
