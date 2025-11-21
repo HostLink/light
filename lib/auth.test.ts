@@ -32,7 +32,15 @@ describe("login", () => {
 
     it("query system", async () => {
         let data = await client.query({
-            system: ["diskUsageSpace", "diskFreeSpacePercent", "diskFreeSpace", "diskTotalSpace", "package", "company", "companyLogo"]
+            system: {
+                diskUsageSpace: true,
+                diskFreeSpacePercent: true,
+                diskFreeSpace: true,
+                diskTotalSpace: true,
+                package: true,
+                company: true,
+                companyLogo: true
+            }
         })
         expect(data.system.diskUsageSpace).toBeDefined();
         expect(data.system.diskFreeSpacePercent).toBeDefined();
