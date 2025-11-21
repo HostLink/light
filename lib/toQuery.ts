@@ -1,5 +1,5 @@
 import { Fields } from ".";
-const toJson = (query: Fields) => {
+const toJson = (query: Fields): Record<string, any> => {
 
     let q: any = {};
 

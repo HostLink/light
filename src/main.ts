@@ -2,6 +2,25 @@ import { createClient } from "../lib/index.ts"
 import { default as model } from "../lib/model.ts"
 const client = createClient("http://127.0.0.1:8888/");
 
+/* await client.mutation("test", {
+    file1: new File(["content"], "test.txt")
+}, {
+    a: true
+}) */
+//{"query":"mutation ($file1: Upload!) { test (file1: $file1) { a } }"}
+
+
+await client.query({
+    test: {
+        __args: {
+            a:1,
+            file1: new File(["content"], "test.txt"),
+
+        }
+
+    }
+})
+
 
 
 await client.auth.login("admin", "111111");

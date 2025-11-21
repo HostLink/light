@@ -2,24 +2,7 @@ import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import { AxiosInstance } from 'axios';
 
 import { Fields, toQuery } from '.';
-
-function arrayHasFile(arr: any[]): boolean {
-    for (let i = 0; i < arr.length; i++) {
-        if (arr[i] instanceof File) {
-            return true;
-        }
-    }
-    return false;
-}
-
-function objectHasFile(obj: any): boolean {
-    for (let key in obj) {
-        if (obj[key] instanceof File) {
-            return true;
-        }
-    }
-    return false;
-}
+import { arrayHasFile, objectHasFile } from './fileUtils';
 
 export default async (axios: AxiosInstance, operation: string, args: { [key: string]: any } | null = null, fields: Fields = []): Promise<any> => {
 
