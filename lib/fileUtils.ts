@@ -12,6 +12,9 @@ export function objectHasFile(obj: any): boolean {
         if (obj[key] instanceof File) {
             return true;
         }
+        if (obj[key] instanceof Array && arrayHasFile(obj[key])) {
+            return true;
+        }
     }
     return false;
 }

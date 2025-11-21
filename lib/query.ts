@@ -21,13 +21,17 @@ function processArgs(obj: any, allVariables: any, map: any, fd: FormData, fileIn
                 Object.entries(args).forEach(([argKey, value]) => {
                     // Check if value is array of File
                     if (value instanceof Array && arrayHasFile(value)) {
+                        __args[argKey] = new VariableType(argKey);
                         let j = 0;
                         value.forEach((v) => {
                             if (v instanceof File) {
-                                __args[argKey] = new VariableType(argKey);
-                                map[fileIndexRef.current] = ["variables." + argKey + "." + j];
+                                if (!map[fileIndexRef.current]) {
+                                    map[fileIndexRef.current] = [];
+                                }
+                                map[fileIndexRef.current].push("variables." + argKey + "." + j);
                                 fd.append(fileIndexRef.current.toString(), v);
                                 fileIndexRef.current++;
+                                j++;
                             }
                         })
                         allVariables[argKey] = "[Upload!]!";
@@ -41,7 +45,22 @@ function processArgs(obj: any, allVariables: any, map: any, fd: FormData, fileIn
                     } else if (value instanceof Object && objectHasFile(value)) {
                         __args[argKey] = {};
                         Object.entries(value).forEach(([k, v]) => {
-                            if (v instanceof File) {
+                            if (v instanceof Array && arrayHasFile(v)) {
+                                __args[argKey][k] = new VariableType(k);
+                                let j = 0;
+                                v.forEach((item) => {
+                                    if (item instanceof File) {
+                                        if (!map[fileIndexRef.current]) {
+                                            map[fileIndexRef.current] = [];
+                                        }
+                                        map[fileIndexRef.current].push("variables." + k + "." + j);
+                                        fd.append(fileIndexRef.current.toString(), item);
+                                        fileIndexRef.current++;
+                                        j++;
+                                    }
+                                })
+                                allVariables[k] = "[Upload!]!";
+                            } else if (v instanceof File) {
                                 __args[argKey][k] = new VariableType(k);
                                 map[fileIndexRef.current] = ["variables." + k];
                                 fd.append(fileIndexRef.current.toString(), v);
@@ -53,7 +72,7 @@ function processArgs(obj: any, allVariables: any, map: any, fd: FormData, fileIn
                         })
 
                     } else {
-                        if (value !== undefined) {
+                        if (value !== undefined && value !== null) {
                             __args[argKey] = value;
                         }
                     }
