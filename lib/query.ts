@@ -1,5 +1,4 @@
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
-import toQuery from './toQuery';
 import { AxiosInstance } from 'axios';
 
 import { arrayHasFile, objectHasFile } from './fileUtils';
@@ -87,9 +86,9 @@ function processArgs(obj: any, allVariables: any, map: any, fd: FormData, fileIn
     }
 }
 
-export default async (axios: AxiosInstance, q: Object | Array<string | Object>): Promise<any> => {
+export default async (axios: AxiosInstance, q: Record<string, any>): Promise<any> => {
 
-    const convertedQ = toQuery(q);
+    const convertedQ = q;
 
     const fd = new FormData();
     let hasFile = false;
