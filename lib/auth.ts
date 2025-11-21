@@ -6,37 +6,34 @@ export default (axios: AxiosInstance) => {
     return {
         WebAuthn: WebAuthn(axios),
         google: {
-            unlink: (): Promise<boolean> => {
-                return mutation(axios, { lightAuthUnlinkGoogle: true }).then(res => res.lightAuthUnlinkGoogle)
-            },
-            login: (credential: string): Promise<boolean> => {
-                return mutation(axios, { lightAuthLoginGoogle: { __args: { credential } } }).then(res => res.lightAuthLoginGoogle)
-            },
-            register: (credential: string): Promise<boolean> => {
-                return mutation(axios, { lightAuthRegisterGoogle: { __args: { credential } } }).then(res => res.lightAuthRegisterGoogle)
-            }
+            unlink: (): Promise<boolean> =>
+                mutation(axios, { lightAuthUnlinkGoogle: true })
+                    .then(res => res.lightAuthUnlinkGoogle),
+            login: (credential: string): Promise<boolean> =>
+                mutation(axios, { lightAuthLoginGoogle: { __args: { credential } } })
+                    .then(res => res.lightAuthLoginGoogle),
+            register: (credential: string): Promise<boolean> =>
+                mutation(axios, { lightAuthRegisterGoogle: { __args: { credential } } })
+                    .then(res => res.lightAuthRegisterGoogle)
         },
         facebook: {
-            unlink: (): Promise<boolean> => {
-                return mutation(axios, { lightAuthUnlinkFacebook: true }).then(res => res.lightAuthUnlinkFacebook)
-            },
-            login: (accessToken: string): Promise<boolean> => {
-                return mutation(axios, { lightAuthLoginFacebook: { __args: { access_token: accessToken } } }).then(res => res.lightAuthLoginFacebook)
-            },
-            register: (accessToken: string): Promise<boolean> => {
-                return mutation(axios, { lightAuthRegisterFacebook: { __args: { access_token: accessToken } } }).then(res => res.lightAuthRegisterFacebook)
-            }
+            unlink: (): Promise<boolean> =>
+                mutation(axios, { lightAuthUnlinkFacebook: true })
+                    .then(res => res.lightAuthUnlinkFacebook),
+            login: (accessToken: string): Promise<boolean> =>
+                mutation(axios, { lightAuthLoginFacebook: { __args: { access_token: accessToken } } })
+                    .then(res => res.lightAuthLoginFacebook),
+            register: (accessToken: string): Promise<boolean> =>
+                mutation(axios, { lightAuthRegisterFacebook: { __args: { access_token: accessToken } } })
+                    .then(res => res.lightAuthRegisterFacebook),
         },
         microsoft: {
-            unlink: (): Promise<boolean> => {
-                return mutation(axios, { lightAuthUnlinkMicrosoft: true }).then(res => res.lightAuthUnlinkMicrosoft)
-            },
-            login: (accessToken: string): Promise<boolean> => {
-                return mutation(axios, { lightAuthLoginMicrosoft: { __args: { access_token: accessToken } } }).then(res => res.lightAuthLoginMicrosoft)
-            },
-            register: (account_id: string): Promise<boolean> => {
-                return mutation(axios, { lightAuthRegisterMicrosoft: { __args: { account_id } } }).then(res => res.lightAuthRegisterMicrosoft)
-            }
+            unlink: (): Promise<boolean> =>
+                mutation(axios, { lightAuthUnlinkMicrosoft: true }).then(res => res.lightAuthUnlinkMicrosoft),
+            login: (accessToken: string): Promise<boolean> =>
+                mutation(axios, { lightAuthLoginMicrosoft: { __args: { access_token: accessToken } } }).then(res => res.lightAuthLoginMicrosoft),
+            register: (account_id: string): Promise<boolean> =>
+                mutation(axios, { lightAuthRegisterMicrosoft: { __args: { account_id } } }).then(res => res.lightAuthRegisterMicrosoft)
         },
         login: (username: string, password: string, code: string = ""): Promise<boolean> => {
             return mutation(axios, { login: { __args: { username, password, code } } }).then(res => res.login)
@@ -58,10 +55,9 @@ export default (axios: AxiosInstance) => {
         },
         verifyCode(jwt: string, code: string): Promise<boolean> {
             return mutation(axios, { forgetPasswordVerifyCode: { __args: { jwt, code } } }).then(res => res.forgetPasswordVerifyCode)
-
         },
-        granted: async (rights: string[]): Promise<string[]> => {
-            const { my } = await query(axios, {
+        granted: (rights: string[]): Promise<string[]> => {
+            return query(axios, {
                 my: {
                     grantedRights: {
                         __args: {
@@ -69,10 +65,7 @@ export default (axios: AxiosInstance) => {
                         },
                     }
                 }
-
-            });
-            return my.grantedRights;
-
+            }).then(resp => resp.my.grantedRights)
         }
     }
 
