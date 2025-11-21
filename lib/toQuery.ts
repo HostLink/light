@@ -1,7 +1,7 @@
 import { Fields } from ".";
-const toJson = (query: Fields): Record<string, any> => {
+const toJson = (query: Fields) => {
 
-    let q: any = {};
+    let q: Record<string, any> = {};
 
     if (typeof query == "string") {
         q[query] = true;
