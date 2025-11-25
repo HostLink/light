@@ -1,13 +1,25 @@
 import { createList, mutation } from "."
 
+
+
 export type UserFields = {
-    user_id?: boolean;
-    username?: boolean;
-    first_name?: boolean;
-    last_name?: boolean;
-    status?: boolean;
-    password?: boolean;
-    join_date?: boolean;
+    user_id?: number
+    username?: string
+    first_name?: string
+    last_name?: string
+    status?: number
+    password?: string
+    join_date?: string
+}
+
+type QueryUserFieldsUserFields = Partial<Record<keyof UserFields, boolean>>;
+
+const defaultUserFields: QueryUserFieldsUserFields = {
+    user_id: true,
+    username: true,
+    first_name: true,
+    last_name: true,
+    status: true
 }
 
 const createUser = (fields: UserFields) => mutation({
@@ -27,13 +39,7 @@ const deleteUser = (id: Number): Promise<boolean> => mutation({
 
 export default () => {
     return {
-        list: async (fields: UserFields = {
-            user_id: true,
-            username: true,
-            first_name: true,
-            last_name: true,
-            status: true
-        }) => {
+        list: async (fields: QueryUserFieldsUserFields = defaultUserFields) => {
             return createList("Users", fields).dataPath("app.listUser").fetch();
         },
         create: (fields: UserFields) => createUser(fields),
