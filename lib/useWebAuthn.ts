@@ -5,7 +5,7 @@ export default (axios: AxiosInstance) => {
 
     const assertion = async () => {
         // Implementation for creating an assertion
-        const { app } = await query(axios, {
+        const { app } = await query({
             app: {
                 auth: {
                     webAuthnRequestOptions: true
@@ -23,7 +23,7 @@ export default (axios: AxiosInstance) => {
 
     const attestation = async () => {
         // Implementation for creating an attestation
-        const { app } = await query(axios, {
+        const { app } = await query({
             app: {
                 auth: {
                     webAuthnCreationOptions: true

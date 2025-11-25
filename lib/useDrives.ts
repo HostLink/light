@@ -2,7 +2,7 @@ import type { AxiosInstance } from 'axios';
 import { query } from '.';
 
 const listDrives = (axios: AxiosInstance) => {
-    return query(axios, {
+    return query({
         app: {
             drives: {
                 index: true,

@@ -1,7 +1,5 @@
-import { AxiosInstance } from "axios";
 import { query } from "."
-import { UserFields } from "./useUser";
-
+import type { UserFields } from "./users"
 
 export type RoleFields = {
     name?: boolean;
@@ -11,12 +9,12 @@ export type RoleFields = {
     user?: UserFields
 }
 
-const useRole = (axios: AxiosInstance) => {
+export default () => {
     return {
         list: (fields: RoleFields = {
             name: true,
         }) => {
-            return query(axios, {
+            return query({
                 app: {
                     roles: fields
                 }
@@ -24,7 +22,7 @@ const useRole = (axios: AxiosInstance) => {
         },
 
         create: (name: string, childs: string[]): Promise<boolean> => {
-            return query(axios, {
+            return query({
                 app: {
                     createRole: {
                         __args: { name, childs }
@@ -34,7 +32,7 @@ const useRole = (axios: AxiosInstance) => {
         },
 
         delete: (name: string): Promise<boolean> => {
-            return query(axios, {
+            return query({
                 app: {
                     deleteRole: {
                         __args: { name }
@@ -48,4 +46,3 @@ const useRole = (axios: AxiosInstance) => {
     }
 }
 
-export default useRole;

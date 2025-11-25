@@ -5,15 +5,17 @@ import { AxiosInstance } from 'axios';
 import axios from "axios";
 import { default as mutation } from './mutation';
 import { default as query } from './query';
-import { Fields, useUsers } from '.';
+import { Fields } from '.';
 import { default as _config } from './config';
 import { default as _mail } from './mail';
 import { default as _fs } from './fs';
 import { createModelManager, type ModelManager } from './useModel';
 import { default as model } from './model';
-import { default as roles } from './useRole';
+import { default as roles } from './roles';
 import { default as createCollection } from './createCollection';
 import createList from './createList';
+
+import { default as users } from './users';
 export interface LightClient {
     baseURL: string;
     axios: AxiosInstance;
@@ -22,7 +24,7 @@ export interface LightClient {
     query: (q: Record<string, any>) => Promise<any>;
     config: ReturnType<typeof _config>;
     mail: ReturnType<typeof _mail>;
-    users: ReturnType<typeof _users>;
+    users: ReturnType<typeof users>;
     fs: ReturnType<typeof _fs>;
     models: ModelManager;
     model(name: string): ReturnType<typeof model>;
@@ -107,7 +109,7 @@ export default (baseURL: string): LightClient => {
         query: _query,
         config: _config(_query),
         mail: _mail(_axios),
-        users: useUsers(),
+        users: users(),
         fs: _fs(_axios),
         models: _models,
         model(name: string) {

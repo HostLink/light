@@ -19,7 +19,7 @@ export type FileFields = {
 export const useDrive = (index: number, axios: AxiosInstance) => {
     return {
         uploadTempFile: (file: File) => {
-            return mutation(axios, {
+            return mutation({
                 lightDriveUploadTempFile: {
                     __args: { index, file },
                     name: true,
@@ -34,7 +34,7 @@ export const useDrive = (index: number, axios: AxiosInstance) => {
                 name: true,
                 path: true
             }) => {
-                return query(axios, {
+                return query({
                     app: {
                         drive: {
                             __args: {
@@ -51,13 +51,13 @@ export const useDrive = (index: number, axios: AxiosInstance) => {
                 }).then(resp => resp.app.drive.folders) as Promise<Array<typeof fields>>
             },
             create: (path: string) => {
-                return mutation(axios, { lightDriveCreateFolder: { __args: { index, path } } }).then(res => res.lightDriveCreateFolder);
+                return mutation({ lightDriveCreateFolder: { __args: { index, path } } }).then(res => res.lightDriveCreateFolder);
             },
             delete: (path: string) => {
-                return mutation(axios, { lightDriveDeleteFolder: { __args: { index, path } } }).then(res => res.lightDriveDeleteFolder);
+                return mutation({ lightDriveDeleteFolder: { __args: { index, path } } }).then(res => res.lightDriveDeleteFolder);
             },
             rename: (path: string, name: string) => {
-                return mutation(axios, { lightDriveRenameFolder: { __args: { index, path, name } } }).then(res => res.lightDriveRenameFolder);
+                return mutation({ lightDriveRenameFolder: { __args: { index, path, name } } }).then(res => res.lightDriveRenameFolder);
             }
         },
         files: useFile(axios, index)

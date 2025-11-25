@@ -688,7 +688,7 @@ Collection.prototype.fetchData = async function () {
             current = current[key];
         }
 
-        const resp = await query(this.axios, n);
+        const resp = await query(n);
 
         let data = resp;
         for (const key of t) {

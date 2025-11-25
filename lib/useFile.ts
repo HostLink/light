@@ -13,7 +13,7 @@ export const useFile = (axios: AxiosInstance, index: number) => {
             mime: true,
             url: true
         }) => {
-            return query(axios, {
+            return query({
                 app: {
                     drive: {
                         __args: { index },
@@ -32,7 +32,7 @@ export const useFile = (axios: AxiosInstance, index: number) => {
             mime: true,
             url: true
         }) => {
-            return query(axios, {
+            return query({
                 app: {
                     drive: {
                         __args: {
@@ -50,7 +50,7 @@ export const useFile = (axios: AxiosInstance, index: number) => {
 
         },
         read: async (path: string) => {
-            let resp = await query(axios, {
+            let resp = await query({
                 app: {
                     drive: {
                         __args: {
@@ -81,16 +81,16 @@ export const useFile = (axios: AxiosInstance, index: number) => {
             }
         },
         write: (path: string, content: string) => {
-            return mutation(axios, { lightDriveWriteFile: { __args: { index, path, content } } }).then(res => res.lightDriveWriteFile);
+            return mutation({ lightDriveWriteFile: { __args: { index, path, content } } }).then(res => res.lightDriveWriteFile);
         },
         delete: (path: string) => {
-            return mutation(axios, { lightDriveDeleteFile: { __args: { index, path } } }).then(res => res.lightDriveDeleteFile);
+            return mutation({ lightDriveDeleteFile: { __args: { index, path } } }).then(res => res.lightDriveDeleteFile);
         },
         rename: (path: string, name: string) => {
-            return mutation(axios, { lightDriveRenameFile: { __args: { index, path, name } } }).then(res => res.lightDriveRenameFile);
+            return mutation({ lightDriveRenameFile: { __args: { index, path, name } } }).then(res => res.lightDriveRenameFile);
         },
         move: (source: string, destination: string) => {
-            return mutation(axios, { lightDriveMoveFile: { __args: { index, source, destination } } }).then(res => res.lightDriveMoveFile);
+            return mutation({ lightDriveMoveFile: { __args: { index, source, destination } } }).then(res => res.lightDriveMoveFile);
         }
     };
 

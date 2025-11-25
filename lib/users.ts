@@ -25,44 +25,16 @@ const deleteUser = (id: Number): Promise<boolean> => mutation({
 }).then(res => res.deleteUser)
 
 
-export const useUsers = () => {
-    let isLoading = false
-    let error: string | null = null
-    let users: Array<any> = []
-
-    const fetchUsers = async (fields: UserFields = {
-        user_id: true,
-        username: true,
-        first_name: true,
-        last_name: true,
-        status: true
-    }) => {
-        isLoading = true
-        error = null
-        try {
-            users = await createList("Users", fields).dataPath("app.users").fetch()
-        } catch (err: any) {
-            error = err.message
-        } finally {
-            isLoading = false
-        }
-    }
-
-
-
+export default () => {
     return {
-        users,
-        fetchUsers,
-        isLoading,
-        error,
-        list: (fields: UserFields = {
+        list: async (fields: UserFields = {
             user_id: true,
             username: true,
             first_name: true,
             last_name: true,
             status: true
         }) => {
-            return createList("Users", fields).dataPath("app.users");
+            return createList("Users", fields).dataPath("app.listUser").fetch();
         },
         create: (fields: UserFields) => createUser(fields),
         delete: (id: Number): Promise<boolean> => deleteUser(id)
@@ -70,4 +42,3 @@ export const useUsers = () => {
     }
 }
 
-export default useUsers;

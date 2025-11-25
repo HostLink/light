@@ -19,12 +19,12 @@ export type FSFolder = {
 export default (axios: AxiosInstance) => {
     return {
         uploadTempFile: (file: File) => {
-            return mutation(axios, { fsUploadTempFile: { __args: { file }, name: true, path: true, size: true, mime: true } })
+            return mutation({ fsUploadTempFile: { __args: { file }, name: true, path: true, size: true, mime: true } })
                 .then(resp => resp.fsUploadTempFile);
         },
         folders: {
             list: async (path: string) => {
-                let resp = await query(axios, {
+                let resp = await query({
                     fsListFolders: {
                         __args: {
                             path: path
@@ -39,18 +39,18 @@ export default (axios: AxiosInstance) => {
             },
             create: (path: string) => {
 
-                return mutation(axios, { fsCreateFolder: { __args: { path } } }).then(res => res.fsCreateFolder);
+                return mutation({ fsCreateFolder: { __args: { path } } }).then(res => res.fsCreateFolder);
             },
             delete: (path: string) => {
-                return mutation(axios, { fsDeleteFolder: { __args: { path } } }).then(res => res.fsDeleteFolder);
+                return mutation({ fsDeleteFolder: { __args: { path } } }).then(res => res.fsDeleteFolder);
             },
             rename: (path: string, name: string) => {
-                return mutation(axios, { fsRenameFolder: { __args: { path, name } } }).then(res => res.fsRenameFolder);
+                return mutation({ fsRenameFolder: { __args: { path, name } } }).then(res => res.fsRenameFolder);
             }
         },
         files: {
             list: async (path: string) => {
-                let { app } = await query(axios, {
+                let { app } = await query({
                     app: {
                         drive: {
                             files: {
@@ -73,7 +73,7 @@ export default (axios: AxiosInstance) => {
                 return app.drive.files as FSFile[];
             },
             read: async (path: string) => {
-                let { app } = await query(axios, {
+                let { app } = await query({
                     app: {
                         drive: {
                             files: {
@@ -91,16 +91,16 @@ export default (axios: AxiosInstance) => {
                 return window.atob(app.drive.files[0].base64Content);
             },
             write: (path: string, content: string) => {
-                return mutation(axios, { fsWriteFile: { __args: { path, content } } }).then(res => res.fsWriteFile);
+                return mutation({ fsWriteFile: { __args: { path, content } } }).then(res => res.fsWriteFile);
             },
             delete: (path: string) => {
-                return mutation(axios, { fsDeleteFile: { __args: { path } } }).then(res => res.fsDeleteFile);
+                return mutation({ fsDeleteFile: { __args: { path } } }).then(res => res.fsDeleteFile);
             },
             rename: (path: string, name: string) => {
-                return mutation(axios, { fsRenameFile: { __args: { path, name } } }).then(res => res.fsRenameFile);
+                return mutation({ fsRenameFile: { __args: { path, name } } }).then(res => res.fsRenameFile);
             },
             move: (source: string, target: string) => {
-                return mutation(axios, { fsMoveFile: { __args: { source, target } } }).then(res => res.fsMoveFile);
+                return mutation({ fsMoveFile: { __args: { source, target } } }).then(res => res.fsMoveFile);
             }
         }
     }
