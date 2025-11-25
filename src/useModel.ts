@@ -1,4 +1,3 @@
-import { AxiosInstance } from "axios"
 import { type Field } from "./model"
 import { default as model } from './model'
 
@@ -19,8 +18,7 @@ const globalModels: Record<string, any> = {}
  * @param axios AxiosInstance 實例
  * @returns ModelManager 實例
  */
-export const createModelManager = (axios: AxiosInstance, useGlobal: boolean = false): ModelManager => {
-    const _axios = axios
+export const createModelManager = (useGlobal: boolean = false): ModelManager => {
     const data: Record<string, any> = {}
 
     return {
@@ -30,7 +28,7 @@ export const createModelManager = (axios: AxiosInstance, useGlobal: boolean = fa
          * @param fields 模型欄位定義
          */
         create(name: string, fields: Record<string, Field>) {
-            const modelInstance = model(_axios, name, fields)
+            const modelInstance = model(name, fields)
             data[name] = modelInstance
 
             // 只有在明確指定使用全域時才同步到全域存儲
@@ -91,8 +89,8 @@ export const createModelManager = (axios: AxiosInstance, useGlobal: boolean = fa
  * @param axios AxiosInstance 實例
  * @returns 模型管理器和便利方法
  */
-export const useModel = (axios: AxiosInstance) => {
-    const manager = createModelManager(axios, false) // 不使用全域
+export const useModel = () => {
+    const manager = createModelManager(false) // 不使用全域
 
     return {
         // 暴露完整的管理器
@@ -133,8 +131,8 @@ export const useModel = (axios: AxiosInstance) => {
  * @param axios AxiosInstance 實例
  * @returns 使用全域模型的管理器
  */
-export const useGlobalModel = (axios: AxiosInstance) => {
-    const manager = createModelManager(axios, true) // 使用全域
+export const useGlobalModel = () => {
+    const manager = createModelManager(true) // 使用全域
 
     return {
         // 暴露完整的管理器
@@ -174,7 +172,7 @@ export const useGlobalModel = (axios: AxiosInstance) => {
  * 全域模型管理器 - 用於跨組件共享模型
  * 所有創建的模型都會儲存在全域範圍內，可以在不同的組件或模組中共享
  */
-export const useGlobalModels = (axios: AxiosInstance) => {
+export const useGlobalModels = () => {
     return {
         /**
          * 創建全域模型
@@ -182,7 +180,7 @@ export const useGlobalModels = (axios: AxiosInstance) => {
          * @param fields 模型欄位定義
          */
         define(name: string, fields: Record<string, Field>) {
-            const modelInstance = model(axios, name, fields)
+            const modelInstance = model(name, fields)
             globalModels[name] = modelInstance
             return modelInstance
         },

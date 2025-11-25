@@ -27,7 +27,7 @@ export interface LightClient {
     models: ModelManager;
     model(name: string): ReturnType<typeof model>;
     roles: ReturnType<typeof roles>;
-    collect(name: string, fields: Object): ReturnType<typeof createCollection>;
+    collect(name: string, fields: Record<string, any>): ReturnType<typeof createCollection>;
     drive(index: number): ReturnType<typeof getDrive>;
     collects(collections: { [key: string]: any }): Promise<{ [key: string]: any }>;
     list(entity: string, fields: Fields): ReturnType<typeof createList>;
@@ -103,7 +103,7 @@ export default (baseURL: string): LightClient => {
             return _models.get(name);
         },
         roles: roles(),
-        collect: (name: string, fields: Object) => {
+        collect: (name: string, fields: Record<string, any>) => {
             const c = createCollection(name, fields);
             c.data_path = _models.get(name).getDataPath();
             return c;
