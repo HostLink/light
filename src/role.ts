@@ -24,31 +24,34 @@ export const listRoles = (fields: QueryRoleFields = defaultRoleFields) => {
     }).then(resp => resp.app.roles) as Promise<Array<RoleFields>>;
 }
 
+export const createRole = (name: string, childs: string[]): Promise<boolean> => {
+    return mutation({
+        addRole: {
+            __args: {
+                data: {
+                    name,
+                    childs
+                }
+            }
+        }
+    }).then(resp => resp.addRole);
+}
+
+export const deleteRole = (name: string): Promise<boolean> => {
+    return mutation({
+        deleteRole: {
+            __args: { name }
+        }
+    }).then(resp => resp.deleteRole);
+}
+
+
+
 export default () => {
     return {
         list: listRoles,
-
-        create: (name: string, childs: string[]): Promise<boolean> => {
-            return mutation({
-                addRole: {
-                    __args: {
-                        data: {
-                            name,
-                            childs
-                        }
-                    }
-                }
-            }).then(resp => resp.addRole);
-        },
-        delete: (name: string): Promise<boolean> => {
-            return query({
-                app: {
-                    deleteRole: {
-                        __args: { name }
-                    }
-                }
-            }).then(resp => resp.app.deleteRole);
-        }
+        create: createRole,
+        delete: deleteRole
     }
 }
 
