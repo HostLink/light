@@ -1,0 +1,99 @@
+import type { AxiosInstance } from 'axios';
+import { query, mutation } from '.';
+import { FileFields } from './useDrive';
+
+
+export const useFile = (axios: AxiosInstance, index: number) => {
+
+    return {
+        list: (axios: AxiosInstance, index: number, path: string, fields: FileFields = {
+            name: true,
+            path: true,
+            size: true,
+            mime: true,
+            url: true
+        }) => {
+            return query(axios, {
+                app: {
+                    drive: {
+                        __args: { index },
+                        files: {
+                            __args: { path },
+                            ...fields
+                        }
+                    }
+                }
+            }).then(resp => resp.app.drive.files);
+        },
+        get: (path: string, fields: FileFields = {
+            name: true,
+            path: true,
+            size: true,
+            mime: true,
+            url: true
+        }) => {
+            return query(axios, {
+                app: {
+                    drive: {
+                        __args: {
+                            index
+                        },
+                        file: {
+                            __args: {
+                                path
+                            },
+                            ...fields
+                        }
+                    }
+                }
+            }).then(resp => resp.app.drive.file);
+
+        },
+        read: async (path: string) => {
+            let resp = await query(axios, {
+                app: {
+                    drive: {
+                        __args: {
+                            index
+                        },
+                        file: {
+                            __args: {
+                                path
+                            },
+                            base64Content: true,
+                        }
+                    }
+                }
+            });
+
+            // 檢查回應是否有效
+            if (!resp.app.drive.file || !resp.app.drive.file.base64Content) {
+                throw new Error(`File not found or cannot read content: ${path}`);
+            }
+
+            // 檢查是否在瀏覽器環境中
+            if (typeof window !== 'undefined' && window.atob) {
+                return window.atob(resp.app.drive.file.base64Content);
+            } else {
+                // 在 Node.js 環境中，先簡單返回 base64 內容
+                // 實際使用時可能需要根據環境進行適當的解碼
+                return resp.app.drive.file.base64Content;
+            }
+        },
+        write: (path: string, content: string) => {
+            return mutation(axios, { lightDriveWriteFile: { __args: { index, path, content } } }).then(res => res.lightDriveWriteFile);
+        },
+        delete: (path: string) => {
+            return mutation(axios, { lightDriveDeleteFile: { __args: { index, path } } }).then(res => res.lightDriveDeleteFile);
+        },
+        rename: (path: string, name: string) => {
+            return mutation(axios, { lightDriveRenameFile: { __args: { index, path, name } } }).then(res => res.lightDriveRenameFile);
+        },
+        move: (source: string, destination: string) => {
+            return mutation(axios, { lightDriveMoveFile: { __args: { index, source, destination } } }).then(res => res.lightDriveMoveFile);
+        }
+    };
+
+}
+
+export default useFile;

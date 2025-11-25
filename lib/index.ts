@@ -3,6 +3,8 @@ export { default as useModel, useGlobalModel, useGlobalModels, createModelManage
 export type { ModelManager } from './useModel'
 
 export { default as useAuth } from './useAuth'
+export { default as useDrive } from './useDrive'
+export { default as useDrives } from './useDrives'
 
 export * from './model'
 export * from './file'

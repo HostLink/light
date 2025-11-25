@@ -1,4 +1,5 @@
 import useAuth from './useAuth';
+import useDrive from './useDrive';
 
 import { AxiosInstance } from 'axios';
 import axios from "axios";
@@ -13,7 +14,6 @@ import { createModelManager, type ModelManager } from './useModel';
 import { default as model } from './model';
 import { default as roles } from './roles';
 import { default as createCollection } from './createCollection';
-import { default as drive } from './drive';
 import createList from './createList';
 export interface LightClient {
     baseURL: string;
@@ -29,7 +29,7 @@ export interface LightClient {
     model(name: string): ReturnType<typeof model>;
     roles: ReturnType<typeof roles>;
     collect(name: string, fields: Object): ReturnType<typeof createCollection>;
-    drive(index: number): ReturnType<typeof drive>;
+    drive(index: number): ReturnType<typeof useDrive>;
     collects(collections: { [key: string]: any }): Promise<{ [key: string]: any }>;
     list(entity: string, fields: Fields): ReturnType<typeof createList>;
 }
@@ -120,7 +120,7 @@ export default (baseURL: string): LightClient => {
             return l.dataPath(_models.get(entity).getDataPath());
         },
         drive(index: number) {
-            return drive(index, _axios);
+            return useDrive(index, _axios);
         },
         async collects(collections: { [key: string]: any }) {
             // 1. 收集所有 payload
