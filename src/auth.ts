@@ -1,7 +1,41 @@
 import { mutation, query } from "."
 import * as WebAuthn from "./webauthn"
 
+export const login = (username: string, password: string, code: string = ""): Promise<boolean> => {
+    return mutation({ login: { __args: { username, password, code } } }).then(res => res.login)
+}
+export const logout = (): Promise<boolean> => {
+    return mutation({ logout: true }).then(res => res.logout)
+}
+export const changeExpiredPassword = (username: string, oldPassword: string, newPassword: string): Promise<boolean> => {
+    return mutation({ changeExpiredPassword: { __args: { username, old_password: oldPassword, new_password: newPassword } } }).then(res => res.changeExpiredPassword)
+}
+export const updatePassword = (oldPassword: string, newPassword: string): Promise<boolean> => {
+    return mutation({ changeUserPassword: { __args: { old_password: oldPassword, new_password: newPassword } } }).then(res => res.changeUserPassword)
+}
 
+export const resetPassword = (jwt: string, password: string, code: string): Promise<boolean> => {
+    return mutation({ resetPassword: { __args: { jwt, password, code } } }).then(res => res.resetPassword)
+}
+
+export const forgetPassword = (username: string, email: string): Promise<string> => {
+    return mutation({ forgetPassword: { __args: { username, email } } }).then(res => res.forgetPassword)
+}
+export const verifyCode = (jwt: string, code: string): Promise<boolean> => {
+    return mutation({ forgetPasswordVerifyCode: { __args: { jwt, code } } }).then(res => res.forgetPasswordVerifyCode)
+}
+
+export const granted = (rights: string[]): Promise<string[]> => {
+    return query({
+        my: {
+            grantedRights: {
+                __args: {
+                    rights: rights
+                },
+            }
+        }
+    }).then(resp => resp.my.grantedRights)
+}
 
 export default () => {
     return {
@@ -36,38 +70,16 @@ export default () => {
             register: (account_id: string): Promise<boolean> =>
                 mutation({ lightAuthRegisterMicrosoft: { __args: { account_id } } }).then(res => res.lightAuthRegisterMicrosoft)
         },
-        login: (username: string, password: string, code: string = ""): Promise<boolean> => {
-            return mutation({ login: { __args: { username, password, code } } }).then(res => res.login)
-        },
-        logout: (): Promise<boolean> => {
-            return mutation({ logout: true }).then(res => res.logout)
-        },
-        changeExpiredPassword: (username: string, oldPassword: string, newPassword: string): Promise<boolean> => {
-            return mutation({ changeExpiredPassword: { __args: { username, old_password: oldPassword, new_password: newPassword } } }).then(res => res.changeExpiredPassword)
-        },
-        updatePassword: (oldPassword: string, newPassword: string): Promise<boolean> => {
-            return mutation({ changeUserPassword: { __args: { old_password: oldPassword, new_password: newPassword } } }).then(res => res.changeUserPassword)
-        },
-        resetPassword: (jwt: string, password: string, code: string): Promise<boolean> => {
-            return mutation({ resetPassword: { __args: { jwt, password, code } } }).then(res => res.resetPassword)
-        },
-        forgetPassword: (username: string, email: string): Promise<string> => {
-            return mutation({ forgetPassword: { __args: { username, email } } }).then(res => res.forgetPassword)
-        },
-        verifyCode(jwt: string, code: string): Promise<boolean> {
-            return mutation({ forgetPasswordVerifyCode: { __args: { jwt, code } } }).then(res => res.forgetPasswordVerifyCode)
-        },
-        granted: (rights: string[]): Promise<string[]> => {
-            return query({
-                my: {
-                    grantedRights: {
-                        __args: {
-                            rights: rights
-                        },
-                    }
-                }
-            }).then(resp => resp.my.grantedRights)
-        }
+        login,
+        logout,
+        changeExpiredPassword,
+        updatePassword,
+        resetPassword,
+        forgetPassword,
+        verifyCode,
+        granted
+
+
     }
 }
 

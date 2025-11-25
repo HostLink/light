@@ -1,4 +1,3 @@
-export * from './webauthn'
 export { default as useModel, useGlobalModel, useGlobalModels, createModelManager } from './useModel'
 export type { ModelManager } from './useModel'
 

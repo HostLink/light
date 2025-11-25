@@ -1,7 +1,16 @@
 import { query, mutation } from '.';
-import { FileFields } from './useDrive';
 
-const defaultFields: FileFields = {
+export type FileFields = {
+    name?: string,
+    path?: string
+    size?: number,
+    mime?: string,
+    url?: string
+}
+
+export type QueryFileFields = Record<keyof FileFields, boolean>
+
+const defaultFields: QueryFileFields = {
     name: true,
     path: true,
     size: true,
@@ -12,7 +21,7 @@ const defaultFields: FileFields = {
 
 export default (index: number) => {
     return {
-        list: (path: string, fields: FileFields = defaultFields) => {
+        list: (path: string, fields: QueryFileFields = defaultFields) => {
             return query({
                 app: {
                     drive: {
@@ -24,7 +33,7 @@ export default (index: number) => {
                     }
                 }
             }).then(resp => resp.app.drive.files);
-        }, get: (path: string, fields: FileFields = {
+        }, get: (path: string, fields: QueryFileFields = {
             name: true,
             path: true,
             size: true,

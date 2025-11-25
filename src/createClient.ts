@@ -7,7 +7,7 @@ import { default as mutation } from './mutation';
 import { default as query } from './query';
 import { Fields, setApiClient } from '.';
 import { getConfig } from './config';
-import { default as _mail } from './mail';
+import { default as mail } from './mail';
 import { default as _fs } from './fs';
 import { createModelManager, type ModelManager } from './useModel';
 import { default as model } from './model';
@@ -23,7 +23,7 @@ export interface LightClient {
     mutation: (q: Record<string, any>) => Promise<any>;
     query: (q: Record<string, any>) => Promise<any>;
     config: typeof getConfig;
-    mail: ReturnType<typeof _mail>;
+    mail: typeof mail;
     users: ReturnType<typeof users>;
     fs: ReturnType<typeof _fs>;
     models: ModelManager;
@@ -108,7 +108,7 @@ export default (baseURL: string): LightClient => {
         mutation: _mutation,
         query: _query,
         config: getConfig,
-        mail: _mail(_axios),
+        mail,
         users: users(),
         fs: _fs(_axios),
         models: _models,
@@ -117,7 +117,7 @@ export default (baseURL: string): LightClient => {
         },
         roles: roles(),
         collect: (name: string, fields: Object) => {
-            const c = createCollection(name, _axios, fields);
+            const c = createCollection(name, fields);
             c.data_path = _models.get(name).getDataPath();
             return c;
         },
