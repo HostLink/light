@@ -1,18 +1,18 @@
-import type { AxiosInstance } from 'axios';
 import { query, mutation } from '.';
 import { FileFields } from './useDrive';
 
+const defaultFields: FileFields = {
+    name: true,
+    path: true,
+    size: true,
+    mime: true,
+    url: true
+}
 
-export const useFile = (axios: AxiosInstance, index: number) => {
 
+export default (index: number) => {
     return {
-        list: (axios: AxiosInstance, index: number, path: string, fields: FileFields = {
-            name: true,
-            path: true,
-            size: true,
-            mime: true,
-            url: true
-        }) => {
+        list: (path: string, fields: FileFields = defaultFields) => {
             return query({
                 app: {
                     drive: {
@@ -24,8 +24,7 @@ export const useFile = (axios: AxiosInstance, index: number) => {
                     }
                 }
             }).then(resp => resp.app.drive.files);
-        },
-        get: (path: string, fields: FileFields = {
+        }, get: (path: string, fields: FileFields = {
             name: true,
             path: true,
             size: true,
@@ -95,5 +94,3 @@ export const useFile = (axios: AxiosInstance, index: number) => {
     };
 
 }
-
-export default useFile;

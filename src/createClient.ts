@@ -1,17 +1,17 @@
-import useAuth from './useAuth';
-import useDrive from './useDrive';
+import { default as auth } from './auth';
+import { getDrive } from './drive';
 
 import { AxiosInstance } from 'axios';
 import axios from "axios";
 import { default as mutation } from './mutation';
 import { default as query } from './query';
 import { Fields } from '.';
-import { default as _config } from './config';
+import { getConfig } from './config';
 import { default as _mail } from './mail';
 import { default as _fs } from './fs';
 import { createModelManager, type ModelManager } from './useModel';
 import { default as model } from './model';
-import { default as roles } from './roles';
+import { default as roles } from './role';
 import { default as createCollection } from './createCollection';
 import createList from './createList';
 
@@ -19,10 +19,10 @@ import { default as users } from './users';
 export interface LightClient {
     baseURL: string;
     axios: AxiosInstance;
-    auth: ReturnType<typeof useAuth>;
+    auth: ReturnType<typeof auth>;
     mutation: (q: Record<string, any>) => Promise<any>;
     query: (q: Record<string, any>) => Promise<any>;
-    config: ReturnType<typeof _config>;
+    config: typeof getConfig;
     mail: ReturnType<typeof _mail>;
     users: ReturnType<typeof users>;
     fs: ReturnType<typeof _fs>;
@@ -30,7 +30,7 @@ export interface LightClient {
     model(name: string): ReturnType<typeof model>;
     roles: ReturnType<typeof roles>;
     collect(name: string, fields: Object): ReturnType<typeof createCollection>;
-    drive(index: number): ReturnType<typeof useDrive>;
+    drive(index: number): ReturnType<typeof getDrive>;
     collects(collections: { [key: string]: any }): Promise<{ [key: string]: any }>;
     list(entity: string, fields: Fields): ReturnType<typeof createList>;
     post: AxiosInstance['post'];
@@ -104,10 +104,10 @@ export default (baseURL: string): LightClient => {
         post: _axios.post,
         baseURL,
         axios: _axios,
-        auth: useAuth(_axios),
+        auth: auth(),
         mutation: _mutation,
         query: _query,
-        config: _config(_query),
+        config: getConfig,
         mail: _mail(_axios),
         users: users(),
         fs: _fs(_axios),
@@ -115,7 +115,7 @@ export default (baseURL: string): LightClient => {
         model(name: string) {
             return _models.get(name);
         },
-        roles: roles(_axios),
+        roles: roles(),
         collect: (name: string, fields: Object) => {
             const c = createCollection(name, _axios, fields);
             c.data_path = _models.get(name).getDataPath();
@@ -125,9 +125,7 @@ export default (baseURL: string): LightClient => {
             const l = createList(entity, fields);
             return l.dataPath(_models.get(entity).getDataPath());
         },
-        drive(index: number) {
-            return useDrive(index, _axios);
-        },
+        drive: getDrive,
         async collects(collections: { [key: string]: any }) {
             // 1. 收集所有 payload
             const payload: any = {};

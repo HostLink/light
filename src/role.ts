@@ -9,17 +9,21 @@ export type RoleFields = {
     user?: UserFields
 }
 
+const defaultRoleFields: RoleFields = {
+    name: true,
+}
+
+export const listRoles = (fields: RoleFields = defaultRoleFields) => {
+    return query({
+        app: {
+            roles: fields
+        }
+    }).then(resp => resp.app.roles) as Promise<Array<typeof fields>>;
+}
+
 export default () => {
     return {
-        list: (fields: RoleFields = {
-            name: true,
-        }) => {
-            return query({
-                app: {
-                    roles: fields
-                }
-            }).then(resp => resp.app.roles) as Promise<Array<typeof fields>>;
-        },
+        list: listRoles,
 
         create: (name: string, childs: string[]): Promise<boolean> => {
             return query({

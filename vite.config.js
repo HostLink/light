@@ -10,7 +10,7 @@ export default defineConfig({
     build: {
         lib: {
             // Could also be a dictionary or array of multiple entry points
-            entry: resolve(__dirname, 'lib/index.ts'),
+            entry: resolve(__dirname, 'src/index.ts'),
             name: 'light',
             // the proper extensions will be added
             fileName: 'light',

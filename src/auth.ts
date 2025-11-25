@@ -1,11 +1,9 @@
 import { mutation, query } from "."
-import { AxiosInstance } from "axios"
-import { default as WebAuthn } from "./webauthn"
+import * as WebAuthn from "./webauthn"
 
-
-export const useAuth = (axios: AxiosInstance) => {
+export default () => {
     return {
-        WebAuthn: WebAuthn(axios),
+        WebAuthn,
         google: {
             unlink: (): Promise<boolean> =>
                 mutation({ lightAuthUnlinkGoogle: true })
@@ -71,4 +69,3 @@ export const useAuth = (axios: AxiosInstance) => {
     }
 }
 
-export default useAuth

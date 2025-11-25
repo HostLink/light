@@ -60,7 +60,7 @@ export default (axios: AxiosInstance, name: string, fields: Record<string, Field
             }
             return fs;
         }, update(id: number, data: Object) {
-            return mutation(_axios, {
+            return mutation({
                 ['update' + _name]: {
                     __args: { id, data }
                 }
@@ -68,14 +68,14 @@ export default (axios: AxiosInstance, name: string, fields: Record<string, Field
         },
         async delete(id: number) {
 
-            return mutation(_axios, {
+            return mutation({
                 ['delete' + _name]: {
                     __args: { id }
                 }
             }).then(res => res['delete' + _name]);
         },
         add(data: Object) {
-            return mutation(_axios, {
+            return mutation({
                 ['add' + _name]: {
                     __args: { data }
                 }

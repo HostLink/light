@@ -1,22 +1,29 @@
-import type { AxiosInstance } from 'axios';
-import { mutation, query } from '.';
+import { query, mutation } from '.';
 
-import useFile from './useFile';
+import listFiles from './file';
 
 export type FolderFields = {
     name?: boolean,
     path?: boolean
 }
 
-export type FileFields = {
-    name?: boolean,
-    path?: boolean,
-    size?: boolean,
-    mime?: boolean,
-    url?: boolean
+
+export const listDrives = () => {
+    return query({
+        app: {
+            drives: {
+                index: true,
+                name: true,
+            }
+        }
+    }).then(resp => resp.app.drives);
 }
 
-export const useDrive = (index: number, axios: AxiosInstance) => {
+
+
+
+
+export const getDrive = (index: number) => {
     return {
         uploadTempFile: (file: File) => {
             return mutation({
@@ -60,9 +67,15 @@ export const useDrive = (index: number, axios: AxiosInstance) => {
                 return mutation({ lightDriveRenameFolder: { __args: { index, path, name } } }).then(res => res.lightDriveRenameFolder);
             }
         },
-        files: useFile(axios, index)
+        files: listFiles(index)
     }
 }
 
 
-export default useDrive
+export default () => {
+    return {
+        list: listDrives() as Promise<Array<{ index: number, name: string }>>,
+        get: getDrive
+
+    }
+}

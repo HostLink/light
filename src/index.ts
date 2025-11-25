@@ -1,10 +1,10 @@
-export { default as useWebAuthn } from './useWebAuthn'
+export * from './webauthn'
 export { default as useModel, useGlobalModel, useGlobalModels, createModelManager } from './useModel'
 export type { ModelManager } from './useModel'
 
-export { default as useAuth } from './useAuth'
-export { default as useDrive } from './useDrive'
-export { default as useDrives } from './useDrives'
+export * from './auth'
+export * from './drive'
+
 
 export * from './model'
 export * from './file'
@@ -24,6 +24,6 @@ export type { LightClient } from './createClient'
 export { default as createCollection } from './createCollection'
 export { default as createList } from './createList'
 
-export type { RoleFields } from './useRole'
+export type { RoleFields } from './role'
 
 export { setApiClient, getApiClient, getApiClientOptional } from './apiClient'
