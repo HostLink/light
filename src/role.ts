@@ -1,24 +1,27 @@
-import { query } from "."
+import { mutation, query } from "."
 import type { UserFields } from "./users"
 
 export type RoleFields = {
-    name?: boolean;
+    name?: string;
     canDelete?: boolean;
     canUpdate?: boolean;
     children?: boolean;
     user?: UserFields
 }
 
-const defaultRoleFields: RoleFields = {
+
+export type QueryRoleFields = Partial<Record<keyof RoleFields, boolean>>
+
+const defaultRoleFields: QueryRoleFields = {
     name: true,
 }
 
-export const listRoles = (fields: RoleFields = defaultRoleFields) => {
+export const listRoles = (fields: QueryRoleFields = defaultRoleFields) => {
     return query({
         app: {
             roles: fields
         }
-    }).then(resp => resp.app.roles) as Promise<Array<typeof fields>>;
+    }).then(resp => resp.app.roles) as Promise<Array<RoleFields>>;
 }
 
 export default () => {
@@ -26,15 +29,17 @@ export default () => {
         list: listRoles,
 
         create: (name: string, childs: string[]): Promise<boolean> => {
-            return query({
-                app: {
-                    createRole: {
-                        __args: { name, childs }
+            return mutation({
+                addRole: {
+                    __args: {
+                        data: {
+                            name,
+                            childs
+                        }
                     }
                 }
-            }).then(resp => resp.app.createRole);
+            }).then(resp => resp.addRole);
         },
-
         delete: (name: string): Promise<boolean> => {
             return query({
                 app: {
@@ -44,9 +49,6 @@ export default () => {
                 }
             }).then(resp => resp.app.deleteRole);
         }
-
-
-
     }
 }
 

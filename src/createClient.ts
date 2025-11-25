@@ -8,7 +8,6 @@ import { default as query } from './query';
 import { Fields, setApiClient } from '.';
 import { getConfig } from './config';
 import { default as mail } from './mail';
-import { default as _fs } from './fs';
 import { createModelManager, type ModelManager } from './useModel';
 import { default as model } from './model';
 import { default as roles } from './role';
@@ -25,7 +24,6 @@ export interface LightClient {
     config: typeof getConfig;
     mail: typeof mail;
     users: ReturnType<typeof users>;
-    fs: ReturnType<typeof _fs>;
     models: ModelManager;
     model(name: string): ReturnType<typeof model>;
     roles: ReturnType<typeof roles>;
@@ -35,8 +33,6 @@ export interface LightClient {
     list(entity: string, fields: Fields): ReturnType<typeof createList>;
     post: AxiosInstance['post'];
 }
-
-
 
 export default (baseURL: string): LightClient => {
 
@@ -90,14 +86,6 @@ export default (baseURL: string): LightClient => {
         });
     }
 
-    const _mutation = (q: Record<string, any>) => {
-        return mutation(q);
-    }
-
-    const _query = (q: Record<string, any>) => {
-        return query(q);
-    }
-
     const _models = createModelManager(_axios);
 
     const client = {
@@ -105,12 +93,11 @@ export default (baseURL: string): LightClient => {
         baseURL,
         axios: _axios,
         auth: auth(),
-        mutation: _mutation,
-        query: _query,
+        mutation,
+        query,
         config: getConfig,
         mail,
         users: users(),
-        fs: _fs(_axios),
         models: _models,
         model(name: string) {
             return _models.get(name);
