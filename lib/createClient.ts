@@ -5,14 +5,13 @@ import { AxiosInstance } from 'axios';
 import axios from "axios";
 import { default as mutation } from './mutation';
 import { default as query } from './query';
-import { Fields } from '.';
+import { Fields, useUsers } from '.';
 import { default as _config } from './config';
 import { default as _mail } from './mail';
-import { default as _users } from './users';
 import { default as _fs } from './fs';
 import { createModelManager, type ModelManager } from './useModel';
 import { default as model } from './model';
-import { default as roles } from './roles';
+import { default as roles } from './useRole';
 import { default as createCollection } from './createCollection';
 import createList from './createList';
 export interface LightClient {
@@ -32,7 +31,11 @@ export interface LightClient {
     drive(index: number): ReturnType<typeof useDrive>;
     collects(collections: { [key: string]: any }): Promise<{ [key: string]: any }>;
     list(entity: string, fields: Fields): ReturnType<typeof createList>;
+    post: AxiosInstance['post'];
 }
+
+
+
 export default (baseURL: string): LightClient => {
 
     // 檢測是否在 Node.js 環境中
@@ -86,16 +89,17 @@ export default (baseURL: string): LightClient => {
     }
 
     const _mutation = (q: Record<string, any>) => {
-        return mutation(_axios, q);
+        return mutation(q);
     }
 
     const _query = (q: Record<string, any>) => {
-        return query(_axios, q);
+        return query(q);
     }
 
     const _models = createModelManager(_axios);
 
     return {
+        post: _axios.post,
         baseURL,
         axios: _axios,
         auth: useAuth(_axios),
@@ -103,7 +107,7 @@ export default (baseURL: string): LightClient => {
         query: _query,
         config: _config(_query),
         mail: _mail(_axios),
-        users: _users(_axios),
+        users: useUsers(),
         fs: _fs(_axios),
         models: _models,
         model(name: string) {
@@ -116,7 +120,7 @@ export default (baseURL: string): LightClient => {
             return c;
         },
         list: (entity: string, fields: Record<string, any>) => {
-            const l = createList(_axios, entity, fields);
+            const l = createList(entity, fields);
             return l.dataPath(_models.get(entity).getDataPath());
         },
         drive(index: number) {
@@ -151,7 +155,7 @@ export default (baseURL: string): LightClient => {
             }
 
             // 2. 發送 batch request
-            const data = await query(_axios, payload);
+            const data = await query(payload);
 
             // 3. 將 data 設返入每個 collection
             for (const key in collections) {

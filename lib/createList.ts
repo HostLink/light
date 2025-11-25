@@ -1,10 +1,9 @@
 import { defu } from 'defu';
-import { AxiosInstance } from 'axios';
 import query from './query';
 
 type Fields = Record<string, any>;
 
-export default function createList(axios: AxiosInstance, entity: string, fields: Fields) {
+export default function createList(entity: string, fields: Fields) {
 	let dataArgs: Record<string, any> | undefined = undefined;
 	// unified filters: exact-match args are stored as the first element (object),
 	// operator-based filters are pushed as subsequent elements (objects)
@@ -49,7 +48,7 @@ export default function createList(axios: AxiosInstance, entity: string, fields:
 
 		async fetchWithMeta() {
 			// perform the query with meta and return both data and meta
-			const resp = await query(axios, this.toQuery(true));
+			const resp = await query(this.toQuery(true));
 			// Navigate through dataPath if specified
 			let result = resp;
 			if (dataPathStr) {
@@ -64,7 +63,7 @@ export default function createList(axios: AxiosInstance, entity: string, fields:
 		async fetch(): Promise<any[]> {
 
 			// perform the query and return the data array
-			const resp = await query(axios, this.toQuery());
+			const resp = await query(this.toQuery());
 			// Navigate through dataPath if specified
 			let result = resp;
 			if (dataPathStr) {

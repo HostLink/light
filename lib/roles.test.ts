@@ -1,17 +1,14 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, inject, it, beforeAll } from "vitest"
 import { createClient } from "."
-
-const client = createClient("http://127.0.0.1:8888/")
-
-const resp = await client.axios.post("/", {
-    query: `mutation { login(username: "admin", password: "111111")  }`
-})
-if (resp.headers['set-cookie']) {
-    client.axios.defaults.headers.cookie = resp.headers['set-cookie'][0];
-}
+const client = createClient("http://localhost:8888/")
 
 
 describe("roles", () => {
+    beforeAll(async () => {
+        // 登入以確保有權限存取 drive 功能
+        const loginResult = await client.auth.login("admin", "111111")
+        expect(loginResult).toBe(true)
+    })
 
     it("list", async () => {
         const roles = (await client.roles.list());

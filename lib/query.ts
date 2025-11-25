@@ -1,5 +1,5 @@
 import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
-import { AxiosInstance } from 'axios';
+import { getApiClient } from './apiClient';
 
 import { arrayHasFile, objectHasFile } from './fileUtils';
 
@@ -86,7 +86,8 @@ function processArgs(obj: any, allVariables: any, map: any, fd: FormData, fileIn
     }
 }
 
-export default async (axios: AxiosInstance, q: Record<string, any>): Promise<any> => {
+export default async (q: Record<string, any>): Promise<any> => {
+    const api = getApiClient();
 
     const convertedQ = q;
 
@@ -114,9 +115,9 @@ export default async (axios: AxiosInstance, q: Record<string, any>): Promise<any
         fd.append("operations", JSON.stringify({
             query: graphql_query
         }))
-        resp = await axios.post("", fd)
+        resp = await api.post("", fd)
     } else {
-        resp = await axios.post("", {
+        resp = await api.post("", {
             query: graphql_query
         })
     }
