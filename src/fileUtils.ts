@@ -32,7 +32,7 @@ function decode_base85(a: string) {
     }(e, c.length), h.fromCharCode.apply(h, e);
 }
 
-export const file = (s: string = "") => {
+export const createFileFromString = (s: string = "") => {
     const data = s;
     const getURL = (mime: string = "application/octet-stream") => {
         const uint8Array = new Uint8Array(data.length);
@@ -62,14 +62,11 @@ export const file = (s: string = "") => {
     }
 }
 
-/* export const File = {
-    fromBase85: (a: string) => {
-        return file(decode_base85(a));
-    },
-    fromBase64: (a: string) => {
-        return file(atob(a));
 
-    }, fromString: (a: string) => {
-        return file(a);
-    }
-} */
+export const createFileFromBase64 = (a: string) => {
+    return createFileFromString(atob(a));
+}
+
+export const createFileFromBase85 = (a: string) => {
+    return createFileFromString(decode_base85(a));
+}

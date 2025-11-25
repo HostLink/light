@@ -13,7 +13,7 @@ export { default as mutation } from './mutation'
 
 export { default as toQuery } from './toQuery'
 
-export type Fields = Object | Array<string | Object> | string
+export type Fields = Record<string, any>
 
 
 export { default as createClient } from './createClient'

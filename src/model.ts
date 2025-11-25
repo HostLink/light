@@ -1,4 +1,3 @@
-import { AxiosInstance } from "axios";
 import { toQuery, mutation, type Fields } from ".";
 import { default as createList } from './createList';
 import { defu } from "defu";
@@ -23,9 +22,8 @@ export type Model = {
     fields: Record<string, Field>,
 }
 
-export default (axios: AxiosInstance, name: string, fields: Record<string, Field>) => {
+export default (name: string, fields: Record<string, Field>) => {
     const _name = name;
-    const _axios = axios;
     const _fields = fields;
     let _dataPath = "list" + name;
 
@@ -95,7 +93,7 @@ export default (axios: AxiosInstance, name: string, fields: Record<string, Field
         async get(filters: any, fields: Fields) {
             // 使用 createCollection 來獲取單筆資料
             const createCollection = (await import('./createCollection')).default;
-            const collection = createCollection(_name, _axios, toQuery(fields));
+            const collection = createCollection(_name, toQuery(fields));
 
             // 應用過濾器
             for (const [key, value] of Object.entries(filters)) {
@@ -127,7 +125,7 @@ export default (axios: AxiosInstance, name: string, fields: Record<string, Field
                 }
             });
 
-            const originalList = createList(_axios, _name, f).dataPath(_dataPath);
+            const originalList = createList(_name, f).dataPath(_dataPath);
 
             // 包裝原始的 fetch 方法
             const originalFetch = originalList.fetch.bind(originalList);
