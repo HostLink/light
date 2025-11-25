@@ -5,7 +5,7 @@ import { AxiosInstance } from 'axios';
 import axios from "axios";
 import { default as mutation } from './mutation';
 import { default as query } from './query';
-import { Fields } from '.';
+import { Fields, setApiClient } from '.';
 import { getConfig } from './config';
 import { default as _mail } from './mail';
 import { default as _fs } from './fs';
@@ -100,7 +100,7 @@ export default (baseURL: string): LightClient => {
 
     const _models = createModelManager(_axios);
 
-    return {
+    const client = {
         post: _axios.post,
         baseURL,
         axios: _axios,
@@ -174,4 +174,7 @@ export default (baseURL: string): LightClient => {
             return collections;
         }
     }
+
+    setApiClient(client);
+    return client;
 }

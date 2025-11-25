@@ -1,6 +1,5 @@
 import collect from 'collect.js';
 import { Collection as CollectionClass } from 'collect.js';
-import { AxiosInstance } from 'axios';
 import query from './query';
 
 // 定義操作符類型
@@ -53,7 +52,7 @@ const methodFinal: string[] = ["avg", "count", "countBy", "dd", "each", "every",
 
 interface Collection<Item> {
 
-    constructor(fields: Record<string, any>, axios: AxiosInstance): void;
+    constructor(fields: Record<string, any>): void;
 
     [key: string]: any;
     /**
@@ -558,7 +557,6 @@ class Collection<Item> {
 
     _batchData: any = null;
     data_path: string = '';
-    axios: AxiosInstance;
     filters: Filters;
     steps: Step[];
     fields: Record<string, any>;
@@ -570,8 +568,7 @@ class Collection<Item> {
     _sortDesc: boolean = false;
     meta: MetaData = {};
 
-    constructor(fields: Record<string, any>, axios: AxiosInstance) {
-        this.axios = axios;
+    constructor(fields: Record<string, any>) {
         this.filters = {};
         this.steps = [];
         this.fields = fields;
@@ -653,7 +650,7 @@ Collection.prototype.fetchData = async function () {
             this.meta = data.meta;
             return collect(data.data);
         }
-        
+
         let q: any = {
             meta: {
                 total: true,
@@ -663,7 +660,7 @@ Collection.prototype.fetchData = async function () {
         };
         q.__args = this.buildArgs();
         q.data = this.fields;
-        
+
         if (this.already_limit) {
             q.data.__args = q.data.__args || {};
             q.data.__args.limit = this.limit;
@@ -741,7 +738,7 @@ Collection.prototype.first = async function () {
 
 
 // 新增通用的批次資料檢查方法
-Collection.prototype._handleBatchData = function(methodType: string, args: any[]) {
+Collection.prototype._handleBatchData = function (methodType: string, args: any[]) {
     if (this._batchData) {
         this.steps.push({ type: methodType, args });
         return this;
@@ -813,7 +810,7 @@ Collection.prototype.forPage = function (page: number, limit: number) {
 Collection.prototype.whereIn = function (field: string, values: any[]) {
     const batchResult = this._handleBatchData('whereIn', [field, values]);
     if (batchResult) return batchResult;
-    
+
     this.filters[field] = { in: values };
     return this;
 }
@@ -821,7 +818,7 @@ Collection.prototype.whereIn = function (field: string, values: any[]) {
 Collection.prototype.whereNotIn = function (field: string, values: any[]) {
     const batchResult = this._handleBatchData('whereNotIn', [field, values]);
     if (batchResult) return batchResult;
-    
+
     this.filters[field] = { nin: values };
     return this;
 }
@@ -829,7 +826,7 @@ Collection.prototype.whereNotIn = function (field: string, values: any[]) {
 Collection.prototype.whereNotBetween = function (field: string, values: any[]) {
     const batchResult = this._handleBatchData('whereNotBetween', [field, values]);
     if (batchResult) return batchResult;
-    
+
     this.filters[field] = { notBetween: values };
     return this;
 }
@@ -837,7 +834,7 @@ Collection.prototype.whereNotBetween = function (field: string, values: any[]) {
 Collection.prototype.whereBetween = function (field: string, values: any[]) {
     const batchResult = this._handleBatchData('whereBetween', [field, values]);
     if (batchResult) return batchResult;
-    
+
     this.filters[field] = { between: values };
     return this;
 }
@@ -863,7 +860,7 @@ Collection.prototype.skip = function (offset: number) {
     if (offset < 0) {
         throw new Error('Offset must be non-negative');
     }
-    
+
     if (this.already_offset) {
         this.steps.push({ type: 'skip', args: [offset] });
     }
@@ -876,7 +873,7 @@ Collection.prototype.take = function (length: number) {
     if (length < 0) {
         throw new Error('Length must be non-negative');
     }
-    
+
     if (this.already_limit) {
         this.steps.push({ type: 'take', args: [length] });
         return this;
@@ -896,8 +893,8 @@ Collection.prototype.splice = function (index: number, limit: number) {
     return this;
 }
 
-export default (name: string, axios: AxiosInstance, fields: Record<string, any>): Collection<any> => {
-    const c = new Collection(fields, axios);
+export default (name: string, fields: Record<string, any>): Collection<any> => {
+    const c = new Collection(fields);
     c.data_path = COLLECTION_PREFIX + name;
     return c;
 }

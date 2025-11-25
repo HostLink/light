@@ -1,10 +1,19 @@
 import { query } from "."
 export const getConfig = (name: string) => {
     return query({
-        config: {
-            __args: {
-                name
+        app: {
+            listConfig: {
+                __args: {
+                    filters: {
+                        name: name
+                    }
+
+                },
+                data: {
+                    name: true,
+                    value: true
+                }
             }
         }
-    }).then((resp: any) => resp.config);
+    }).then((resp: any) => resp.listConfig.data[0]);
 }

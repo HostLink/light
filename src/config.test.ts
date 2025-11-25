@@ -4,7 +4,7 @@ import { getConfig } from "./config";
 
 const client = createClient("http://localhost:8888/")
 
-describe("users", () => {
+describe("config", () => {
     beforeAll(async () => {
         // Set the global API client
         setApiClient(client);

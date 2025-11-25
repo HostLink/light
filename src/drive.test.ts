@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeAll } from "vitest"
-import { createClient } from "."
+import { createClient, FolderFields } from "."
 
 const client = createClient("http://localhost:8888/")
 const driveIndex = 0 // 預設使用 drive index 0
@@ -22,7 +22,7 @@ describe("drive", () => {
         it("should list folders in root directory", async () => {
             const folders = await client.drive(driveIndex).folders.list("/")
             expect(Array.isArray(folders)).toBe(true)
-            
+
             // 檢查是否包含我們剛建立的資料夾
             // API 返回的 path 沒有前導的 "/"，所以需要移除 testFolderPath 的前導 "/"
             const expectedPath = testFolderPath.startsWith("/") ? testFolderPath.slice(1) : testFolderPath
@@ -36,7 +36,7 @@ describe("drive", () => {
                 path: true
             })
             expect(Array.isArray(folders)).toBe(true)
-            
+
             if (folders.length > 0) {
                 expect(folders[0]).toHaveProperty('name')
                 expect(folders[0]).toHaveProperty('path')
@@ -47,7 +47,7 @@ describe("drive", () => {
             const newName = "renamed-test-folder-" + Date.now()
             const result = await client.drive(driveIndex).folders.rename(testFolderPath, newName)
             expect(result).toBe(true)
-            
+
             // 驗證資料夾已重新命名
             const folders = await client.drive(driveIndex).folders.list("/")
             const renamedFolder = folders.find((folder: any) => folder.name === newName)
@@ -57,12 +57,12 @@ describe("drive", () => {
         it("should delete a folder", async () => {
             // 取得重新命名後的資料夾路徑
             const folders = await client.drive(driveIndex).folders.list("/")
-            const testFolder = folders.find((folder: any) => folder.name?.includes("renamed-test-folder"))
-            
+            const testFolder = folders.find((folder) => folder.name?.includes("renamed-test-folder"))
+
             if (testFolder) {
                 const result = await client.drive(driveIndex).folders.delete(testFolder.path)
                 expect(result).toBe(true)
-                
+
                 // 驗證資料夾已刪除
                 const updatedFolders = await client.drive(driveIndex).folders.list("/")
                 const deletedFolder = updatedFolders.find((folder: any) => folder.path === testFolder.path)
@@ -84,7 +84,7 @@ describe("drive", () => {
         it("should list files in root directory", async () => {
             const files = await client.drive(driveIndex).files.list("/")
             expect(Array.isArray(files)).toBe(true)
-            
+
             // 檢查是否包含我們剛建立的檔案
             // API 返回的 path 沒有前導的 "/"，所以需要移除 testFilePath 的前導 "/"
             const expectedPath = testFilePath.startsWith("/") ? testFilePath.slice(1) : testFilePath
@@ -101,7 +101,7 @@ describe("drive", () => {
                 url: true
             })
             expect(Array.isArray(files)).toBe(true)
-            
+
             if (files.length > 0) {
                 const file = files[0]
                 expect(file).toHaveProperty('name')
@@ -145,7 +145,7 @@ describe("drive", () => {
             const expectedPath = testFilePath.startsWith("/") ? testFilePath.slice(1) : testFilePath
             const files = await client.drive(driveIndex).files.list("/")
             const file = files.find((f: any) => f.path === expectedPath)
-            
+
             if (file) {
                 // 使用 API 返回的正確路徑進行讀取
                 const content = await client.drive(driveIndex).files.read("/" + file.path)
@@ -165,7 +165,7 @@ describe("drive", () => {
             const newName = "renamed-test-file-" + Date.now() + ".txt"
             const result = await client.drive(driveIndex).files.rename(testFilePath, newName)
             expect(result).toBe(true)
-            
+
             // 驗證檔案已重新命名
             const files = await client.drive(driveIndex).files.list("/")
             const renamedFile = files.find((file: any) => file.name === newName)
@@ -176,23 +176,23 @@ describe("drive", () => {
             // 首先建立一個目標資料夾
             const targetFolder = "/move-test-folder-" + Date.now()
             await client.drive(driveIndex).folders.create(targetFolder)
-            
+
             // 取得重新命名後的檔案
             const files = await client.drive(driveIndex).files.list("/")
             const testFile = files.find((file: any) => file.name?.includes("renamed-test-file"))
-            
+
             if (testFile) {
                 const newPath = targetFolder + "/" + testFile.name
                 const result = await client.drive(driveIndex).files.move(testFile.path, newPath)
                 expect(result).toBe(true)
-                
+
                 // 驗證檔案已移動
                 const movedFile = await client.drive(driveIndex).files.get(newPath)
                 if (movedFile) {
                     expect(movedFile).toBeDefined()
                     expect(movedFile.path).toBe(newPath)
                 }
-                
+
                 // 清理：刪除移動後的檔案和資料夾
                 try {
                     await client.drive(driveIndex).files.delete(newPath)
@@ -213,10 +213,10 @@ describe("drive", () => {
             // 建立一個新檔案來測試刪除
             const deleteTestPath = "/delete-test-" + Date.now() + ".txt"
             await client.drive(driveIndex).files.write(deleteTestPath, "delete test content")
-            
+
             const result = await client.drive(driveIndex).files.delete(deleteTestPath)
             expect(result).toBe(true)
-            
+
             // 驗證檔案已刪除
             try {
                 await client.drive(driveIndex).files.get(deleteTestPath)
@@ -235,7 +235,7 @@ describe("drive", () => {
                 const fileContent = "test file content"
                 const blob = new Blob([fileContent], { type: 'text/plain' })
                 const file = new File([blob], 'test.txt', { type: 'text/plain' })
-                
+
                 const result = await client.drive(driveIndex).uploadTempFile(file)
                 expect(result).toBeDefined()
                 expect(result).toHaveProperty('name')

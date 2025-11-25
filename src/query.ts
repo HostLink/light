@@ -117,7 +117,6 @@ export default async (q: Record<string, any>): Promise<any> => {
         }))
         resp = await api.axios.post("", fd)
     } else {
-        
         resp = await api.axios.post("", {
             query: graphql_query
         })

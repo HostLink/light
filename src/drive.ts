@@ -3,10 +3,11 @@ import { query, mutation } from '.';
 import listFiles from './file';
 
 export type FolderFields = {
-    name?: boolean,
-    path?: boolean
+    name?: string,
+    path?: string
 }
 
+export type QueryFolderFields = Record<keyof FolderFields, boolean>
 
 export const listDrives = () => {
     return query({
@@ -37,25 +38,18 @@ export const getDrive = (index: number) => {
             }).then(res => res.lightDriveUploadTempFile) as Promise<{ name: string, path: string, size: number, mime: string }>;
         },
         folders: {
-            list: (path: string, fields: FolderFields = {
-                name: true,
-                path: true
-            }) => {
+            list: (path: string, fields: QueryFolderFields = { name: true, path: true }) => {
                 return query({
                     app: {
                         drive: {
-                            __args: {
-                                index
-                            },
+                            __args: { index },
                             folders: {
-                                __args: {
-                                    path
-                                },
+                                __args: { path },
                                 ...fields
                             }
                         },
                     }
-                }).then(resp => resp.app.drive.folders) as Promise<Array<typeof fields>>
+                }).then(resp => resp.app.drive.folders) as Promise<Array<Record<keyof FolderFields, any>>>
             },
             create: (path: string) => {
                 return mutation({ lightDriveCreateFolder: { __args: { index, path } } }).then(res => res.lightDriveCreateFolder);

@@ -1,13 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest"
 import createCollection from "./createCollection"
-import { AxiosInstance } from "axios"
-
-// Mock axios instance
-const mockAxios = {
-    post: vi.fn(),
-    get: vi.fn(),
-    defaults: { headers: {} }
-} as unknown as AxiosInstance
 
 // Mock query function
 vi.mock('./query', () => ({
@@ -26,15 +18,14 @@ describe("createCollection", () => {
     describe("Collection Creation", () => {
         it("should create a collection with correct data_path", () => {
             const fields = { id: true, name: true }
-            const collection = createCollection("User", mockAxios, fields)
+            const collection = createCollection("User", fields)
             
             expect(collection.data_path).toBe("listUser")
             expect(collection.fields).toEqual(fields)
-            expect(collection.axios).toBe(mockAxios)
         })
 
         it("should initialize with default values", () => {
-            const collection = createCollection("Product", mockAxios, {})
+            const collection = createCollection("Product", {})
             
             expect(collection.filters).toEqual({})
             expect(collection.steps).toEqual([])
@@ -50,7 +41,7 @@ describe("createCollection", () => {
 
     describe("Query Building", () => {
         it("should build correct args with filters and sort", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             collection.filters = { status: "active", age: { gt: 18 } }
             collection._sort = "name"
             collection._sortDesc = true
@@ -64,7 +55,7 @@ describe("createCollection", () => {
         })
 
         it("should build args without sort when not specified", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             collection.filters = { status: "active" }
             
             const args = collection.buildArgs()
@@ -75,7 +66,7 @@ describe("createCollection", () => {
         })
 
         it("should return empty args when no filters or sort", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             const args = collection.buildArgs()
             
@@ -85,7 +76,7 @@ describe("createCollection", () => {
 
     describe("Cloning", () => {
         it("should create a deep clone of the collection", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             collection.filters = { status: "active" }
             collection.steps = [{ type: "sortBy", args: ["name"] }]
             
@@ -106,7 +97,7 @@ describe("createCollection", () => {
 
     describe("Where Conditions", () => {
         it("should handle simple where condition", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             const result = collection.where("status", "active")
             
@@ -115,7 +106,7 @@ describe("createCollection", () => {
         })
 
         it("should handle where with operators", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             collection.where("age", ">", 18)
             expect(collection.filters).toEqual({ age: { gt: 18 } })
@@ -135,7 +126,7 @@ describe("createCollection", () => {
         })
 
         it("should handle whereContains", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             collection.whereContains("name", "john")
             
@@ -143,7 +134,7 @@ describe("createCollection", () => {
         })
 
         it("should handle whereIn", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             collection.whereIn("status", ["active", "pending"])
             
@@ -151,7 +142,7 @@ describe("createCollection", () => {
         })
 
         it("should handle whereNotIn", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             collection.whereNotIn("status", ["deleted", "banned"])
             
@@ -159,7 +150,7 @@ describe("createCollection", () => {
         })
 
         it("should handle whereBetween", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             collection.whereBetween("age", [18, 65])
             
@@ -167,7 +158,7 @@ describe("createCollection", () => {
         })
 
         it("should handle whereNotBetween", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             collection.whereNotBetween("score", [0, 50])
             
@@ -177,7 +168,7 @@ describe("createCollection", () => {
 
     describe("Sorting", () => {
         it("should handle sortBy with string", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             const result = collection.sortBy("name")
             
@@ -187,7 +178,7 @@ describe("createCollection", () => {
         })
 
         it("should handle sortByDesc with string", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             const result = collection.sortByDesc("created_at")
             
@@ -197,7 +188,7 @@ describe("createCollection", () => {
         })
 
         it("should handle sortBy with function", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             const sortFn = (item: any) => item.age
             
             const result = collection.sortBy(sortFn)
@@ -209,7 +200,7 @@ describe("createCollection", () => {
 
     describe("Pagination", () => {
         it("should handle take method", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             const result = collection.take(10)
             
@@ -219,7 +210,7 @@ describe("createCollection", () => {
         })
 
         it("should handle take method when already limited", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             collection.already_limit = true
             
             const result = collection.take(5)
@@ -228,7 +219,7 @@ describe("createCollection", () => {
         })
 
         it("should handle skip method", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             const result = collection.skip(20)
             
@@ -237,7 +228,7 @@ describe("createCollection", () => {
         })
 
         it("should handle skip method when already offset", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             collection.already_offset = true
             
             const result = collection.skip(10)
@@ -246,7 +237,7 @@ describe("createCollection", () => {
         })
 
         it("should handle forPage method", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             const result = collection.forPage(2, 15)
             
@@ -257,7 +248,7 @@ describe("createCollection", () => {
         })
 
         it("should handle forPage with page less than 1", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             const result = collection.forPage(0, 10)
             
@@ -265,7 +256,7 @@ describe("createCollection", () => {
         })
 
         it("should handle splice method", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             const result = collection.splice(10, 5)
             
@@ -279,7 +270,7 @@ describe("createCollection", () => {
 
     describe("Data Path", () => {
         it("should set custom data path", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             const result = collection.dataPath("custom.path.users")
             
@@ -290,7 +281,7 @@ describe("createCollection", () => {
 
     describe("Query Payload", () => {
         it("should generate correct query payload", () => {
-            const collection = createCollection("User", mockAxios, { 
+            const collection = createCollection("User", { 
                 id: true, 
                 name: true 
             })
@@ -329,7 +320,7 @@ describe("createCollection", () => {
 
     describe("Batch Data", () => {
         it("should use batch data when available", async () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             const batchData = {
                 data: [{ id: 1, name: "John" }, { id: 2, name: "Jane" }],
                 meta: { total: 2 }
@@ -344,7 +335,7 @@ describe("createCollection", () => {
         })
 
         it("should add steps for where when using batch data", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             collection._batchData = { data: [], meta: {} }
             
             collection.where("status", "active")
@@ -355,7 +346,7 @@ describe("createCollection", () => {
 
     describe("Method Steps", () => {
         it("should add method steps correctly", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             const result = collection.map((x: any) => x.name)
             
@@ -366,7 +357,7 @@ describe("createCollection", () => {
         })
 
         it("should handle multiple chained operations", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             const result = collection
                 .sortBy("name")
@@ -390,7 +381,7 @@ describe("createCollection", () => {
             }
             mockedQuery.mockResolvedValue(mockResponse)
             
-            const collection = createCollection("User", mockAxios, { 
+            const collection = createCollection("User", { 
                 id: true, 
                 name: true 
             })
@@ -399,7 +390,7 @@ describe("createCollection", () => {
             
             const result = await collection.fetchData()
             
-            expect(mockedQuery).toHaveBeenCalledWith(mockAxios, {
+            expect(mockedQuery).toHaveBeenCalledWith({
                 listUser: {
                     meta: {
                         total: true,
@@ -434,12 +425,12 @@ describe("createCollection", () => {
             }
             mockedQuery.mockResolvedValue(mockResponse)
             
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             collection.data_path = "admin.users"
             
             await collection.fetchData()
             
-            expect(mockedQuery).toHaveBeenCalledWith(mockAxios, {
+            expect(mockedQuery).toHaveBeenCalledWith({
                 admin: {
                     users: {
                         meta: {
@@ -473,7 +464,7 @@ describe("createCollection", () => {
             }
             mockedQuery.mockResolvedValue(mockResponse)
             
-            const collection = createCollection("User", mockAxios, { 
+            const collection = createCollection("User", { 
                 id: true, 
                 name: true, 
                 age: true 
@@ -500,7 +491,7 @@ describe("createCollection", () => {
             }
             mockedQuery.mockResolvedValue(mockResponse)
             
-            const collection = createCollection("User", mockAxios, { id: true, name: true })
+            const collection = createCollection("User", { id: true, name: true })
             const result = await collection.all()
             
             expect(result).toEqual(mockData)
@@ -519,7 +510,7 @@ describe("createCollection", () => {
             }
             mockedQuery.mockResolvedValue(mockResponse)
             
-            const collection = createCollection("User", mockAxios, { id: true, name: true })
+            const collection = createCollection("User", { id: true, name: true })
             const result = await collection.first()
             
             expect(result).toEqual({ id: 1, name: "John" })
@@ -528,14 +519,14 @@ describe("createCollection", () => {
 
     describe("Edge Cases", () => {
         it("should handle empty fields object", () => {
-            const collection = createCollection("Empty", mockAxios, {})
+            const collection = createCollection("Empty", {})
             
             expect(collection.fields).toEqual({})
             expect(collection.data_path).toBe("listEmpty")
         })
 
         it("should handle multiple where conditions", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             collection
                 .where("status", "active")
@@ -550,7 +541,7 @@ describe("createCollection", () => {
         })
 
         it("should handle chained pagination methods", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             const result = collection
                 .skip(10)
@@ -563,7 +554,7 @@ describe("createCollection", () => {
         })
 
         it("should handle complex query with all operations", () => {
-            const collection = createCollection("Product", mockAxios, { 
+            const collection = createCollection("Product", { 
                 id: true, 
                 name: true, 
                 price: true 
@@ -592,7 +583,7 @@ describe("createCollection", () => {
         })
 
         it("should handle query payload without limit and offset", () => {
-            const collection = createCollection("Simple", mockAxios, { id: true })
+            const collection = createCollection("Simple", { id: true })
             collection.where("active", true)
             
             const payload = collection.getQueryPayload()
@@ -602,7 +593,7 @@ describe("createCollection", () => {
         })
 
         it("should handle empty data path correctly", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             collection.data_path = ""
             
             // This should work without error
@@ -611,7 +602,7 @@ describe("createCollection", () => {
         })
 
         it("should handle batch data with steps", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             collection._batchData = { data: [], meta: {} }
             
             const result = collection
@@ -626,7 +617,7 @@ describe("createCollection", () => {
         })
 
         it("should handle all operators in where conditions", () => {
-            const collection = createCollection("User", mockAxios, { id: true })
+            const collection = createCollection("User", { id: true })
             
             collection.where("score1", "<", 50)
             collection.where("score2", "<=", 75)

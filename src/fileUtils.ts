@@ -62,7 +62,7 @@ export const file = (s: string = "") => {
     }
 }
 
-export const File = {
+/* export const File = {
     fromBase85: (a: string) => {
         return file(decode_base85(a));
     },
@@ -72,4 +72,4 @@ export const File = {
     }, fromString: (a: string) => {
         return file(a);
     }
-}
+} */
