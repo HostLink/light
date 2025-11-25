@@ -1,4 +1,4 @@
-import useAuth from './auth';
+import useAuth from './useAuth';
 
 import { AxiosInstance } from 'axios';
 import axios from "axios";

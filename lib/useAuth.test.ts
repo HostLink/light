@@ -1,5 +1,6 @@
 import { describe, expect, it, beforeAll } from "vitest"
 import { createClient } from "."
+import { useAuth } from "."
 
 // 使用 localhost 而不是 127.0.0.1，有時候在 cookie 處理上會有不同
 const client = createClient("http://localhost:8888/")
@@ -7,8 +8,8 @@ const client = createClient("http://localhost:8888/")
 describe("login", () => {
     beforeAll(async () => {
         // 使用 client.auth.login 方法進行登入，確保 cookies 正確處理
-        const loginResult = await client.auth.login("admin", "111111")
-        console.log("Login result:", loginResult)
+        const { login } = useAuth(client.axios)
+        const loginResult = await login("admin", "111111")
         expect(loginResult).toBe(true)
     })
     it("my", async () => {
