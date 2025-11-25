@@ -1,4 +1,4 @@
-import { default as auth } from './auth';
+import useAuth from './auth';
 
 import { AxiosInstance } from 'axios';
 import axios from "axios";
@@ -15,12 +15,10 @@ import { default as roles } from './roles';
 import { default as createCollection } from './createCollection';
 import { default as drive } from './drive';
 import createList from './createList';
-
-
 export interface LightClient {
     baseURL: string;
     axios: AxiosInstance;
-    auth: ReturnType<typeof auth>;
+    auth: ReturnType<typeof useAuth>;
     mutation: (q: Record<string, any>) => Promise<any>;
     query: (q: Record<string, any>) => Promise<any>;
     config: ReturnType<typeof _config>;
@@ -100,7 +98,7 @@ export default (baseURL: string): LightClient => {
     return {
         baseURL,
         axios: _axios,
-        auth: auth(_axios),
+        auth: useAuth(_axios),
         mutation: _mutation,
         query: _query,
         config: _config(_query),
@@ -150,17 +148,13 @@ export default (baseURL: string): LightClient => {
                     current[k] = current[k] || {}
                 }
                 payload[key].__aliasFor = t[0]; // 這行是為了讓後端知道這個 query 是屬於哪個 collection 的
-
-
             }
-
 
             // 2. 發送 batch request
             const data = await query(_axios, payload);
 
             // 3. 將 data 設返入每個 collection
             for (const key in collections) {
-
                 //map the datapath to _batchData
                 const t = dataPath[key].split('.');
                 let last_key = t[t.length - 1];
@@ -171,9 +165,7 @@ export default (baseURL: string): LightClient => {
                         break;
                     }
                     current[k] = current[k] || {}
-
                 }
-
             }
             return collections;
         }

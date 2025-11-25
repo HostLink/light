@@ -2,7 +2,8 @@ import { mutation, query } from "."
 import { AxiosInstance } from "axios"
 import { default as WebAuthn } from "./webauthn"
 
-export default (axios: AxiosInstance) => {
+
+export const useAuth = (axios: AxiosInstance) => {
     return {
         WebAuthn: WebAuthn(axios),
         google: {
@@ -68,5 +69,6 @@ export default (axios: AxiosInstance) => {
             }).then(resp => resp.my.grantedRights)
         }
     }
-
 }
+
+export default useAuth

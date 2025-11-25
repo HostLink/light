@@ -1,14 +1,13 @@
 export default (query: any) => {
     return {
-        get: async (name: string): Promise<any> => {
-            const resp = await query({
+        get: (name: string): Promise<any> => {
+            return query({
                 config: {
                     __args: {
                         name
                     }
                 }
-            })
-            return resp.config;
+            }).then((resp: any) => resp.config);
         }
     }
 }
