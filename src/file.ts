@@ -8,7 +8,7 @@ export type FileFields = {
     url?: string
 }
 
-export type QueryFileFields = Record<keyof FileFields, boolean>
+export type QueryFileFields = Partial<Record<keyof FileFields, boolean>>
 
 const defaultFields: QueryFileFields = {
     name: true,
