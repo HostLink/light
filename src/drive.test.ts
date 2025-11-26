@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeAll } from "vitest"
-import { createClient, FolderFields } from "."
+import { createClient } from "."
 
 const client = createClient("http://localhost:8888/")
 const driveIndex = 0 // 預設使用 drive index 0
