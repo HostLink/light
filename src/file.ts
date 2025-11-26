@@ -32,6 +32,24 @@ export const listFiles = (index: number, path: string, fields: QueryFileFields =
     }).then(resp => resp.app.drive.files);
 }
 
+export const readFileAsBase64 = (index: number, path: string): Promise<string> => {
+    return query({
+        app: {
+            drive: {
+                __args: {
+                    index
+                },
+                file: {
+                    __args: {
+                        path
+                    },
+                    base64Content: true,
+                }
+            }
+        }
+    }).then(resp => resp.app.drive?.file?.base64Content);
+
+}
 
 export default (index: number) => {
     return {
@@ -61,7 +79,11 @@ export default (index: number) => {
             }).then(resp => resp.app.drive.file);
 
         },
+        readFileAsBase64(path: string): Promise<string> {
+            return readFileAsBase64(index, path);
+        },
         read: async (path: string) => {
+
             let resp = await query({
                 app: {
                     drive: {

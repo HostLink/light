@@ -6,6 +6,7 @@ export * as webAuthn from "./webauthn"
 export * from './auth'
 export { default as auth } from './auth'
 export * from './drive'
+export * from './folder'
 export * from './users'
 export * from './config'
 export * from './role'
