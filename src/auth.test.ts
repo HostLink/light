@@ -52,7 +52,7 @@ describe("login", () => {
     })
 
     it("granted", async () => {
-        let data = await client.auth.granted(["fs.folder.create"]);
+        let data = await client.auth.grantedRights(["fs.folder.create"]);
 
         expect(data).toContain("fs.folder.create");
 
