@@ -22,29 +22,45 @@ const defaultUserFields: QueryUserFieldsUserFields = {
     status: true
 }
 
-const createUser = (fields: UserFields) => mutation({
-    createUser: {
-        __args: {},
-        ...fields
+export type CreateUserFields = {
+    username: string
+    first_name: string
+    last_name?: string
+    password: string
+    join_date: string
+}
+
+export const createUser = (fields: CreateUserFields) => mutation({
+    addUser: {
+        __args: fields
     }
-}).then(res => res.createUser)
+}).then(res => res.addUser)
 
 
-const deleteUser = (id: Number): Promise<boolean> => mutation({
+export const deleteUser = (id: Number): Promise<boolean> => mutation({
     deleteUser: {
         __args: { id }
     }
 }).then(res => res.deleteUser)
 
+export const listUsers = (fields: QueryUserFieldsUserFields = defaultUserFields) => {
+    return createList("Users", fields).dataPath("app.listUser").fetch();
+}
+
+export const updateUser = (id: number, fields: Partial<CreateUserFields>) => mutation({
+    updateUser: {
+        __args: { id, data: fields }
+    }
+}).then(res => res.updateUser)
+
+
 
 export default () => {
     return {
-        list: async (fields: QueryUserFieldsUserFields = defaultUserFields) => {
-            return createList("Users", fields).dataPath("app.listUser").fetch();
-        },
-        create: (fields: UserFields) => createUser(fields),
-        delete: (id: Number): Promise<boolean> => deleteUser(id)
-
+        list: listUsers,
+        create: createUser,
+        delete: deleteUser,
+        update: updateUser
     }
 }
 
