@@ -1,5 +1,5 @@
-export { default as useModel, useGlobalModel, useGlobalModels, createModelManager } from './useModel'
-export type { ModelManager } from './useModel'
+export { default as useModel, useGlobalModel, useGlobalModels, createModelManager } from './models'
+export type { ModelManager } from './models'
 
 export * as webAuthn from "./webauthn"
 export * from './auth'

@@ -8,7 +8,7 @@ import { default as query } from './query';
 import { Fields, setApiClient } from '.';
 import { getConfig } from './config';
 import { default as mail } from './mail';
-import { createModelManager, type ModelManager } from './useModel';
+import { createModelManager, type ModelManager } from './models';
 import { default as model } from './model';
 import { default as roles } from './role';
 import { default as createCollection } from './createCollection';
