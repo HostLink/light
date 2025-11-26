@@ -95,7 +95,8 @@ export default () => {
         resetPassword,
         forgetPassword,
         verifyCode,
-        granted
+        grantedRights: getGrantedRights,
+        isGranted
 
 
     }
