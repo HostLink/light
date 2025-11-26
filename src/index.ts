@@ -1,6 +1,7 @@
 export { default as useModel, useGlobalModel, useGlobalModels, createModelManager } from './useModel'
 export type { ModelManager } from './useModel'
 
+export * as webAuthn from "./webauthn"
 export * from './auth'
 export * from './drive'
 

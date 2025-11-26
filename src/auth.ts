@@ -1,5 +1,5 @@
 import { mutation, query } from "."
-import * as WebAuthn from "./webauthn"
+import * as webAuthn from "./webauthn"
 
 export const login = (username: string, password: string, code: string = ""): Promise<boolean> => {
     return mutation({ login: { __args: { username, password, code } } }).then(res => res.login)
@@ -39,7 +39,7 @@ export const granted = (rights: string[]): Promise<string[]> => {
 
 export default () => {
     return {
-        WebAuthn,
+        webAuthn,
         google: {
             unlink: (): Promise<boolean> =>
                 mutation({ lightAuthUnlinkGoogle: true })
