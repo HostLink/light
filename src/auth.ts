@@ -30,7 +30,19 @@ export const verifyCode = (jwt: string, code: string): Promise<boolean> => {
     return mutation({ forgetPasswordVerifyCode: { __args: { jwt, code } } }).then(res => res.forgetPasswordVerifyCode)
 }
 
-export const granted = (rights: string[]): Promise<string[]> => {
+export const isGranted = (right: string): Promise<boolean> => {
+    return query({
+        my: {
+            granted: {
+                __args: {
+                    right
+                }
+            }
+        }
+    }).then(resp => resp.my.granted);
+}
+
+export const getGrantedRights = (rights: string[]): Promise<string[]> => {
     return query({
         my: {
             grantedRights: {

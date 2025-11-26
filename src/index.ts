@@ -1,3 +1,5 @@
+import createList from './createList'
+
 export { default as useModel, useGlobalModel, useGlobalModels, createModelManager } from './models'
 export type { ModelManager } from './models'
 
@@ -30,6 +32,10 @@ export type { LightClient } from './createClient'
 export { default as createCollection } from './createCollection'
 export { default as createList } from './createList'
 
+export const list = createList
+
 export type { RoleFields } from './role'
 
 export { setApiClient, getApiClient, getApiClientOptional } from './apiClient'
+
+
