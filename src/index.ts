@@ -4,10 +4,14 @@ export type { ModelManager } from './models'
 export * as webAuthn from "./webauthn"
 export * from './auth'
 export * from './drive'
-
+export * from './users'
+export * from './config'
+export * from './role'
 
 export * from './model'
 export * from './file'
+export * from './mail'
+
 
 export { default as query } from './query'
 export { default as mutation } from './mutation'

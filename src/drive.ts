@@ -1,6 +1,8 @@
 import { query, mutation } from '.';
 
-import listFiles from './file';
+import files from './file';
+
+
 
 export type FolderFields = {
     name?: string,
@@ -26,6 +28,14 @@ export const listDrives = () => {
 
 export const getDrive = (index: number) => {
     return {
+        listFiles: files(index).list,
+        getFile: files(index).get,
+        readFile: files(index).read,
+        writeFile: files(index).write,
+        deleteFile: files(index).delete,
+        renameFile: files(index).rename,
+        moveFile: files(index).move,
+
         uploadTempFile: (file: File) => {
             return mutation({
                 lightDriveUploadTempFile: {
@@ -61,7 +71,7 @@ export const getDrive = (index: number) => {
                 return mutation({ lightDriveRenameFolder: { __args: { index, path, name } } }).then(res => res.lightDriveRenameFolder);
             }
         },
-        files: listFiles(index)
+        files: files(index)
     }
 }
 

@@ -18,21 +18,25 @@ const defaultFields: QueryFileFields = {
     url: true
 }
 
+export const listFiles = (index: number, path: string, fields: QueryFileFields = defaultFields) => {
+    return query({
+        app: {
+            drive: {
+                __args: { index },
+                files: {
+                    __args: { path },
+                    ...fields
+                }
+            }
+        }
+    }).then(resp => resp.app.drive.files);
+}
+
 
 export default (index: number) => {
     return {
         list: (path: string, fields: QueryFileFields = defaultFields) => {
-            return query({
-                app: {
-                    drive: {
-                        __args: { index },
-                        files: {
-                            __args: { path },
-                            ...fields
-                        }
-                    }
-                }
-            }).then(resp => resp.app.drive.files);
+            return listFiles(index, path, fields);
         }, get: (path: string, fields: QueryFileFields = {
             name: true,
             path: true,

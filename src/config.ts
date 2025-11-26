@@ -15,5 +15,5 @@ export const getConfig = (name: string) => {
                 }
             }
         }
-    }).then((resp: any) => resp.app.listConfig.data[0]);
+    }).then((resp: any) => resp.app.listConfig.data[0]?.value);
 }
