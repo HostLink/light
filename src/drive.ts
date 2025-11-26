@@ -1,7 +1,7 @@
 import { query, mutation } from '.';
 
 import files from './file';
-import folders, { listFolders } from './folder';
+import folders from './folder';
 
 export const listDrives = () => {
     return query({
@@ -23,12 +23,12 @@ export const getDrive = (index: number) => {
         deleteFile: files(index).delete,
         renameFile: files(index).rename,
         moveFile: files(index).move,
-        
+
         listFolders: folders(index).list,
         createFolder: folders(index).create,
         deleteFolder: folders(index).delete,
         renameFolder: folders(index).rename,
-      
+
 
         uploadTempFile: (file: File) => {
             return mutation({

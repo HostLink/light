@@ -1,8 +1,4 @@
-import { createList, mutation, query } from "."
-
-
-
-
+import { createList, mutation } from "."
 
 export type UserFields = {
     user_id?: number
