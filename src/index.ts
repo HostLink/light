@@ -4,6 +4,7 @@ export type { ModelManager } from './models'
 export * from './permission'
 export * as webAuthn from "./webauthn"
 export * from './auth'
+export { default as auth } from './auth'
 export * from './drive'
 export * from './users'
 export * from './config'

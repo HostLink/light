@@ -1,9 +1,7 @@
 import { createList, mutation, query } from "."
 
 
-export const getCurrentUser = (fields: QueryUserFieldsUserFields = defaultUserFields) => {
-    return query({ my: fields }).then(res => res.my)
-}
+
 
 
 export type UserFields = {
@@ -16,9 +14,9 @@ export type UserFields = {
     join_date?: string
 }
 
-type QueryUserFieldsUserFields = Partial<Record<keyof UserFields, boolean>>;
+export type QueryUserFieldsUserFields = Partial<Record<keyof UserFields, boolean>>;
 
-const defaultUserFields: QueryUserFieldsUserFields = {
+export const defaultUserFields: QueryUserFieldsUserFields = {
     user_id: true,
     username: true,
     first_name: true,

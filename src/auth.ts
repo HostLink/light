@@ -1,5 +1,10 @@
-import { mutation, query } from "."
+import { defaultUserFields, mutation, query, QueryUserFieldsUserFields } from "."
 import * as webAuthn from "./webauthn"
+
+
+export const getCurrentUser = (fields: QueryUserFieldsUserFields = defaultUserFields) => {
+    return query({ my: fields }).then(res => res.my)
+}
 
 export const login = (username: string, password: string, code: string = ""): Promise<boolean> => {
     return mutation({ login: { __args: { username, password, code } } }).then(res => res.login)
@@ -39,6 +44,7 @@ export const granted = (rights: string[]): Promise<string[]> => {
 
 export default () => {
     return {
+        getCurrentUser,
         webAuthn,
         google: {
             unlink: (): Promise<boolean> =>
