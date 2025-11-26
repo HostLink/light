@@ -86,7 +86,7 @@ export default (baseURL: string): LightClient => {
         });
     }
 
-    const _models = createModelManager(_axios);
+    const _models = createModelManager();
 
     const client = {
         post: _axios.post,
