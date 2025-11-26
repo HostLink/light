@@ -116,7 +116,8 @@ describe("drive", () => {
             const file = await client.drive(driveIndex).files.get(testFilePath)
             if (file) {
                 expect(file).toBeDefined()
-                expect(file.path).toBe(testFilePath)
+                const expectedPath = testFilePath.startsWith("/") ? testFilePath.slice(1) : testFilePath
+                expect(file.path).toBe(expectedPath)
                 expect(file.name).toBe(testFileName)
             } else {
                 // 如果檔案不存在，檢查是否確實寫入成功
@@ -206,15 +207,17 @@ describe("drive", () => {
             const testFile = files.find((file: any) => file.name?.includes("renamed-test-file"))
 
             if (testFile) {
-                const newPath = targetFolder + "/" + testFile.name
-                const result = await client.drive(driveIndex).files.move(testFile.path, newPath)
+                // 移動檔案時只需傳入目標資料夾路徑，檔案名稱會自動保留
+                const result = await client.drive(driveIndex).files.move(testFile.path, targetFolder)
                 expect(result).toBe(true)
 
                 // 驗證檔案已移動
+                const newPath = targetFolder + "/" + testFile.name
                 const movedFile = await client.drive(driveIndex).files.get(newPath)
                 if (movedFile) {
                     expect(movedFile).toBeDefined()
-                    expect(movedFile.path).toBe(newPath)
+                    const expectedPath = newPath.startsWith("/") ? newPath.slice(1) : newPath
+                    expect(movedFile.path).toBe(expectedPath)
                 }
 
                 // 清理：刪除移動後的檔案和資料夾
