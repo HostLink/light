@@ -17,6 +17,13 @@ export default defineConfig({
         },
         rollupOptions: {
             external: ["axios", "json-to-graphql-query", "collect.js"],
+            output: {
+                globals: {
+                    axios: "axios",
+                    "json-to-graphql-query": "jsonToGraphqlQuery",
+                    "collect.js": "collect"
+                }
+            }
         }
     },
     
