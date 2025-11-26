@@ -1,5 +1,9 @@
-import { createList, mutation } from "."
+import { createList, mutation, query } from "."
 
+
+export const getCurrentUser = (fields: QueryUserFieldsUserFields = defaultUserFields) => {
+    return query({ my: fields }).then(res => res.my)
+}
 
 
 export type UserFields = {
