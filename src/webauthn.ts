@@ -37,7 +37,9 @@ export const login = async () => {
     const credential = await assertion();
     return await mutation({
         webAuthnAssertion: {
-            assertion: credential.toJSON()
+            __args: {
+                assertion: credential.toJSON()
+            }
         }
     }).then(res => res.webAuthnAssertion);
 }
@@ -46,7 +48,9 @@ export const register = async () => {
     const credential = await attestation();
     return await mutation({
         webAuthnRegister: {
-            registration: credential.toJSON()
+            __args: {
+                registration: credential.toJSON()
+            }
         }
     }).then(res => res.webAuthnRegister);
 }

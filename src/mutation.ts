@@ -2,6 +2,7 @@ import { jsonToGraphQLQuery, VariableType } from 'json-to-graphql-query';
 import { getApiClient } from './apiClient';
 
 import { arrayHasFile, objectHasFile } from './fileUtils';
+import { GraphQLQuery } from '.';
 
 // Recursive function to process __args at all levels
 function processArgs(obj: any, allVariables: any, map: any, fd: FormData, fileIndexRef: { current: number }) {
@@ -86,7 +87,8 @@ function processArgs(obj: any, allVariables: any, map: any, fd: FormData, fileIn
     }
 }
 
-export default async (q: Record<string, any>): Promise<any> => {
+
+export default async (q: GraphQLQuery): Promise<any> => {
     const api = getApiClient();
     const axios = api.axios;
     const convertedQ = q;
