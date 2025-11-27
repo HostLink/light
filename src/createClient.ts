@@ -8,8 +8,7 @@ import { default as query } from './query';
 import { Fields, setApiClient } from '.';
 import { getConfig } from './config';
 import { default as mail } from './mail';
-import { createModelManager, type ModelManager } from './models';
-import { default as model } from './model';
+import { getModel } from './models';
 import { default as roles } from './role';
 import { default as createCollection } from './createCollection';
 import createList from './createList';
@@ -24,8 +23,6 @@ export interface LightClient {
     config: typeof getConfig;
     mail: typeof mail;
     users: ReturnType<typeof users>;
-    models: ModelManager;
-    model(name: string): ReturnType<typeof model>;
     roles: ReturnType<typeof roles>;
     collect(name: string, fields: Record<string, any>): ReturnType<typeof createCollection>;
     drive(index: number): ReturnType<typeof getDrive>;
@@ -86,8 +83,6 @@ export default (baseURL: string): LightClient => {
         });
     }
 
-    const _models = createModelManager();
-
     const client = {
         post: _axios.post,
         baseURL,
@@ -98,19 +93,18 @@ export default (baseURL: string): LightClient => {
         config: getConfig,
         mail,
         users: users(),
-        models: _models,
         model(name: string) {
-            return _models.get(name);
+            return getModel(name);
         },
         roles: roles(),
         collect: (name: string, fields: Record<string, any>) => {
             const c = createCollection(name, fields);
-            c.data_path = _models.get(name).getDataPath();
+            c.data_path = getModel(name).getDataPath();
             return c;
         },
         list: (entity: string, fields: Record<string, any>) => {
             const l = createList(entity, fields);
-            return l.dataPath(_models.get(entity).getDataPath());
+            return l.dataPath(getModel(entity).getDataPath());
         },
         drive: getDrive,
         async collects(collections: { [key: string]: any }) {

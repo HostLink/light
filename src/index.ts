@@ -1,7 +1,6 @@
 import createList from './createList'
 
-export { default as useModel, useGlobalModel, useGlobalModels, createModelManager } from './models'
-export type { ModelManager } from './models'
+export * from './models'
 
 export * from './permission'
 export * as webAuthn from "./webauthn"

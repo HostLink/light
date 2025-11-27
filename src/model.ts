@@ -22,7 +22,7 @@ export type Model = {
     fields: Record<string, Field>,
 }
 
-export default (name: string, fields: Record<string, Field>) => {
+export default (name: string, fields: Record<string, Field> = {}) => {
     const _name = name;
     const _fields = fields;
     let _dataPath = "list" + name;
