@@ -15,6 +15,7 @@ export * from './role'
 export * from './model'
 export * from './file'
 export * from './mail'
+export * from './fileUtils'
 
 
 export { default as query } from './query'
