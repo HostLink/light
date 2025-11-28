@@ -7,8 +7,6 @@ export const listPermissions = (): Promise<Array<string>> => {
     }).then(resp => resp.app.permissions)
 }
 
-export default () => {
-    return {
-        list: listPermissions,
-    }
+export default {
+    list: listPermissions
 }
