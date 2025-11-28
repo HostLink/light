@@ -1,8 +1,8 @@
 import { type Field } from "./model"
-import { default as model } from './model'
+import model from './model'
 
 // 全域模型存儲
-const models: Record<string, any> = {}
+const models: Record<string, ReturnType<typeof model>> = {}
 
 /**
  * 創建或更新模型

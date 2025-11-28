@@ -10,24 +10,16 @@ export type Field = {
      * @deprecated use gql instead
      */
     gqlField?: string | object,
-
     gql?: Record<string, any>,
-
     field?: any,
     format?: any,
 }
 
-export type Model = {
-    name: string,
-    fields: Record<string, Field>,
-}
-
 export default (name: string, fields: Record<string, Field> = {}) => {
-    const _name = name;
     const _fields = fields;
     let _dataPath = "list" + name;
 
-    const field = (f: string): Field | null => {
+    const field = (f: string) => {
         if (!_fields[f]) {
             return null;
         }
@@ -59,25 +51,25 @@ export default (name: string, fields: Record<string, Field> = {}) => {
             return fs;
         }, update(id: number, data: Object) {
             return mutation({
-                ['update' + _name]: {
+                ['update' + name]: {
                     __args: { id, data }
                 }
-            }).then(res => res['update' + _name]);
+            }).then(res => res['update' + name]);
         },
         async delete(id: number) {
 
             return mutation({
-                ['delete' + _name]: {
+                ['delete' + name]: {
                     __args: { id }
                 }
-            }).then(res => res['delete' + _name]);
+            }).then(res => res['delete' + name]);
         },
         add(data: Object) {
             return mutation({
-                ['add' + _name]: {
+                ['add' + name]: {
                     __args: { data }
                 }
-            }).then(res => res['add' + _name]);
+            }).then(res => res['add' + name]);
         },
         fields(fields: string[]) {
             let result: Array<Field> = [];
@@ -93,7 +85,7 @@ export default (name: string, fields: Record<string, Field> = {}) => {
         async get(filters: any, fields: Fields) {
             // 使用 createCollection 來獲取單筆資料
             const createCollection = (await import('./createCollection')).default;
-            const collection = createCollection(_name, toQuery(fields));
+            const collection = createCollection(name, toQuery(fields));
 
             // 應用過濾器
             for (const [key, value] of Object.entries(filters)) {
@@ -125,7 +117,7 @@ export default (name: string, fields: Record<string, Field> = {}) => {
                 }
             });
 
-            const originalList = createList(_name, f).dataPath(_dataPath);
+            const originalList = createList(name, f).dataPath(_dataPath);
 
             // 包裝原始的 fetch 方法
             const originalFetch = originalList.fetch.bind(originalList);
