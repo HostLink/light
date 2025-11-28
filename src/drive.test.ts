@@ -48,6 +48,9 @@ describe("drive", () => {
             const result = await client.drive(driveIndex).folders.rename(testFolderPath, newName)
             expect(result).toBe(true)
 
+            //wait for a moment to ensure the rename is processed
+            await new Promise(resolve => setTimeout(resolve, 500))
+
             // 驗證資料夾已重新命名
             const folders = await client.drive(driveIndex).folders.list("/")
             const renamedFolder = folders.find((folder: any) => folder.name === newName)

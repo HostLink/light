@@ -70,7 +70,7 @@ export default (baseURL: string) => {
         post: _axios.post,
         baseURL,
         axios: _axios,
-        auth: auth(),
+        auth,
         mutation,
         query,
         config: getConfig,

@@ -54,51 +54,47 @@ export const getGrantedRights = (rights: string[]): Promise<string[]> => {
     }).then(resp => resp.my.grantedRights)
 }
 
-export default () => {
-    return {
-        getCurrentUser,
-        webAuthn,
-        google: {
-            unlink: (): Promise<boolean> =>
-                mutation({ lightAuthUnlinkGoogle: true })
-                    .then(res => res.lightAuthUnlinkGoogle),
-            login: (credential: string): Promise<boolean> =>
-                mutation({ lightAuthLoginGoogle: { __args: { credential } } })
-                    .then(res => res.lightAuthLoginGoogle),
-            register: (credential: string): Promise<boolean> =>
-                mutation({ lightAuthRegisterGoogle: { __args: { credential } } })
-                    .then(res => res.lightAuthRegisterGoogle)
-        },
-        facebook: {
-            unlink: (): Promise<boolean> =>
-                mutation({ lightAuthUnlinkFacebook: true })
-                    .then(res => res.lightAuthUnlinkFacebook),
-            login: (accessToken: string): Promise<boolean> =>
-                mutation({ lightAuthLoginFacebook: { __args: { access_token: accessToken } } })
-                    .then(res => res.lightAuthLoginFacebook),
-            register: (accessToken: string): Promise<boolean> =>
-                mutation({ lightAuthRegisterFacebook: { __args: { access_token: accessToken } } })
-                    .then(res => res.lightAuthRegisterFacebook),
-        },
-        microsoft: {
-            unlink: (): Promise<boolean> =>
-                mutation({ lightAuthUnlinkMicrosoft: true }).then(res => res.lightAuthUnlinkMicrosoft),
-            login: (accessToken: string): Promise<boolean> =>
-                mutation({ lightAuthLoginMicrosoft: { __args: { access_token: accessToken } } }).then(res => res.lightAuthLoginMicrosoft),
-            register: (account_id: string): Promise<boolean> =>
-                mutation({ lightAuthRegisterMicrosoft: { __args: { account_id } } }).then(res => res.lightAuthRegisterMicrosoft)
-        },
-        login,
-        logout,
-        changeExpiredPassword,
-        updatePassword,
-        resetPassword,
-        forgetPassword,
-        verifyCode,
-        grantedRights: getGrantedRights,
-        isGranted
-
-
-    }
+export default {
+    getCurrentUser,
+    webAuthn,
+    google: {
+        unlink: (): Promise<boolean> =>
+            mutation({ lightAuthUnlinkGoogle: true })
+                .then(res => res.lightAuthUnlinkGoogle),
+        login: (credential: string): Promise<boolean> =>
+            mutation({ lightAuthLoginGoogle: { __args: { credential } } })
+                .then(res => res.lightAuthLoginGoogle),
+        register: (credential: string): Promise<boolean> =>
+            mutation({ lightAuthRegisterGoogle: { __args: { credential } } })
+                .then(res => res.lightAuthRegisterGoogle)
+    },
+    facebook: {
+        unlink: (): Promise<boolean> =>
+            mutation({ lightAuthUnlinkFacebook: true })
+                .then(res => res.lightAuthUnlinkFacebook),
+        login: (accessToken: string): Promise<boolean> =>
+            mutation({ lightAuthLoginFacebook: { __args: { access_token: accessToken } } })
+                .then(res => res.lightAuthLoginFacebook),
+        register: (accessToken: string): Promise<boolean> =>
+            mutation({ lightAuthRegisterFacebook: { __args: { access_token: accessToken } } })
+                .then(res => res.lightAuthRegisterFacebook),
+    },
+    microsoft: {
+        unlink: (): Promise<boolean> =>
+            mutation({ lightAuthUnlinkMicrosoft: true }).then(res => res.lightAuthUnlinkMicrosoft),
+        login: (accessToken: string): Promise<boolean> =>
+            mutation({ lightAuthLoginMicrosoft: { __args: { access_token: accessToken } } }).then(res => res.lightAuthLoginMicrosoft),
+        register: (account_id: string): Promise<boolean> =>
+            mutation({ lightAuthRegisterMicrosoft: { __args: { account_id } } }).then(res => res.lightAuthRegisterMicrosoft)
+    },
+    login,
+    logout,
+    changeExpiredPassword,
+    updatePassword,
+    resetPassword,
+    forgetPassword,
+    verifyCode,
+    grantedRights: getGrantedRights,
+    isGranted
 }
 
