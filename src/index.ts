@@ -25,9 +25,7 @@ export { default as toQuery } from './toQuery'
 
 export type Fields = Record<string, any>
 
-
 export { default as createClient } from './createClient'
-export type { LightClient } from './createClient'
 
 export { default as createCollection } from './createCollection'
 export { default as createList } from './createList'

@@ -75,7 +75,7 @@ export default (baseURL: string) => {
         query,
         config: getConfig,
         mail,
-        users: users(),
+        users,
         model(name: string) {
             return getModel(name);
         },

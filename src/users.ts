@@ -34,7 +34,6 @@ export const createUser = (fields: CreateUserFields) => mutation({
     }
 }).then(res => res.addUser)
 
-
 export const deleteUser = (id: Number): Promise<boolean> => mutation({
     deleteUser: {
         __args: { id }
@@ -51,14 +50,9 @@ export const updateUser = (id: number, fields: Partial<CreateUserFields>) => mut
     }
 }).then(res => res.updateUser)
 
-
-
-export default () => {
-    return {
-        list: listUsers,
-        create: createUser,
-        delete: deleteUser,
-        update: updateUser
-    }
+export default {
+    list: listUsers,
+    create: createUser,
+    delete: deleteUser,
+    update: updateUser
 }
-
