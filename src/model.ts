@@ -1,5 +1,6 @@
 import { toQuery, mutation, type Fields } from ".";
 import { default as createList } from './createList';
+import { default as createCollection } from './createCollection';
 import { defu } from "defu";
 
 
@@ -84,7 +85,6 @@ export default (name: string, fields: Record<string, Field> = {}) => {
         },
         async get(filters: any, fields: Fields) {
             // 使用 createCollection 來獲取單筆資料
-            const createCollection = (await import('./createCollection')).default;
             const collection = createCollection(name, toQuery(fields));
 
             // 應用過濾器

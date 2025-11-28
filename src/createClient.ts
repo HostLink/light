@@ -14,6 +14,23 @@ import createList from './createList';
 
 import { default as users } from './users';
 
+type ClientType = {
+    post: typeof axios.post;
+    baseURL: string;
+    axios: ReturnType<typeof axios.create>;
+    auth: typeof auth;
+    mutation: typeof mutation;
+    query: typeof query;
+    config: typeof getConfig;
+    mail: typeof mail;
+    users: typeof users;
+    model: (name: string) => ReturnType<typeof getModel>;
+    roles: ReturnType<typeof roles>;
+    collect: (name: string, fields: Record<string, any>) => ReturnType<typeof createCollection> & { data_path: string };
+    list: (entity: string, fields: Record<string, any>) => ReturnType<typeof createList>;
+    drive: typeof getDrive;
+    collects: (collections: { [key: string]: any }) => Promise<{ [key: string]: any }>;
+};
 
 export const createClient = (baseURL: string) => {
 
@@ -67,7 +84,7 @@ export const createClient = (baseURL: string) => {
         });
     }
 
-    const client = {
+    const client: ClientType = {
         post: _axios.post,
         baseURL,
         axios: _axios,
