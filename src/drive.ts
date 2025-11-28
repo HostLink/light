@@ -15,19 +15,23 @@ export const listDrives = () => {
 }
 
 export const getDrive = (index: number) => {
-    return {
-        listFiles: files(index).list,
-        getFile: files(index).get,
-        readFile: files(index).read,
-        writeFile: files(index).write,
-        deleteFile: files(index).delete,
-        renameFile: files(index).rename,
-        moveFile: files(index).move,
+    const $files = files(index);
+    const $folders = folders(index);
 
-        listFolders: folders(index).list,
-        createFolder: folders(index).create,
-        deleteFolder: folders(index).delete,
-        renameFolder: folders(index).rename,
+    return {
+        folders: $folders,
+        files: $files,
+        listFiles: $files.list,
+        getFile: $files.get,
+        readFile: $files.read,
+        writeFile: $files.write,
+        deleteFile: $files.delete,
+        renameFile: $files.rename,
+        moveFile: $files.move,
+        listFolders: $folders.list,
+        createFolder: $folders.create,
+        deleteFolder: $folders.delete,
+        renameFolder: $folders.rename,
 
 
         uploadTempFile: (file: File) => {
@@ -41,8 +45,6 @@ export const getDrive = (index: number) => {
                 }
             }).then(res => res.lightDriveUploadTempFile) as Promise<{ name: string, path: string, size: number, mime: string }>;
         },
-        folders: folders(index),
-        files: files(index)
     }
 }
 
