@@ -1,11 +1,10 @@
 import { default as auth } from './auth';
 import { getDrive } from './drive';
 
-import { AxiosInstance } from 'axios';
 import axios from "axios";
 import { default as mutation } from './mutation';
 import { default as query } from './query';
-import { Fields, setApiClient } from '.';
+import { setApiClient } from '.';
 import { getConfig } from './config';
 import { default as mail } from './mail';
 import { getModel } from './models';
@@ -14,24 +13,8 @@ import { default as createCollection } from './createCollection';
 import createList from './createList';
 
 import { default as users } from './users';
-export interface LightClient {
-    baseURL: string;
-    axios: AxiosInstance;
-    auth: ReturnType<typeof auth>;
-    mutation: (q: Record<string, any>) => Promise<any>;
-    query: (q: Record<string, any>) => Promise<any>;
-    config: typeof getConfig;
-    mail: typeof mail;
-    users: ReturnType<typeof users>;
-    roles: ReturnType<typeof roles>;
-    collect(name: string, fields: Record<string, any>): ReturnType<typeof createCollection>;
-    drive(index: number): ReturnType<typeof getDrive>;
-    collects(collections: { [key: string]: any }): Promise<{ [key: string]: any }>;
-    list(entity: string, fields: Fields): ReturnType<typeof createList>;
-    post: AxiosInstance['post'];
-}
 
-export default (baseURL: string): LightClient => {
+export default (baseURL: string) => {
 
     // 檢測是否在 Node.js 環境中
     const isNodeEnvironment = typeof window === 'undefined';
