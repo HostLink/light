@@ -14,7 +14,8 @@ import createList from './createList';
 
 import { default as users } from './users';
 
-export default (baseURL: string) => {
+
+export const createClient = (baseURL: string) => {
 
     // 檢測是否在 Node.js 環境中
     const isNodeEnvironment = typeof window === 'undefined';
@@ -142,3 +143,5 @@ export default (baseURL: string) => {
     setApiClient(client);
     return client;
 }
+
+export type LightClient = ReturnType<typeof createClient>;
