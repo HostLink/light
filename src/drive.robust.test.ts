@@ -76,6 +76,10 @@ describe("drive - robust tests", () => {
         })
 
         it("should read file content", async () => {
+
+            //wait 
+            await new Promise(resolve => setTimeout(resolve, 500));
+
             const content = await client.drive(driveIndex).files.readFileAsBase64(testFilePath)
             expect(content).toBeDefined()
             expect(typeof content).toBe('string')
