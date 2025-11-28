@@ -89,8 +89,7 @@ function processArgs(obj: any, allVariables: any, map: any, fd: FormData, fileIn
 
 
 export default async (q: GraphQLQuery): Promise<any> => {
-    const api = getApiClient();
-    const axios = api.axios;
+    const { axios } = getApiClient();
     const convertedQ = q;
 
     const fd = new FormData();

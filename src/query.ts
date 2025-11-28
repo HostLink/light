@@ -89,7 +89,7 @@ function processArgs(obj: any, allVariables: any, map: any, fd: FormData, fileIn
 
 
 export default async (q: GraphQLQuery): Promise<any> => {
-    const api = getApiClient();
+    const { axios } = getApiClient();
 
     const convertedQ = q;
 
@@ -117,9 +117,9 @@ export default async (q: GraphQLQuery): Promise<any> => {
         fd.append("operations", JSON.stringify({
             query: graphql_query
         }))
-        resp = await api.axios.post("", fd)
+        resp = await axios.post("", fd)
     } else {
-        resp = await api.axios.post("", {
+        resp = await axios.post("", {
             query: graphql_query
         })
     }
