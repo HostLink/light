@@ -111,8 +111,8 @@ export default (name: string, fields: Record<string, Field> = {}) => {
                     }
 
                     if (_fields[key].gql) {
-                        f = defu(f, _fields[key].gql);
                         delete f[key]; // 移除原始欄位以避免重複
+                        f = defu(f, _fields[key].gql);
                     }
                 }
             });
