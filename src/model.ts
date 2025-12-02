@@ -152,7 +152,7 @@ export default (name: string, fields: Record<string, Field> = {}) => {
 
                     Object.entries(fieldConfigs).forEach(([fieldName, fieldConfig]) => {
                         if (fieldConfig.format && typeof fieldConfig.format === 'function') {
-                            formattedItem[fieldName] = fieldConfig.format(data);
+                            formattedItem[fieldName] = fieldConfig.format(data[fieldName], data);
                         }
                     });
 
