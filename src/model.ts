@@ -132,8 +132,8 @@ export default (name: string, fields: Record<string, Field> = {}) => {
                         const formattedItem = { ...item };
 
                         Object.entries(fieldConfigs).forEach(([fieldName, fieldConfig]) => {
-                            if (fieldConfig.format && typeof fieldConfig.format === 'function') {
-                                formattedItem[fieldName] = fieldConfig.format(item[fieldName], item);
+                            if (fieldConfig.field && typeof fieldConfig.field === 'function') {
+                                formattedItem[fieldName] = fieldConfig.field(item[fieldName], item);
                             }
                         });
 
@@ -151,8 +151,8 @@ export default (name: string, fields: Record<string, Field> = {}) => {
                     const formattedItem = { ...data };
 
                     Object.entries(fieldConfigs).forEach(([fieldName, fieldConfig]) => {
-                        if (fieldConfig.format && typeof fieldConfig.format === 'function') {
-                            formattedItem[fieldName] = fieldConfig.format(data[fieldName], data);
+                        if (fieldConfig.field && typeof fieldConfig.field === 'function') {
+                            formattedItem[fieldName] = fieldConfig.field(data[fieldName], data);
                         }
                     });
 
