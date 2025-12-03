@@ -5,6 +5,9 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "url": "https://github.com/HostLink/light"
+  },
   "main": "./dist/light.umd.cjs",
   "module": "./dist/light.js",
   "types": "./dist/index.d.ts",
