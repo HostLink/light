@@ -76,8 +76,6 @@ export const createClient = (baseURL: string) => {
                         .catch((err) => {
                             isRefreshing = false;
                             processQueue(err);
-                            // 如果連 Refresh 也失敗（例如 RT 也過期），就跳轉到登入頁
-                            window.location.href = '/login';
                             return Promise.reject(err);
                         });
                 }
