@@ -97,13 +97,8 @@ export const createClient = (baseURL: string) => {
     );
 
     // 呼叫刷新 Mutation 的函式
-    async function refreshAccessToken() {
-
-        console.log("Refreshing access token...");
-        return await _axios.post('/refresh_token').then((response) => {
-            console.log(response.data);
-            return response;
-        })
+    function refreshAccessToken() {
+        return _axios.post('/refresh_token')
     }
 
     // 只在 Node.js 環境中啟用手動 cookie 管理
@@ -111,11 +106,9 @@ export const createClient = (baseURL: string) => {
         // 添加請求攔截器來手動設置 cookies
         _axios.interceptors.request.use((config) => {
             config.withCredentials = true;
-            console.log("Attaching cookies:", savedCookies);
             if (savedCookies.length > 0) {
                 config.headers.Cookie = savedCookies.join('; ');
             }
-
             return config;
         });
 
