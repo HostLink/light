@@ -124,6 +124,7 @@ export default async (q: GraphQLQuery): Promise<any> => {
         })
     }
 
+
     if (resp.data.errors) {
         throw new Error(resp.data.errors[0].message);
     }

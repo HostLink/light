@@ -43,19 +43,85 @@ export const createClient = (baseURL: string) => {
         withCredentials: true,
     });
 
+    let isRefreshing = false;
+    let failedQueue: any[] = [];
+
+    // 處理重試隊列：當刷新成功後，把剛才失敗的請求全部重新發送
+    const processQueue = (error: any, token = null) => {
+        failedQueue.forEach(prom => {
+            if (error) prom.reject(error);
+            else prom.resolve(token);
+        });
+        failedQueue = [];
+    };
+
+    _axios.interceptors.response.use(
+        (response) => {
+            // GraphQL 通常回傳 200 OK，所以要檢查 response.data.errors
+            const errors = response.data.errors;
+            if (errors && errors.some((e: any) => e.extensions?.code === 'TOKEN_EXPIRED')) {
+                const originalRequest = response.config;
+
+                if (!isRefreshing) {
+                    isRefreshing = true;
+
+                    // 呼叫後端的 Refresh Mutation
+                    return refreshAccessToken()
+                        .then(() => {
+                            isRefreshing = false;
+                            processQueue(null);
+                            // 刷新成功，重新執行原本失敗的請求
+                            return _axios(originalRequest);
+                        })
+                        .catch((err) => {
+                            isRefreshing = false;
+                            processQueue(err);
+                            // 如果連 Refresh 也失敗（例如 RT 也過期），就跳轉到登入頁
+                            window.location.href = '/login';
+                            return Promise.reject(err);
+                        });
+                }
+
+                // 如果已經在刷新中，將其他請求放入隊列等待
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                }).then(() => _axios(originalRequest))
+                    .catch(err => Promise.reject(err));
+            }
+            return response;
+        },
+        (error) => {
+            // 這裡處理 HTTP 401 等傳統錯誤
+            return Promise.reject(error);
+        }
+    );
+
+    // 呼叫刷新 Mutation 的函式
+    async function refreshAccessToken() {
+
+        console.log("Refreshing access token...");
+        return await _axios.post('/refresh_token').then((response) => {
+            console.log(response.data);
+            return response;
+        })
+    }
+
     // 只在 Node.js 環境中啟用手動 cookie 管理
     if (isNodeEnvironment) {
         // 添加請求攔截器來手動設置 cookies
         _axios.interceptors.request.use((config) => {
             config.withCredentials = true;
+            console.log("Attaching cookies:", savedCookies);
             if (savedCookies.length > 0) {
                 config.headers.Cookie = savedCookies.join('; ');
             }
+
             return config;
         });
 
         // 添加響應攔截器來手動保存 cookies
         _axios.interceptors.response.use((response) => {
+
             if (response.headers['set-cookie']) {
                 // 手動保存 cookies，保留現有的 cookies 並添加新的
                 const newCookies = response.headers['set-cookie'].map((cookie: string) => {
@@ -79,6 +145,7 @@ export const createClient = (baseURL: string) => {
                 });
 
                 savedCookies = Array.from(cookieMap.values());
+
             }
             return response;
         });
