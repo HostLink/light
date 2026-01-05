@@ -78,7 +78,7 @@ export const exists = (location: string) => {
 }
 
 
-export const find = (search?: string, label?: string) => {
+export const find = (search?: string, label?: "document" | "image" | "audio" | "video" | "archive") => {
     const args: any = {};
     if (search) args.search = search;
     if (label) args.label = label;
