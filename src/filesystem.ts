@@ -1,5 +1,6 @@
 import { mutation, query } from "./";
 
+
 export const createFolder = (location: string) => {
     return mutation({
         lightFSCreateFolder: {
@@ -22,6 +23,22 @@ export const renameFolder = (location: string, newName: string) => {
             __args: { location, newName },
         }
     }).then(resp => resp.lightFSRenameFolder);
+}
+
+export const renameFile = (location: string, newName: string) => {
+    return mutation({
+        lightFSRenameFile: {
+            __args: { location, newName },
+        }
+    }).then(resp => resp.lightFSRenameFile);
+}
+
+export const writeFile = (location: string, content: string) => {
+    return mutation({
+        lightFSWriteFile: {
+            __args: { location, content },
+        }
+    }).then(resp => resp.lightFSWriteFile);
 }
 
 export const list = (path: string) => {
