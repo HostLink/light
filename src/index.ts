@@ -37,11 +37,16 @@ export type { RoleFields } from './role'
 
 export { setApiClient, getApiClient, getApiClientOptional } from './apiClient'
 
+
 export interface GraphQLQuery {
     [key: string]: boolean | GraphQLQuery | {
-        __args: Record<string, any>,
+        __args?: Record<string, any>,
         __aliasFor?: string,
         __variables?: Record<string, string>,
         __name?: string
-    };
+        __on?: Array<GraphQLQuery>,
+        __typeName?: string
+        [key: string]: any
+    }
+
 }

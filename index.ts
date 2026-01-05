@@ -1,20 +1,17 @@
-import { createClient, login, getDrive, listPermissions, getCurrentUser, webAuthn, auth, defineModel, getModel, list } from "./src"
+import {
+    createClient, login
+
+
+} from "./src"
+
+import { read, createFolder, deleteFolder, renameFolder, list } from "./src/filesystem"
 const client = createClient("http://localhost:8888/")
-console.log(await login("admin", "111111"));
-
-await client.query({
-    my: {
-        username: true
-    }
-}).then(console.log)
+await login("admin", "111111");
 
 
-//sleep 5 seconds
-await new Promise(resolve => setTimeout(resolve, 2000));
+//console.log(await createFolder("local://testfolder1"));
 
-await client.query({
-    my: {
-        username: true
-    }
-}).then(console.log)
+renameFolder("local://testfolder1", "renamedfolder");
+//console.log(await list("local://"));
+
 
