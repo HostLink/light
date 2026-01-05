@@ -78,20 +78,23 @@ export const exists = (location: string) => {
 }
 
 
-export const list = (path: string) => {
+export const list = (location: string) => {
     const q = {
         app: {
             fs: {
                 node: {
-                    __args: { path },
+                    __args: { location },
                     __typename: true,
                     __on: [{
                         __typeName: "Folder",
                         name: true,
+                        location: true,
+                        path: true,
                         children: {
                             __typename: true,
                             name: true,
                             lastModified: true,
+                            location: true,
                             path: true,
                             __on: [{
                                 __typeName: "File",
@@ -117,11 +120,16 @@ export const read = (location: string) => {
     return query({
         app: {
             fs: {
-                file: {
+                node: {
                     __args: { location },
-                    content: true
+                    __on: [
+                        {
+                            __typeName: "File",
+                            content: true
+                        }
+                    ]
                 }
             }
         }
-    }).then(resp => resp.app.fs.file.content);
+    }).then(resp => resp.app.fs.node.content);
 }

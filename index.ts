@@ -7,8 +7,8 @@ import {
 import { read, createFolder, deleteFolder, renameFolder, list, writeFile } from "./src/filesystem"
 const client = createClient("http://localhost:8888/")
 await login("admin", "111111");
-
-console.log(await list("local://"));
+console.log(await read("local://testfolder1/testfile.txt"));
+//console.log(await list("local://"));
 //writeFile("local://testfolder1/testfile.txt", "Hello World from Light GraphQL Client!")
 
 
