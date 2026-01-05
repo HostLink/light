@@ -22,7 +22,6 @@ describe("filesystem", () => {
 
     describe("folder operations", () => {
         const testFolderPath = "local://test-folder"
-        const nestedFolderPath = "local://test-folder/nested"
 
         afterEach(async () => {
             // 清理測試用的資料夾
