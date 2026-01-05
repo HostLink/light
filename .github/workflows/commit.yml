@@ -1,5 +1,4 @@
-name: Publish Package
-
+name: Commit Changes
 on:
   push:
     branches:
