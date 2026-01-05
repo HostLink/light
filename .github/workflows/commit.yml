@@ -1,0 +1,38 @@
+name: Publish Package
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  # OIDC 驗證 (必須)
+  id-token: write
+  # 讀取程式碼 (必須)
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 使用 OIDC 進行身份驗證並配置 .npmrc
+      - name: Setup Node.js and NPM Registry
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@hostlink' # 如果您的套件有 scope，請填寫，例如 @myorg
+          # 備註: 這裡不用傳入 token，OIDC 會自動處理
+
+      - name: Update npm to latest
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project (if needed)
+        run: npm run build
+
