@@ -16,6 +16,7 @@ export * from './model'
 export * from './file'
 export * from './mail'
 export * from './fileUtils'
+export * as fs from './filesystem'
 
 
 export { default as query } from './query'
