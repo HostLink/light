@@ -78,6 +78,35 @@ export const exists = (location: string) => {
 }
 
 
+export const find = (search?: string, label?: string) => {
+    const args: any = {};
+    if (search) args.search = search;
+    if (label) args.label = label;
+    return query({
+        app: {
+            fs: {
+                find: {
+                    __args: args,
+                    __typename: true,
+                    name: true,
+                    lastModified: true,
+                    location: true,
+                    path: true,
+                    __on: [{
+                        __typeName: "File",
+                        size: true,
+                        mimeType: true,
+                    }, {
+                        __typeName: "Folder",
+                    }]
+                }
+
+            }
+        }
+    }).then(resp => resp.app.fs.find);
+
+};
+
 export const list = (location: string) => {
     const q = {
         app: {
