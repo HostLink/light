@@ -1,5 +1,4 @@
 import { describe, expect, it, beforeAll, afterEach } from "vitest"
-import { createClient } from "."
 import { login } from "./auth"
 import {
     createFolder,
@@ -13,8 +12,6 @@ import {
     list,
     read
 } from "./filesystem"
-
-const client = createClient("http://localhost:8888/")
 
 describe("filesystem", () => {
     beforeAll(async () => {
