@@ -149,10 +149,10 @@ export const readFile = (location: string, type: 'text' | 'base64' = 'text') => 
         app: {
             fs: {
                 node: {
-                    __args: { path: location },
+                    __args: { location },
                     __typename: true, // 獲取類型以便後續判斷
                     __on: [{
-                        __typename: "File",
+                        __typeName: "File",
                         ...(type === 'text' ? { content: true } : { base64Content: true })
                     }]
                 }

@@ -1,5 +1,6 @@
 import { describe, expect, it, beforeAll, afterEach } from "vitest"
 import { login } from "./auth"
+import { createClient } from "./createClient"
 import {
     createFolder,
     deleteFolder,
@@ -10,11 +11,12 @@ import {
     move,
     exists,
     list,
-    read
+    readFile
 } from "./filesystem"
 
 describe("filesystem", () => {
     beforeAll(async () => {
+        createClient("http://localhost:8888/")
         // 登入以取得必要的權限
         const loginResult = await login("admin", "111111")
         expect(loginResult).toBe(true)
@@ -35,7 +37,7 @@ describe("filesystem", () => {
         it("should create a folder", async () => {
             const result = await createFolder(testFolderPath)
             expect(result).toBeDefined()
-            
+
             const folderExists = await exists(testFolderPath)
             expect(folderExists).toBe(true)
         })
@@ -55,15 +57,15 @@ describe("filesystem", () => {
         it("should rename a folder", async () => {
             await createFolder(testFolderPath)
             const newFolderPath = "local://test-folder-renamed"
-            
+
             const result = await renameFolder(testFolderPath, "test-folder-renamed")
             expect(result).toBeDefined()
-            
+
             const oldExists = await exists(testFolderPath)
             const newExists = await exists(newFolderPath)
             expect(oldExists).toBe(false)
             expect(newExists).toBe(true)
-            
+
             // 清理重命名後的資料夾
             await deleteFolder(newFolderPath)
         })
@@ -72,10 +74,10 @@ describe("filesystem", () => {
             await createFolder(testFolderPath)
             const beforeDelete = await exists(testFolderPath)
             expect(beforeDelete).toBe(true)
-            
+
             const result = await deleteFolder(testFolderPath)
             expect(result).toBeDefined()
-            
+
             const afterDelete = await exists(testFolderPath)
             expect(afterDelete).toBe(false)
         })
@@ -112,29 +114,29 @@ describe("filesystem", () => {
         it("should write a file", async () => {
             const result = await writeFile(testFilePath, testContent)
             expect(result).toBeDefined()
-            
+
             const fileExists = await exists(testFilePath)
             expect(fileExists).toBe(true)
         })
 
         it("should read a file", async () => {
             await writeFile(testFilePath, testContent)
-            const content = await read(testFilePath)
+            const content = await readFile(testFilePath)
             expect(content).toBe(testContent)
         })
 
         it("should rename a file", async () => {
             await writeFile(testFilePath, testContent)
             const newFilePath = "local://test-file-folder/test-renamed.txt"
-            
+
             const result = await renameFile(testFilePath, "test-renamed.txt")
             expect(result).toBeDefined()
-            
+
             const oldExists = await exists(testFilePath)
             const newExists = await exists(newFilePath)
             expect(oldExists).toBe(false)
             expect(newExists).toBe(true)
-            
+
             // 清理重命名後的檔案
             await deleteFile(newFilePath)
         })
@@ -143,10 +145,10 @@ describe("filesystem", () => {
             await writeFile(testFilePath, testContent)
             const beforeDelete = await exists(testFilePath)
             expect(beforeDelete).toBe(true)
-            
+
             const result = await deleteFile(testFilePath)
             expect(result).toBeDefined()
-            
+
             const afterDelete = await exists(testFilePath)
             expect(afterDelete).toBe(false)
         })
@@ -173,7 +175,7 @@ describe("filesystem", () => {
             await createFolder(sourcePath)
             const result = await move(sourcePath, destinationPath)
             expect(result).toBeDefined()
-            
+
             const sourceExists = await exists(sourcePath)
             const destExists = await exists(destinationPath)
             expect(sourceExists).toBe(false)
