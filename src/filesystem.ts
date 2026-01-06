@@ -87,7 +87,7 @@ export const find = (search?: string, label?: "document" | "image" | "audio" | "
             fs: {
                 find: {
                     __args: args,
-                    __typename: true,
+                    __typeName: true,
                     name: true,
                     lastModified: true,
                     location: true,
