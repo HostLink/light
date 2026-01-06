@@ -96,6 +96,7 @@ export const find = (search?: string, label?: "document" | "image" | "audio" | "
                         __typeName: "File",
                         size: true,
                         mimeType: true,
+                        publicUrl: true,
                     }, {
                         __typeName: "Folder",
                     }]
@@ -129,6 +130,7 @@ export const list = (location: string) => {
                                 __typeName: "File",
                                 size: true,
                                 mimeType: true,
+                                publicUrl: true,
                             }, {
                                 __typeName: "Folder",
                             }]
