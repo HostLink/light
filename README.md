@@ -329,28 +329,28 @@ For direct filesystem access:
 import { fs } from '@hostlink/light';
 
 // Create folder
-await fs.createFolder('/path/to/folder');
+await fs.createFolder('local://path/to/folder');
 
 // Delete folder
-await fs.deleteFolder('/path/to/folder');
+await fs.deleteFolder('local://path/to/folder');
 
 // Rename folder
-await fs.renameFolder('/path/to/folder', 'newName');
+await fs.renameFolder('local://path/to/folder', 'newName');
 
 // Write file
-await fs.writeFile('/path/to/file.txt', 'content');
+await fs.writeFile('local://path/to/file.txt', 'content');
 
 // Upload file
-await fs.uploadFile('/path/to/destination', file);
+await fs.uploadFile('local://path/to/destination', file);
 
 // Delete file
-await fs.deleteFile('/path/to/file.txt');
+await fs.deleteFile('local://path/to/file.txt');
 
 // Check if exists
-const exists = await fs.exists('/path/to/file.txt');
+const exists = await fs.exists('local://path/to/file.txt');
 
 // Move file/folder
-await fs.move('/from/path', '/to/path');
+await fs.move('local://from/path', 'local://to/path');
 
 // Search files
 const results = await fs.find('searchterm', 'document'); // labels: document, image, audio, video, archive
