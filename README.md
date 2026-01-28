@@ -6,7 +6,7 @@ A lightweight JavaScript/TypeScript client library for the **Light Framework**, 
 
 - 🔐 **Authentication** - Login/logout, password management, OAuth (Google, Facebook, Microsoft), WebAuthn support
 - 📊 **GraphQL Client** - Simplified query and mutation APIs with automatic file upload handling
-- 📁 **File System & Drive** - Complete file and folder management operations
+- 📁 **File System** - Complete file and folder management operations
 - 👥 **User Management** - CRUD operations for users and roles
 - 📧 **Email** - Send emails via the backend
 - 🔄 **Token Refresh** - Automatic access token refresh with request queuing
@@ -60,7 +60,6 @@ The client provides:
 - `api.mutation` - GraphQL mutations
 - `api.users` - User management
 - `api.roles` - Role management
-- `api.drive` - File drive operations
 - `api.mail` - Email sending
 - `api.config` - Configuration access
 - `api.collect` - Collection builder
@@ -318,68 +317,6 @@ await api.roles.create('admin', ['editor', 'viewer']);
 
 // Delete role
 await api.roles.delete('admin');
-```
-
----
-
-### Drive & File Management
-
-#### Drive Operations
-
-```typescript
-// Get available drives
-const drives = await api.drive().list;
-
-// Get a specific drive
-const drive = api.drive(0); // Drive index 0
-```
-
-#### File Operations
-
-```typescript
-const drive = api.drive(0);
-
-// List files in a folder
-const files = await drive.listFiles('/documents');
-
-// Get file info
-const file = await drive.getFile('/documents/report.pdf');
-
-// Read file content (as base64)
-const content = await drive.readFile('/documents/report.txt');
-
-// Write file
-await drive.writeFile('/documents/new.txt', 'File content');
-
-// Upload temp file
-const uploaded = await drive.uploadTempFile(fileInput.files[0]);
-
-// Delete file
-await drive.deleteFile('/documents/old.txt');
-
-// Rename file
-await drive.renameFile('/documents/old.txt', 'new.txt');
-
-// Move file
-await drive.moveFile('/documents/file.txt', '/archive/file.txt');
-```
-
-#### Folder Operations
-
-```typescript
-const drive = api.drive(0);
-
-// List folders
-const folders = await drive.listFolders('/');
-
-// Create folder
-await drive.createFolder('/documents/new-folder');
-
-// Delete folder
-await drive.deleteFolder('/documents/old-folder');
-
-// Rename folder
-await drive.renameFolder('/documents/folder', 'renamed-folder');
 ```
 
 ---
