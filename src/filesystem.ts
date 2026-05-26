@@ -178,7 +178,6 @@ export const uploadBase64 = (location: string, base64: string) => {
     return mutation({
         lightFSUploadBase64: {
             __args: { location, base64 },
-            // 回傳 File 物件的欄位，方便前端立即顯示
             __typename: true,
             name: true,
             path: true,
@@ -191,4 +190,47 @@ export const uploadBase64 = (location: string, base64: string) => {
             }]
         }
     }).then(resp => resp.lightFSUploadBase64);
+}
+
+export const duplicateFile = (location: string) => {
+    return mutation({
+        lightFSDuplicateFile: {
+            __args: { location },
+        }
+    }).then(resp => resp.lightFSDuplicateFile) as Promise<string>;
+}
+
+export const uploadTempFile = (location: string, file: File) => {
+    return mutation({
+        lightFSUploadTempFile: {
+            __args: { location, file },
+            name: true,
+            path: true,
+            location: true,
+            size: true,
+            mimeType: true,
+        }
+    }).then(resp => resp.lightFSUploadTempFile);
+}
+
+export const listFiles = (location: string, type?: "image" | "video" | "audio" | "document", search?: string) => {
+    const args: any = { location };
+    if (type) args.type = type;
+    if (search) args.search = search;
+    return query({
+        app: {
+            fs: {
+                listFiles: {
+                    __args: args,
+                    name: true,
+                    path: true,
+                    location: true,
+                    size: true,
+                    mimeType: true,
+                    publicUrl: true,
+                    lastModified: true,
+                }
+            }
+        }
+    }).then(resp => resp.app.fs.listFiles);
 }

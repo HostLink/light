@@ -18,6 +18,9 @@ const defaultFields: QueryFileFields = {
     url: true
 }
 
+/**
+ * @deprecated Use `fs.listFiles` / `fs.readFile` from `filesystem` instead.
+ */
 export const listFiles = (index: number, path: string, fields: QueryFileFields = defaultFields) => {
     return query({
         app: {
@@ -32,6 +35,9 @@ export const listFiles = (index: number, path: string, fields: QueryFileFields =
     }).then(resp => resp.app.drive.files);
 }
 
+/**
+ * @deprecated Use `fs.readFile(location, 'base64')` from `filesystem` instead.
+ */
 export const readFileAsBase64 = (index: number, path: string): Promise<string> => {
     return query({
         app: {
@@ -51,6 +57,10 @@ export const readFileAsBase64 = (index: number, path: string): Promise<string> =
 
 }
 
+/**
+ * @deprecated Use `fs.listFiles` from `filesystem` instead.
+ * The default export factory function is also deprecated — use `fs.*` directly.
+ */
 export default (index: number) => {
     return {
         list: (path: string, fields: QueryFileFields = defaultFields) => {

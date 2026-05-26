@@ -3,6 +3,9 @@ import { query, mutation } from '.';
 import files from './file';
 import folders from './folder';
 
+/**
+ * @deprecated Use `fs.listFolders` / `fs.listFiles` from `filesystem` instead.
+ */
 export const listDrives = () => {
     return query({
         app: {
@@ -14,6 +17,19 @@ export const listDrives = () => {
     }).then(resp => resp.app.drives);
 }
 
+/**
+ * @deprecated Use functions from `filesystem` (fs.*) instead.
+ * - listFiles     → fs.listFiles(location)
+ * - listFolders   → fs.listFolders(location)
+ * - writeFile     → fs.writeFile(location, content)
+ * - deleteFile    → fs.deleteFile(location)
+ * - renameFile    → fs.renameFile(location, newName)
+ * - moveFile      → fs.move(from, to)
+ * - createFolder  → fs.createFolder(location)
+ * - deleteFolder  → fs.deleteFolder(location)
+ * - renameFolder  → fs.renameFolder(location, newName)
+ * - uploadTempFile → fs.uploadTempFile(location, file)
+ */
 export const getDrive = (index: number) => {
     const $files = files(index);
     const $folders = folders(index);

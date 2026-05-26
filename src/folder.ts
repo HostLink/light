@@ -12,6 +12,9 @@ const defaultFields: QueryFolderFields = {
     path: true
 }
 
+/**
+ * @deprecated Use `fs.listFolders` from `filesystem` instead.
+ */
 export const listFolders = (index: number, path: string, fields: QueryFolderFields = defaultFields) => {
     return query({
         app: {
@@ -26,6 +29,9 @@ export const listFolders = (index: number, path: string, fields: QueryFolderFiel
     }).then(resp => resp.app.drive.folders) as Promise<Array<Record<keyof FolderFields, any>>>;
 }
 
+/**
+ * @deprecated Use `fs.createFolder` / `fs.deleteFolder` / `fs.renameFolder` from `filesystem` instead.
+ */
 export default (index: number) => {
     return {
         list: (path: string, fields: QueryFolderFields = defaultFields) => {
