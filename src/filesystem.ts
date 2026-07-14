@@ -41,10 +41,10 @@ export const writeFile = (location: string, content: string) => {
     }).then(resp => resp.lightFSWriteFile);
 }
 
-export const uploadFile = (location: string, file: File) => {
+export const uploadFile = (location: string, file: File, rename: boolean = false) => {
     return mutation({
         lightFSUploadFile: {
-            __args: { location, file },
+            __args: { location, file, rename },
         }
     }).then(resp => resp.lightFSUploadFile);
 }
