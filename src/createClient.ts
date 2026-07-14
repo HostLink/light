@@ -28,6 +28,9 @@ type ClientType = {
     roles: ReturnType<typeof roles>;
     collect: (name: string, fields: Record<string, any>) => ReturnType<typeof createCollection> & { data_path: string };
     list: (entity: string, fields: Record<string, any>) => ReturnType<typeof createList>;
+    /**
+     * @deprecated Use `fs.*` from `filesystem` instead.
+     */
     drive: typeof getDrive;
     collects: (collections: { [key: string]: any }) => Promise<{ [key: string]: any }>;
 };
@@ -165,6 +168,9 @@ export const createClient = (baseURL: string) => {
             const l = createList(entity, fields);
             return l.dataPath(getModel(entity).getDataPath());
         },
+        /**
+         * @deprecated Use `fs.*` from `filesystem` instead.
+         */
         drive: getDrive,
         async collects(collections: { [key: string]: any }) {
             // 1. 收集所有 payload
