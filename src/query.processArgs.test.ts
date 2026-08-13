@@ -1,5 +1,49 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { VariableType } from 'json-to-graphql-query';
+import { removeUndefined } from './mutation';
+
+describe('removeUndefined', () => {
+    it('應該遞迴移除 object 和 array 中的 undefined', () => {
+        const value = removeUndefined({
+            defined: 'value',
+            undefinedValue: undefined,
+            nested: {
+                keep: 1,
+                remove: undefined,
+            },
+            items: [0, undefined, false, null, { keep: '', remove: undefined }],
+        });
+
+        expect(value).toEqual({
+            defined: 'value',
+            nested: { keep: 1 },
+            items: [0, false, null, { keep: '' }],
+        });
+    });
+
+    it('應該保留 null、falsy values 和非 plain object instances', () => {
+        const file = new File(['content'], 'test.txt', { type: 'text/plain' });
+        const variable = new VariableType('file');
+
+        const value = removeUndefined({
+            nullValue: null,
+            falseValue: false,
+            zeroValue: 0,
+            emptyValue: '',
+            file,
+            variable,
+        });
+
+        expect(value).toEqual({
+            nullValue: null,
+            falseValue: false,
+            zeroValue: 0,
+            emptyValue: '',
+            file,
+            variable,
+        });
+    });
+});
 
 // 提取 processArgs 函數用於測試
 function processArgs(obj: any, allVariables: any, map: any, fd: FormData, fileIndexRef: { current: number }) {

@@ -4,6 +4,27 @@ import { getApiClient } from './apiClient';
 import { arrayHasFile, objectHasFile } from './fileUtils';
 import { GraphQLQuery } from '.';
 
+export function removeUndefined(value: any): any {
+    if (Array.isArray(value)) {
+        return value
+            .map((item) => removeUndefined(item))
+            .filter((item) => item !== undefined);
+    }
+
+    if (value !== null && typeof value === 'object') {
+        const prototype = Object.getPrototypeOf(value);
+        if (prototype === Object.prototype || prototype === null) {
+            return Object.fromEntries(
+                Object.entries(value)
+                    .filter(([, item]) => item !== undefined)
+                    .map(([key, item]) => [key, removeUndefined(item)])
+            );
+        }
+    }
+
+    return value;
+}
+
 // Recursive function to process __args at all levels
 function processArgs(obj: any, allVariables: any, map: any, fd: FormData, fileIndexRef: { current: number }) {
     if (!obj || typeof obj !== 'object') {
@@ -15,7 +36,7 @@ function processArgs(obj: any, allVariables: any, map: any, fd: FormData, fileIn
         if (field && typeof field === 'object') {
             // Process __args if exists
             if ('__args' in field) {
-                const args = field.__args;
+                const args = removeUndefined(field.__args);
                 const __args: any = {};
 
                 Object.entries(args).forEach(([argKey, value]) => {
