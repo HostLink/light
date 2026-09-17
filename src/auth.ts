@@ -1,5 +1,51 @@
 import { defaultUserFields, mutation, query, QueryUserFieldsUserFields } from "."
 import * as webAuthn from "./webauthn"
+import { createWebAuthn } from "./webauthn"
+
+type QueryFn = typeof query;
+type MutationFn = typeof mutation;
+
+export const createAuth = (queryFn: QueryFn, mutationFn: MutationFn) => ({
+    getCurrentUser: (fields: QueryUserFieldsUserFields = defaultUserFields) =>
+        queryFn({ my: fields }).then(res => res.my),
+    login: (username: string, password: string, code: string = ""): Promise<boolean> =>
+        mutationFn({ login: { __args: { username, password, code } } }).then(res => res.login),
+    logout: (): Promise<boolean> => mutationFn({ logout: true }).then(res => res.logout),
+    changeExpiredPassword: (username: string, oldPassword: string, newPassword: string): Promise<boolean> =>
+        mutationFn({ changeExpiredPassword: { __args: { username, old_password: oldPassword, new_password: newPassword } } })
+            .then(res => res.changeExpiredPassword),
+    updatePassword: (oldPassword: string, newPassword: string): Promise<boolean> =>
+        mutationFn({ changeUserPassword: { __args: { old_password: oldPassword, new_password: newPassword } } })
+            .then(res => res.changeUserPassword),
+    resetPassword: (jwt: string, password: string, code: string): Promise<boolean> =>
+        mutationFn({ resetPassword: { __args: { jwt, password, code } } }).then(res => res.resetPassword),
+    forgetPassword: (username: string, email: string): Promise<string> =>
+        mutationFn({ forgetPassword: { __args: { username, email } } }).then(res => res.forgetPassword),
+    verifyCode: (jwt: string, code: string): Promise<boolean> =>
+        mutationFn({ forgetPasswordVerifyCode: { __args: { jwt, code } } }).then(res => res.forgetPasswordVerifyCode),
+    grantedRights: (rights: string[]): Promise<string[]> => queryFn({
+        my: { grantedRights: { __args: { rights } } }
+    }).then(resp => resp.my.grantedRights),
+    isGranted: (right: string): Promise<boolean> => queryFn({
+        my: { granted: { __args: { right } } }
+    }).then(resp => resp.my.granted),
+    webAuthn: createWebAuthn(queryFn, mutationFn),
+    google: {
+        unlink: (): Promise<boolean> => mutationFn({ lightAuthUnlinkGoogle: true }).then(res => res.lightAuthUnlinkGoogle),
+        login: (credential: string): Promise<boolean> => mutationFn({ lightAuthLoginGoogle: { __args: { credential } } }).then(res => res.lightAuthLoginGoogle),
+        register: (credential: string): Promise<boolean> => mutationFn({ lightAuthRegisterGoogle: { __args: { credential } } }).then(res => res.lightAuthRegisterGoogle),
+    },
+    facebook: {
+        unlink: (): Promise<boolean> => mutationFn({ lightAuthUnlinkFacebook: true }).then(res => res.lightAuthUnlinkFacebook),
+        login: (accessToken: string): Promise<boolean> => mutationFn({ lightAuthLoginFacebook: { __args: { access_token: accessToken } } }).then(res => res.lightAuthLoginFacebook),
+        register: (accessToken: string): Promise<boolean> => mutationFn({ lightAuthRegisterFacebook: { __args: { access_token: accessToken } } }).then(res => res.lightAuthRegisterFacebook),
+    },
+    microsoft: {
+        unlink: (): Promise<boolean> => mutationFn({ lightAuthUnlinkMicrosoft: true }).then(res => res.lightAuthUnlinkMicrosoft),
+        login: (accessToken: string): Promise<boolean> => mutationFn({ lightAuthLoginMicrosoft: { __args: { access_token: accessToken } } }).then(res => res.lightAuthLoginMicrosoft),
+        register: (account_id: string): Promise<boolean> => mutationFn({ lightAuthRegisterMicrosoft: { __args: { account_id } } }).then(res => res.lightAuthRegisterMicrosoft),
+    },
+})
 
 
 export const getCurrentUser = (fields: QueryUserFieldsUserFields = defaultUserFields) => {
@@ -97,4 +143,3 @@ export default {
     grantedRights: getGrantedRights,
     isGranted
 }
-

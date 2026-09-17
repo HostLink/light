@@ -1,9 +1,12 @@
 import { defu } from 'defu';
 import query from './query';
+import type { GraphQLQuery } from '.';
+
+type Query = (query: GraphQLQuery) => Promise<any>;
 
 type Fields = Record<string, any>;
 
-export default function createList(entity: string, fields: Fields) {
+export default function createList(entity: string, fields: Fields, queryFn: Query = query) {
 	let dataArgs: Record<string, any> | undefined = undefined;
 	// unified filters: exact-match args are stored as the first element (object),
 	// operator-based filters are pushed as subsequent elements (objects)
@@ -48,7 +51,7 @@ export default function createList(entity: string, fields: Fields) {
 
 		async fetchWithMeta() {
 			// perform the query with meta and return both data and meta
-			const resp = await query(this.toQuery(true));
+			const resp = await queryFn(this.toQuery(true));
 			// Navigate through dataPath if specified
 			let result = resp;
 			if (dataPathStr) {
@@ -63,7 +66,7 @@ export default function createList(entity: string, fields: Fields) {
 		async fetch(): Promise<any[]> {
 
 			// perform the query and return the data array
-			const resp = await query(this.toQuery());
+			const resp = await queryFn(this.toQuery());
 			// Navigate through dataPath if specified
 			let result = resp;
 			if (dataPathStr) {

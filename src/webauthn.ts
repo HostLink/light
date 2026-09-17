@@ -1,7 +1,8 @@
 import { mutation, query } from "."
-export const assertion = async () => {
+export const createWebAuthn = (queryFn: typeof query, mutationFn: typeof mutation) => {
+const assertion = async () => {
     // Implementation for creating an assertion
-    const { app } = await query({
+    const { app } = await queryFn({
         app: {
             auth: {
                 webAuthnRequestOptions: true
@@ -17,9 +18,9 @@ export const assertion = async () => {
     return credential
 }
 
-export const attestation = async () => {
+const attestation = async () => {
     // Implementation for creating an attestation
-    const { app } = await query({
+    const { app } = await queryFn({
         app: {
             auth: {
                 webAuthnCreationOptions: true
@@ -33,9 +34,9 @@ export const attestation = async () => {
     return credential
 }
 
-export const login = async () => {
+const login = async () => {
     const credential = await assertion();
-    return await mutation({
+    return await mutationFn({
         webAuthnAssertion: {
             __args: {
                 assertion: credential.toJSON()
@@ -44,9 +45,9 @@ export const login = async () => {
     }).then(res => res.webAuthnAssertion);
 }
 
-export const register = async () => {
+const register = async () => {
     const credential = await attestation();
-    return await mutation({
+    return await mutationFn({
         webAuthnRegister: {
             __args: {
                 registration: credential.toJSON()
@@ -54,3 +55,12 @@ export const register = async () => {
         }
     }).then(res => res.webAuthnRegister);
 }
+
+return { assertion, attestation, login, register };
+}
+
+const defaultWebAuthn = createWebAuthn(query, mutation);
+export const assertion = defaultWebAuthn.assertion;
+export const attestation = defaultWebAuthn.attestation;
+export const login = defaultWebAuthn.login;
+export const register = defaultWebAuthn.register;

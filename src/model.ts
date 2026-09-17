@@ -1,4 +1,4 @@
-import { toQuery, mutation, type Fields } from ".";
+import { toQuery, mutation, type Fields, type GraphQLQuery } from ".";
 import { default as createList } from './createList';
 import { default as createCollection } from './createCollection';
 import { defu } from "defu";
@@ -16,7 +16,16 @@ export type Field = {
     format?: any,
 }
 
-export default (name: string, fields: Record<string, Field> = {}) => {
+type ModelContext = {
+    mutation?: (query: GraphQLQuery) => Promise<any>,
+    createList?: typeof createList,
+    createCollection?: typeof createCollection,
+};
+
+export default (name: string, fields: Record<string, Field> = {}, context: ModelContext = {}) => {
+    const mutationFn = context.mutation || mutation;
+    const createListFn = context.createList || createList;
+    const createCollectionFn = context.createCollection || createCollection;
     const _fields = fields;
     let _dataPath = "list" + name;
 
@@ -51,7 +60,7 @@ export default (name: string, fields: Record<string, Field> = {}) => {
             }
             return fs;
         }, update(id: number, data: Object) {
-            return mutation({
+            return mutationFn({
                 ['update' + name]: {
                     __args: { id, data }
                 }
@@ -59,14 +68,14 @@ export default (name: string, fields: Record<string, Field> = {}) => {
         },
         async delete(id: number) {
 
-            return mutation({
+            return mutationFn({
                 ['delete' + name]: {
                     __args: { id }
                 }
             }).then(res => res['delete' + name]);
         },
         add(data: Object) {
-            return mutation({
+            return mutationFn({
                 ['add' + name]: {
                     __args: { data }
                 }
@@ -85,7 +94,7 @@ export default (name: string, fields: Record<string, Field> = {}) => {
         },
         async get(filters: any, fields: Fields) {
             // 使用 createCollection 來獲取單筆資料
-            const collection = createCollection(name, toQuery(fields));
+            const collection = createCollectionFn(name, toQuery(fields));
 
             // 應用過濾器
             for (const [key, value] of Object.entries(filters)) {
@@ -117,7 +126,7 @@ export default (name: string, fields: Record<string, Field> = {}) => {
                 }
             });
 
-            const originalList = createList(name, f).dataPath(_dataPath);
+            const originalList = createListFn(name, f).dataPath(_dataPath);
 
             // 包裝原始的 fetch 方法
             const originalFetch = originalList.fetch.bind(originalList);

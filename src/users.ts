@@ -56,3 +56,17 @@ export default {
     delete: deleteUser,
     update: updateUser
 }
+
+export const createUsers = (mutationFn: typeof mutation, createListFn: typeof createList) => ({
+    list: (fields: QueryUserFieldsUserFields = defaultUserFields) =>
+        createListFn("Users", fields).dataPath("app.listUser").fetch(),
+    create: (fields: CreateUserFields) => mutationFn({
+        addUser: { __args: fields }
+    }).then(res => res.addUser),
+    delete: (id: Number): Promise<boolean> => mutationFn({
+        deleteUser: { __args: { id } }
+    }).then(res => res.deleteUser),
+    update: (id: number, fields: Partial<CreateUserFields>) => mutationFn({
+        updateUser: { __args: { id, data: fields } }
+    }).then(res => res.updateUser),
+})

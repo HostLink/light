@@ -32,19 +32,20 @@ export const listFolders = (index: number, path: string, fields: QueryFolderFiel
 /**
  * @deprecated Use `fs.createFolder` / `fs.deleteFolder` / `fs.renameFolder` from `filesystem` instead.
  */
-export default (index: number) => {
+export default (index: number, queryFn: typeof query = query, mutationFn: typeof mutation = mutation) => {
     return {
         list: (path: string, fields: QueryFolderFields = defaultFields) => {
-            return listFolders(index, path, fields);
+            return queryFn({ app: { drive: { __args: { index }, folders: { __args: { path }, ...fields } } } })
+                .then(resp => resp.app.drive.folders);
         },
         create: (path: string) => {
-            return mutation({ lightDriveCreateFolder: { __args: { index, path } } }).then(res => res.lightDriveCreateFolder);
+            return mutationFn({ lightDriveCreateFolder: { __args: { index, path } } }).then(res => res.lightDriveCreateFolder);
         },
         delete: (path: string) => {
-            return mutation({ lightDriveDeleteFolder: { __args: { index, path } } }).then(res => res.lightDriveDeleteFolder);
+            return mutationFn({ lightDriveDeleteFolder: { __args: { index, path } } }).then(res => res.lightDriveDeleteFolder);
         },
         rename: (path: string, name: string) => {
-            return mutation({ lightDriveRenameFolder: { __args: { index, path, name } } }).then(res => res.lightDriveRenameFolder);
+            return mutationFn({ lightDriveRenameFolder: { __args: { index, path, name } } }).then(res => res.lightDriveRenameFolder);
         }
     };
 }

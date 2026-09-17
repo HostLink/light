@@ -61,10 +61,11 @@ export const readFileAsBase64 = (index: number, path: string): Promise<string> =
  * @deprecated Use `fs.listFiles` from `filesystem` instead.
  * The default export factory function is also deprecated — use `fs.*` directly.
  */
-export default (index: number) => {
+export default (index: number, queryFn: typeof query = query, mutationFn: typeof mutation = mutation) => {
     return {
         list: (path: string, fields: QueryFileFields = defaultFields) => {
-            return listFiles(index, path, fields);
+            return queryFn({ app: { drive: { __args: { index }, files: { __args: { path }, ...fields } } } })
+                .then(resp => resp.app.drive.files);
         }, get: (path: string, fields: QueryFileFields = {
             name: true,
             path: true,
@@ -72,7 +73,7 @@ export default (index: number) => {
             mime: true,
             url: true
         }) => {
-            return query({
+            return queryFn({
                 app: {
                     drive: {
                         __args: {
@@ -90,11 +91,12 @@ export default (index: number) => {
 
         },
         readFileAsBase64(path: string): Promise<string> {
-            return readFileAsBase64(index, path);
+            return queryFn({ app: { drive: { __args: { index }, file: { __args: { path }, base64Content: true } } } })
+                .then(resp => resp.app.drive?.file?.base64Content);
         },
         read: async (path: string) => {
 
-            let resp = await query({
+            let resp = await queryFn({
                 app: {
                     drive: {
                         __args: {
@@ -125,16 +127,16 @@ export default (index: number) => {
             }
         },
         write: (path: string, content: string) => {
-            return mutation({ lightDriveWriteFile: { __args: { index, path, content } } }).then(res => res.lightDriveWriteFile);
+            return mutationFn({ lightDriveWriteFile: { __args: { index, path, content } } }).then(res => res.lightDriveWriteFile);
         },
         delete: (path: string) => {
-            return mutation({ lightDriveDeleteFile: { __args: { index, path } } }).then(res => res.lightDriveDeleteFile);
+            return mutationFn({ lightDriveDeleteFile: { __args: { index, path } } }).then(res => res.lightDriveDeleteFile);
         },
         rename: (path: string, name: string) => {
-            return mutation({ lightDriveRenameFile: { __args: { index, path, name } } }).then(res => res.lightDriveRenameFile);
+            return mutationFn({ lightDriveRenameFile: { __args: { index, path, name } } }).then(res => res.lightDriveRenameFile);
         },
         move: (source: string, destination: string) => {
-            return mutation({ lightDriveMoveFile: { __args: { index, source, destination } } }).then(res => res.lightDriveMoveFile);
+            return mutationFn({ lightDriveMoveFile: { __args: { index, source, destination } } }).then(res => res.lightDriveMoveFile);
         }
     };
 

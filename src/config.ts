@@ -1,6 +1,6 @@
 import { query } from "."
-export const getConfig = (name: string) => {
-    return query({
+export const createConfig = (queryFn: typeof query) => (name: string) => {
+    return queryFn({
         app: {
             listConfig: {
                 __args: {
@@ -17,3 +17,5 @@ export const getConfig = (name: string) => {
         }
     }).then((resp: any) => resp.app.listConfig.data[0]?.value);
 }
+
+export const getConfig = createConfig(query)

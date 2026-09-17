@@ -1,6 +1,9 @@
 import collect from 'collect.js';
 import { Collection as CollectionClass } from 'collect.js';
 import query from './query';
+import type { GraphQLQuery } from '.';
+
+type Query = (query: GraphQLQuery) => Promise<any>;
 
 // 定義操作符類型
 type Operator = '==' | '<' | '<=' | '>' | '>=' | '!==';
@@ -685,7 +688,7 @@ Collection.prototype.fetchData = async function () {
             current = current[key];
         }
 
-        const resp = await query(n);
+        const resp = await ((this as any)._queryFn || query)(n);
 
         let data = resp;
         for (const key of t) {
@@ -893,8 +896,9 @@ Collection.prototype.splice = function (index: number, limit: number) {
     return this;
 }
 
-export default (name: string, fields: Record<string, any>): Collection<any> => {
+export default (name: string, fields: Record<string, any>, queryFn: Query = query): Collection<any> => {
     const c = new Collection(fields);
+    (c as any)._queryFn = queryFn;
     c.data_path = COLLECTION_PREFIX + name;
     return c;
 }

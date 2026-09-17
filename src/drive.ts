@@ -31,8 +31,12 @@ export const listDrives = () => {
  * - uploadTempFile → fs.uploadTempFile(location, file)
  */
 export const getDrive = (index: number) => {
-    const $files = files(index);
-    const $folders = folders(index);
+    return createDrive(query, mutation)(index);
+}
+
+export const createDrive = (queryFn: typeof query, mutationFn: typeof mutation) => (index: number) => {
+    const $files = files(index, queryFn, mutationFn);
+    const $folders = folders(index, queryFn, mutationFn);
 
     return {
         folders: $folders,
@@ -51,7 +55,7 @@ export const getDrive = (index: number) => {
 
 
         uploadTempFile: (file: File) => {
-            return mutation({
+            return mutationFn({
                 lightDriveUploadTempFile: {
                     __args: { index, file },
                     name: true,

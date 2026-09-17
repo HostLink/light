@@ -55,3 +55,14 @@ export default () => {
     }
 }
 
+export const createRoles = (queryFn: typeof query, mutationFn: typeof mutation) => ({
+    list: (fields: QueryRoleFields = defaultRoleFields) => queryFn({
+        app: { roles: fields }
+    }).then(resp => resp.app.roles) as Promise<Array<RoleFields>>,
+    create: (name: string, childs: string[]): Promise<boolean> => mutationFn({
+        addRole: { __args: { data: { name, childs } } }
+    }).then(resp => resp.addRole),
+    delete: (name: string): Promise<boolean> => mutationFn({
+        deleteRole: { __args: { name } }
+    }).then(resp => resp.deleteRole),
+})

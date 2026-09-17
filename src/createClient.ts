@@ -1,37 +1,38 @@
-import { default as auth } from './auth';
-import { getDrive } from './drive';
+import { createAuth } from './auth';
+import { createDrive } from './drive';
 
 import axios from "axios";
-import { default as mutation } from './mutation';
-import { default as query } from './query';
+import { createMutation } from './mutation';
+import { createQuery } from './query';
 import { setApiClient } from '.';
-import { getConfig } from './config';
-import { default as mail } from './mail';
+import { createConfig } from './config';
+import { createMail } from './mail';
 import { getModel } from './models';
-import { default as roles } from './role';
+import { createRoles } from './role';
 import { default as createCollection } from './createCollection';
 import createList from './createList';
 
-import { default as users } from './users';
+import { createUsers } from './users';
+import createModel from './model';
 
 type ClientType = {
     post: typeof axios.post;
     baseURL: string;
     axios: ReturnType<typeof axios.create>;
-    auth: typeof auth;
-    mutation: typeof mutation;
-    query: typeof query;
-    config: typeof getConfig;
-    mail: typeof mail;
-    users: typeof users;
+    auth: ReturnType<typeof createAuth>;
+    mutation: ReturnType<typeof createMutation>;
+    query: ReturnType<typeof createQuery>;
+    config: ReturnType<typeof createConfig>;
+    mail: ReturnType<typeof createMail>;
+    users: ReturnType<typeof createUsers>;
     model: (name: string) => ReturnType<typeof getModel>;
-    roles: ReturnType<typeof roles>;
+    roles: ReturnType<typeof createRoles>;
     collect: (name: string, fields: Record<string, any>) => ReturnType<typeof createCollection> & { data_path: string };
     list: (entity: string, fields: Record<string, any>) => ReturnType<typeof createList>;
     /**
      * @deprecated Use `fs.*` from `filesystem` instead.
      */
-    drive: typeof getDrive;
+    drive: ReturnType<typeof createDrive>;
     collects: (collections: { [key: string]: any }) => Promise<{ [key: string]: any }>;
 };
 
@@ -145,33 +146,49 @@ export const createClient = (baseURL: string) => {
         });
     }
 
+    const query = createQuery(_axios);
+    const mutation = createMutation(_axios);
+    const boundList = (entity: string, fields: Record<string, any>) => createList(entity, fields, query);
+    const boundCollection = (name: string, fields: Record<string, any>) => createCollection(name, fields, query);
+    const boundModel = (name: string) => {
+        const definition = getModel(name);
+        const instance = createModel(name, definition.$fields, {
+            mutation,
+            createList: boundList,
+            createCollection: boundCollection,
+        });
+        instance.setDataPath(definition.getDataPath());
+        return instance;
+    };
+    const auth = createAuth(query, mutation);
+
     const client: ClientType = {
-        post: _axios.post,
+        post: _axios.post.bind(_axios),
         baseURL,
         axios: _axios,
         auth,
         mutation,
         query,
-        config: getConfig,
-        mail,
-        users,
+        config: createConfig(query),
+        mail: createMail(mutation),
+        users: createUsers(mutation, boundList),
         model(name: string) {
-            return getModel(name);
+            return boundModel(name);
         },
-        roles: roles(),
+        roles: createRoles(query, mutation),
         collect: (name: string, fields: Record<string, any>) => {
-            const c = createCollection(name, fields);
+            const c = boundCollection(name, fields);
             c.data_path = getModel(name).getDataPath();
             return c;
         },
         list: (entity: string, fields: Record<string, any>) => {
-            const l = createList(entity, fields);
+            const l = boundList(entity, fields);
             return l.dataPath(getModel(entity).getDataPath());
         },
         /**
          * @deprecated Use `fs.*` from `filesystem` instead.
          */
-        drive: getDrive,
+        drive: createDrive(query, mutation),
         async collects(collections: { [key: string]: any }) {
             // 1. 收集所有 payload
             const payload: any = {};
