@@ -15,10 +15,18 @@ import createList from './createList';
 import { createUsers } from './users';
 import createModel from './model';
 
+export type AccessTokenProvider = () => Promise<string>;
+
 type ClientType = {
     post: typeof axios.post;
     baseURL: string;
     axios: ReturnType<typeof axios.create>;
+    setAccessToken: (token: string | null) => void;
+    getAccessToken: () => string | null;
+    clearAccessToken: () => void;
+    setAccessTokenProvider: (provider: AccessTokenProvider | null) => void;
+    onAuthChange: (listener: () => void) => () => void;
+    useAudience: (authClient: ClientType, audience: string) => void;
     auth: ReturnType<typeof createAuth>;
     mutation: ReturnType<typeof createMutation>;
     query: ReturnType<typeof createQuery>;
@@ -41,10 +49,34 @@ export const createClient = (baseURL: string) => {
     // 檢測是否在 Node.js 環境中
     const isNodeEnvironment = typeof window === 'undefined';
     let savedCookies: string[] = [];
+    let accessToken: string | null = null;
+    let accessTokenProvider: AccessTokenProvider | null = null;
+    let tokenPromise: Promise<string> | null = null;
+    let unsubscribeAuthChange: (() => void) | null = null;
+    const authChangeListeners = new Set<() => void>();
 
     const _axios = axios.create({
         baseURL,
         withCredentials: true,
+    });
+
+    const resolveAccessToken = async (): Promise<string | null> => {
+        if (accessToken && !isTokenExpiring(accessToken)) return accessToken;
+        if (!accessTokenProvider) return accessToken;
+
+        tokenPromise ??= accessTokenProvider().then((token) => {
+            accessToken = token;
+            return token;
+        }).finally(() => {
+            tokenPromise = null;
+        });
+        return tokenPromise;
+    };
+
+    _axios.interceptors.request.use(async (config) => {
+        const token = await resolveAccessToken();
+        if (token) config.headers.Authorization = `Bearer ${token}`;
+        return config;
     });
 
     let isRefreshing = false;
@@ -65,6 +97,10 @@ export const createClient = (baseURL: string) => {
             const errors = response.data.errors;
             if (errors && errors.some((e: any) => e.extensions?.code === 'TOKEN_EXPIRED')) {
                 const originalRequest = response.config;
+                if ((originalRequest as any)._lightTokenRetried) return response;
+                (originalRequest as any)._lightTokenRetried = true;
+
+                if (accessTokenProvider) accessToken = null;
 
                 if (!isRefreshing) {
                     isRefreshing = true;
@@ -100,6 +136,7 @@ export const createClient = (baseURL: string) => {
 
     // 呼叫刷新 Mutation 的函式
     function refreshAccessToken() {
+        if (accessTokenProvider) return resolveAccessToken().then(() => undefined);
         return _axios.post('/refresh_token')
     }
 
@@ -160,12 +197,72 @@ export const createClient = (baseURL: string) => {
         instance.setDataPath(definition.getDataPath());
         return instance;
     };
-    const auth = createAuth(query, mutation);
+    const baseAuth = createAuth(query, mutation);
+    const notifyAuthChange = () => authChangeListeners.forEach((listener) => listener());
+    const afterAuthChange = <T extends (...args: any[]) => Promise<any>>(operation: T): T => (
+        async (...args: Parameters<T>) => {
+            const result = await operation(...args);
+            notifyAuthChange();
+            return result;
+        }
+    ) as T;
+    const auth: ReturnType<typeof createAuth> = {
+        ...baseAuth,
+        login: afterAuthChange(baseAuth.login),
+        logout: (async () => {
+            try {
+                return await baseAuth.logout();
+            } finally {
+                notifyAuthChange();
+            }
+        }) as typeof baseAuth.logout,
+        google: { ...baseAuth.google, login: afterAuthChange(baseAuth.google.login) },
+        facebook: { ...baseAuth.facebook, login: afterAuthChange(baseAuth.facebook.login) },
+        microsoft: { ...baseAuth.microsoft, login: afterAuthChange(baseAuth.microsoft.login) },
+        webAuthn: { ...baseAuth.webAuthn, login: afterAuthChange(baseAuth.webAuthn.login) },
+    };
 
     const client: ClientType = {
         post: _axios.post.bind(_axios),
         baseURL,
         axios: _axios,
+        setAccessToken(token: string | null) {
+            accessToken = token;
+        },
+        getAccessToken() {
+            return accessToken;
+        },
+        clearAccessToken() {
+            accessToken = null;
+        },
+        setAccessTokenProvider(provider: AccessTokenProvider | null) {
+            unsubscribeAuthChange?.();
+            unsubscribeAuthChange = null;
+            accessTokenProvider = provider;
+            accessToken = null;
+            tokenPromise = null;
+        },
+        onAuthChange(listener: () => void) {
+            authChangeListeners.add(listener);
+            return () => authChangeListeners.delete(listener);
+        },
+        useAudience(authClient: ClientType, audience: string) {
+            unsubscribeAuthChange?.();
+            accessTokenProvider = async () => {
+                const response = await authClient.mutation({
+                    createAudienceAccessToken: {
+                        __args: { audience },
+                    },
+                });
+                return response.createAudienceAccessToken;
+            };
+            accessToken = null;
+            tokenPromise = null;
+            unsubscribeAuthChange = authClient.onAuthChange(() => {
+                accessToken = null;
+                tokenPromise = null;
+            });
+        },
         auth,
         mutation,
         query,
@@ -243,3 +340,18 @@ export const createClient = (baseURL: string) => {
 }
 
 export type LightClient = ReturnType<typeof createClient>;
+
+function isTokenExpiring(token: string, leewaySeconds = 30): boolean {
+    try {
+        const payload = token.split('.')[1];
+        if (!payload) return true;
+        const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+        const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+        const decoded = JSON.parse(globalThis.atob(padded));
+        return typeof decoded.exp === 'number'
+            ? decoded.exp <= Math.floor(Date.now() / 1000) + leewaySeconds
+            : false;
+    } catch {
+        return true;
+    }
+}

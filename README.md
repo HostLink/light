@@ -44,6 +44,38 @@ const users = await api.query({
 await api.auth.logout();
 ```
 
+### Audience tokens for multiple APIs
+
+Create one client per API and connect resource clients to the Auth client:
+
+```typescript
+const auth = createClient('https://auth.example.com/graphql');
+const business = createClient('https://business.example.com/graphql');
+const infra = createClient('https://infra.example.com/graphql');
+
+business.useAudience(auth, 'business-api');
+infra.useAudience(auth, 'infra-api');
+
+await auth.auth.login('username', 'password');
+
+// Each first request lazily obtains and attaches its audience token.
+await business.query({ orders: { order_id: true } });
+await infra.query({ servers: { server_id: true } });
+```
+
+Audience tokens are cached independently and renewed shortly before expiry.
+Concurrent requests share the same token request. Login and logout through
+`auth.auth` clear cached audience tokens.
+
+Lower-level token methods are also available:
+
+```typescript
+business.setAccessToken(token);
+business.getAccessToken();
+business.clearAccessToken();
+business.setAccessTokenProvider(async () => obtainToken());
+```
+
 ## API Reference
 
 ### Creating a Client
@@ -441,7 +473,6 @@ MIT
 ## Repository
 
 [https://github.com/HostLink/light](https://github.com/HostLink/light)
-
 
 
 
