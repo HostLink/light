@@ -59,7 +59,9 @@ const register = async () => {
 return { assertion, attestation, login, register };
 }
 
-const defaultWebAuthn = createWebAuthn(query, mutation);
+// Resolve the transports when called: barrel imports can still be initializing
+// when this module is evaluated.
+const defaultWebAuthn = createWebAuthn(q => query(q), q => mutation(q));
 export const assertion = defaultWebAuthn.assertion;
 export const attestation = defaultWebAuthn.attestation;
 export const login = defaultWebAuthn.login;
